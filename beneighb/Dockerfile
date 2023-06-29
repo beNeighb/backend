@@ -1,5 +1,5 @@
 # pull official base image
-FROM FROM python:3.18-alpine
+FROM python:3.12.0b3-alpine3.18
 
 # set work directory
 WORKDIR /usr/src/beneighb
