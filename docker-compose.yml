@@ -10,3 +10,13 @@ services:
       - 8000:8000
     env_file:
       - ./.env.dev
+  db:
+    image: postgres:15.3-alpine3.18
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_USER=beneighb
+      - POSTGRES_PASSWORD=beneighb
+      - POSTGRES_DB=beneighb
+volumes:
+  postgres_data:
