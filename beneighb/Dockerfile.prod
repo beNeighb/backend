@@ -1,0 +1,73 @@
+# https://testdriven.io/blog/dockerizing-django-with-postgres-gunicorn-and-nginx/
+# For the explanation go to the article ^
+
+###########
+# BUILDER #
+###########
+
+# pull official base image
+FROM python:3.12.0b3-alpine3.18 as builder
+
+# set work directory
+WORKDIR /usr/src/beneighb
+
+# set environment variables
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
+
+# install psycopg2 dependencies
+RUN apk update \
+    && apk add postgresql-dev gcc python3-dev musl-dev
+
+# lint
+RUN pip install --upgrade pip
+RUN pip install flake8==6.0.0
+COPY . .
+RUN flake8 --ignore=E501,F401 .
+
+# install dependencies
+COPY ./requirements.txt .
+RUN pip wheel --no-cache-dir --no-deps --wheel-dir /usr/src/beneighb/wheels -r requirements.txt
+
+
+#########
+# FINAL #
+#########
+
+# pull official base image
+FROM python:3.12.0b3-alpine3.18
+
+# create directory for the beneighb user
+RUN mkdir -p /home/beneighb
+
+# create the beneighb user
+RUN addgroup -S beneighb && adduser -S beneighb -G beneighb
+
+# create the appropriate directories
+ENV HOME=/home/beneighb
+ENV BENEIGHB_HOME=/home/beneighb/web
+RUN mkdir $BENEIGHB_HOME
+WORKDIR $BENEIGHB_HOME
+
+# install dependencies
+RUN apk update && apk add libpq
+COPY --from=builder /usr/src/beneighb/wheels /wheels
+COPY --from=builder /usr/src/beneighb/requirements.txt .
+RUN pip install --no-cache /wheels/*
+
+# copy entrypoint.prod.sh
+COPY ./entrypoint.prod.sh .
+RUN sed -i 's/\r$//g'  $BENEIGHB_HOME/entrypoint.prod.sh
+RUN chmod +x  $BENEIGHB_HOME/entrypoint.prod.sh
+
+# copy project
+COPY . $BENEIGHB_HOME
+
+# chown all the files to the beneighb user
+RUN chown -R beneighb:beneighb $BENEIGHB_HOME
+
+# change to the beneighb user
+USER beneighb
+
+# run entrypoint.prod.sh
+ENTRYPOINT ["/home/beneighb/web/entrypoint.prod.sh"]
