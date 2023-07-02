@@ -48,6 +48,7 @@ ENV HOME=/home/beneighb
 ENV BENEIGHB_HOME=/home/beneighb/web
 RUN mkdir $BENEIGHB_HOME
 RUN mkdir $BENEIGHB_HOME/staticfiles
+RUN mkdir $BENEIGHB_HOME/mediafiles
 WORKDIR $BENEIGHB_HOME
 
 # install dependencies
