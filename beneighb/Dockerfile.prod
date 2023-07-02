@@ -47,6 +47,7 @@ RUN addgroup -S beneighb && adduser -S beneighb -G beneighb
 ENV HOME=/home/beneighb
 ENV BENEIGHB_HOME=/home/beneighb/web
 RUN mkdir $BENEIGHB_HOME
+RUN mkdir $BENEIGHB_HOME/staticfiles
 WORKDIR $BENEIGHB_HOME
 
 # install dependencies
