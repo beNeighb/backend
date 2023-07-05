@@ -2,6 +2,7 @@ version: '3.8'
 
 services:
   web:
+    image: ghcr.io/beneighb/backend/web:latest
     build:
       context: ./beneighb
       dockerfile: Dockerfile.prod
@@ -16,12 +17,13 @@ services:
     depends_on:
       - db
   db:
-    image: postgres:15.3-alpine3.18
+    image: ghcr.io/beneighb/backend/postgres:latest
     volumes:
       - postgres_data:/var/lib/postgresql/data/
     env_file:
       - ./.env.prod.db
   nginx:
+    image: ghcr.io/beneighb/backend/nginx:latest
     build: ./nginx
     volumes:
       - static_volume:/home/beneighb/web/staticfiles
