@@ -52,7 +52,7 @@ RUN mkdir $BENEIGHB_HOME/mediafiles
 WORKDIR $BENEIGHB_HOME
 
 # install dependencies
-RUN apk update && apk add libpq
+RUN apk update && apk add libpq-dev
 COPY --from=builder /usr/src/beneighb/wheels /wheels
 COPY --from=builder /usr/src/beneighb/requirements.txt .
 RUN pip install --no-cache /wheels/*
