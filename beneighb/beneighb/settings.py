@@ -40,7 +40,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
 
     "apps.upload",
-    # "apps.auth",
+    "apps.auth0",
 ]
 
 MIDDLEWARE = [
