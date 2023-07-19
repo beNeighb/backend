@@ -8,13 +8,12 @@ class AuthorizationTestCase(TestCase):
     def test_returns_401_without_token(self):
         # Include an appropriate `Authorization:` header on all requests.
         client = APIClient()
-        client.credentials(HTTP_AUTHORIZATION='Token sdkfjsdkfjdsjf')
+        client.credentials(HTTP_AUTHORIZATION='Token invalid token')
 
         urls = (
             '/auth/dummy/',
         )
 
         for url in urls:
-            # response = self.client.get(url)
             response = client.get(url)
             self.assertEqual(response.status_code, 401)
