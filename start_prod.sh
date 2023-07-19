@@ -1,3 +1,4 @@
+docker-compose -f docker-compose-images.prod.yml pull
 docker-compose -f docker-compose-images.prod.yml down -v
 docker-compose -f docker-compose-images.prod.yml up -d
 sleep 3
