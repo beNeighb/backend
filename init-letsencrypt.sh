@@ -5,10 +5,10 @@ if ! [ -x "$(command -v docker-compose)" ]; then
   exit 1
 fi
 
-domains=(api.beneighb.com www.api.beneighb.com)
+domains=(beneighb.com www.beneighb.com)
 rsa_key_size=4096
 data_path="./data/certbot"
-email="" # Adding a valid address is strongly recommended
+email="mhryshyn@gmail.com" # Adding a valid address is strongly recommended
 staging=0 # Set to 1 if you're testing your setup to avoid hitting request limits
 
 if [ -d "$data_path" ]; then
@@ -22,19 +22,23 @@ fi
 if [ ! -e "$data_path/conf/options-ssl-nginx.conf" ] || [ ! -e "$data_path/conf/ssl-dhparams.pem" ]; then
   echo "### Downloading recommended TLS parameters ..."
   mkdir -p "$data_path/conf"
-  curl -s https://raw.githubusercontent.com/certbot/certbot/master/certbot-nginx/certbot_nginx/_internal/tls_configs/options-ssl-nginx.conf > "$data_path/conf/options-ssl-nginx.conf"
-  curl -s https://raw.githubusercontent.com/certbot/certbot/master/certbot/certbot/ssl-dhparams.pem > "$data_path/conf/ssl-dhparams.pem"
+  sudo curl -s https://raw.githubusercontent.com/certbot/certbot/master/certbot-nginx/certbot_nginx/_internal/tls_configs/options-ssl-nginx.conf > "$data_path/conf/options-ssl-nginx.conf"
+  sudo curl -s https://raw.githubusercontent.com/certbot/certbot/master/certbot/certbot/ssl-dhparams.pem > "$data_path/conf/ssl-dhparams.pem"
   echo
 fi
 
 echo "### Creating dummy certificate for $domains ..."
-path="/etc/letsencrypt/live/$domains"
+path="./data/certbot/conf/live/$domains"
 mkdir -p "$data_path/conf/live/$domains"
-docker-compose run --rm --entrypoint "\
+# docker-compose run --rm --entrypoint "\
+#   openssl req -x509 -nodes -newkey rsa:$rsa_key_size -days 1\
+#     -keyout '$path/privkey.pem' \
+#     -out '$path/fullchain.pem' \
+#     -subj '/CN=localhost'" certbot
   openssl req -x509 -nodes -newkey rsa:$rsa_key_size -days 1\
     -keyout '$path/privkey.pem' \
     -out '$path/fullchain.pem' \
-    -subj '/CN=localhost'" certbot
+    -subj '/CN=localhost'
 echo
 
 
