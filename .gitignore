@@ -152,4 +152,4 @@ dmypy.json
 # Cython debug symbols
 cython_debug/
 
-push_imaages.sh
+push_images.sh
