@@ -26,7 +26,7 @@ services:
   nginx:
     platform: linux/amd64
     image: ghcr.io/beneighb/backend/nginx
-    restart: always
+    # restart: always
     volumes:
       - static_volume:/home/beneighb/web/staticfiles
       - media_volume:/home/beneighb/web/mediafiles
