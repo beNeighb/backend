@@ -139,7 +139,7 @@ MEDIA_ROOT = BASE_DIR / "mediafiles"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-CSRF_TRUSTED_ORIGINS = ["http://localhost", "https://localhost", "https://api.beneighb.com]
+CSRF_TRUSTED_ORIGINS = ["http://localhost", "https://localhost", "https://api.beneighb.com"]
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
