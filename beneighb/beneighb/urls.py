@@ -22,10 +22,10 @@ from django.conf.urls.static import static
 from apps.upload.views import image_upload
 
 urlpatterns = [
-    path("admin/", admin.site.urls),
+    path('admin/', admin.site.urls),
 
-    path("upload/", image_upload, name="upload"),
-    path('auth/', include("apps.auth0.urls")),
+    path('upload/', image_upload, name='upload'),
+    path('auth/', include('apps.auth0.urls')),
 ]
 
 if bool(settings.DEBUG):
