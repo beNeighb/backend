@@ -1,6 +1,8 @@
-from django.test import TestCase
 from django.contrib.auth import get_user_model
+from django.http import HttpResponse
+from django.test import TestCase
 
+from unittest.mock import patch, MagicMock
 from rest_framework import status
 from rest_framework.test import APIClient
 
@@ -94,10 +96,12 @@ class RefreshTokenTestCase(TestCase):
         User.objects.create_user(username=USERNAME, password=PASSWORD)
 
         client = APIClient()
-        response = client.post('/auth/token/', {"username": USERNAME, "password": PASSWORD})
+        response = client.post(
+            "/auth/token/", {"username": USERNAME, "password": PASSWORD}
+        )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        refresh_token = response.data['refresh']
+        refresh_token = response.data["refresh"]
         response = client.post(self.url, {"refresh": refresh_token})
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -107,11 +111,39 @@ class RefreshTokenTestCase(TestCase):
         User.objects.create_user(username=USERNAME, password=PASSWORD)
 
         client = APIClient()
-        response = client.post('/auth/token/', {"username": USERNAME, "password": PASSWORD})
+        response = client.post(
+            "/auth/token/", {"username": USERNAME, "password": PASSWORD}
+        )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        refresh_token = response.data['refresh']
+        refresh_token = response.data["refresh"]
         response = client.post(self.url, {"refresh": refresh_token})
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        self.assertNotEqual(refresh_token, response.data['refresh'])
+        self.assertNotEqual(refresh_token, response.data["refresh"])
+
+
+@patch("apps.auth0.views.PasswordResetConfirmView.post", return_value=HttpResponse())
+class BeneighbPasswordResetConfirmViewTestCase(TestCase):
+    url_template = "/auth/password-reset-confirm/{uidb64}/{token}/"
+
+    def test_view_is_called_with_uidb64_and_token(self, mocked_post):
+        NEW_PASSWORD = "New password 6 !"
+        UIDB64 = "Some uidb64"
+        TOKEN = "Some token"
+        url = self.url_template.format(uidb64=UIDB64, token=TOKEN)
+
+        client = APIClient()
+        response = client.post(
+            url, {"new_password1": NEW_PASSWORD, "new_password2": NEW_PASSWORD}
+        )
+
+        expected_args = {
+            "new_password1": [NEW_PASSWORD],
+            "new_password2": [NEW_PASSWORD],
+            "uid": [UIDB64],
+            "token": [TOKEN],
+        }
+
+        mockec_called_request_data = mocked_post.call_args[0][0].data
+        self.assertEquals(mockec_called_request_data, expected_args)

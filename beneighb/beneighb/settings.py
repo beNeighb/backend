@@ -41,6 +41,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     'rest_framework',
+    'rest_framework.authtoken',
+    'dj_rest_auth',
 
     'apps.upload',
     'apps.auth0',
@@ -143,6 +145,20 @@ CSRF_TRUSTED_ORIGINS = [
     'https://api.beneighb.com',
 ]
 
+if DEBUG:
+    DEFAULT_RENDERER_CLASSES = (
+        "rest_framework.renderers.JSONRenderer",
+        "rest_framework.renderers.BrowsableAPIRenderer",
+    )
+else:
+    DEFAULT_RENDERER_CLASSES = (
+        "rest_framework.renderers.JSONRenderer",
+    )
+
+REST_FRAMEWORK = {
+     'DEFAULT_RENDERER_CLASSES': DEFAULT_RENDERER_CLASSES,
+ }
+
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
@@ -154,3 +170,14 @@ SIMPLE_JWT = {
     'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
     'ROTATE_REFRESH_TOKENS': True,
 }
+
+REST_AUTH = {
+    'USE_JWT': True,
+}
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_USE_TLS = True
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST_USER = 'beneighb@gmail.com'
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '123')
+EMAIL_PORT = 587
