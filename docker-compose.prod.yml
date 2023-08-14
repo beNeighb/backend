@@ -7,10 +7,11 @@ services:
     build:
       context: ./beneighb
       dockerfile: Dockerfile.prod
-    command: gunicorn beneighb.wsgi:application --bind 0.0.0.0:8000
+    command: gunicorn beneighb.wsgi:application --bind 0.0.0.0:8000 --access-logfile=/home/beneighb/logs/gunicorn/logs
     volumes:
       - static_volume:/home/beneighb/web/staticfiles
       - media_volume:/home/beneighb/web/mediafiles
+      - gunicorn_logs:/home/beneighb/logs/gunicorn
     expose:
         - 8000
     env_file:
@@ -49,3 +50,4 @@ volumes:
   postgres_data:
   static_volume:
   media_volume:
+  gunicorn_logs:
