@@ -39,11 +39,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-
     'rest_framework',
     'rest_framework.authtoken',
     'dj_rest_auth',
-
     'apps.upload',
     'apps.auth0',
 ]
@@ -151,13 +149,11 @@ if DEBUG:
         "rest_framework.renderers.BrowsableAPIRenderer",
     )
 else:
-    DEFAULT_RENDERER_CLASSES = (
-        "rest_framework.renderers.JSONRenderer",
-    )
+    DEFAULT_RENDERER_CLASSES = ("rest_framework.renderers.JSONRenderer",)
 
 REST_FRAMEWORK = {
-     'DEFAULT_RENDERER_CLASSES': DEFAULT_RENDERER_CLASSES,
- }
+    'DEFAULT_RENDERER_CLASSES': DEFAULT_RENDERER_CLASSES,
+}
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
