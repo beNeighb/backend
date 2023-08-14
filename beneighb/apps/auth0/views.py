@@ -29,4 +29,3 @@ class BeneighbPasswordResetConfirmView(PasswordResetConfirmView):
         request._full_data = request_data_copy
 
         return super().post(request, *args, **kwargs)
-

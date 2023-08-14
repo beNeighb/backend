@@ -2,7 +2,7 @@ from django.contrib.auth import get_user_model
 from django.http import HttpResponse
 from django.test import TestCase
 
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 from rest_framework import status
 from rest_framework.test import APIClient
 
@@ -28,7 +28,9 @@ class AuthorizationTestCase(TestCase):
 
         for url in urls:
             response = client.get(url)
-            self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+            self.assertEqual(
+                response.status_code, status.HTTP_401_UNAUTHORIZED
+            )
 
     def test_can_authorize_with_correct_token(self):
         USERNAME = 'testuser'
@@ -60,7 +62,10 @@ class GetTokenTestCase(TestCase):
         client = APIClient()
         response = client.post(
             self.url,
-            {'username': 'non_existant_user', 'password': 'incorrect_password'},
+            {
+                'username': 'non_existant_user',
+                'password': 'incorrect_password',
+            },
         )
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
@@ -69,7 +74,8 @@ class GetTokenTestCase(TestCase):
 
         client = APIClient()
         response = client.post(
-            self.url, {'username': 'testuser', 'password': 'incorrect_password'}
+            self.url,
+            {'username': 'testuser', 'password': 'incorrect_password'},
         )
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
@@ -143,7 +149,7 @@ class BeneighbPasswordResetConfirmViewTestCase(TestCase):
         url = self.url_template.format(uidb64=UIDB64, token=TOKEN)
 
         client = APIClient()
-        response = client.post(
+        client.post(
             url, {'new_password1': NEW_PASSWORD, 'new_password2': NEW_PASSWORD}
         )
 
