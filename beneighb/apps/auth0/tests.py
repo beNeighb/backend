@@ -36,13 +36,17 @@ class AuthorizationTestCase(TestCase):
         User.objects.create_user(username=USERNAME, password=PASSWORD)
 
         client = APIClient()
-        response = client.post(self.url, {'username': USERNAME, 'password': PASSWORD})
+        response = client.post(
+            self.url, {'username': USERNAME, 'password': PASSWORD}
+        )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         access_token = response.data['access']
 
         client = APIClient()
-        AUTHORIZATION_HEADER = AUTHORIZATION_HEADER_TEMPLATE.format(token=access_token)
+        AUTHORIZATION_HEADER = AUTHORIZATION_HEADER_TEMPLATE.format(
+            token=access_token
+        )
         client.credentials(HTTP_AUTHORIZATION=AUTHORIZATION_HEADER)
 
         response = client.get(self.AUTH_DUMMY_URL)
@@ -75,7 +79,9 @@ class GetTokenTestCase(TestCase):
         User.objects.create_user(username=USERNAME, password=PASSWORD)
 
         client = APIClient()
-        response = client.post(self.url, {'username': USERNAME, 'password': PASSWORD})
+        response = client.post(
+            self.url, {'username': USERNAME, 'password': PASSWORD}
+        )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn('access', response.data)
@@ -123,7 +129,10 @@ class RefreshTokenTestCase(TestCase):
         self.assertNotEqual(refresh_token, response.data['refresh'])
 
 
-@patch('apps.auth0.views.PasswordResetConfirmView.post', return_value=HttpResponse())
+@patch(
+    'apps.auth0.views.PasswordResetConfirmView.post',
+    return_value=HttpResponse(),
+)
 class BeneighbPasswordResetConfirmViewTestCase(TestCase):
     url_template = '/auth/password-reset-confirm/{uidb64}/{token}/'
 
