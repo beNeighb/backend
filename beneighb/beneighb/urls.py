@@ -23,13 +23,9 @@ from apps.upload.views import image_upload
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-
     path('upload/', image_upload, name='upload'),
     path('auth/', include('apps.auth0.urls')),
 ]
 
 if bool(settings.DEBUG):
-    urlpatterns += static(
-        settings.MEDIA_URL,
-        document_root=settings.MEDIA_ROOT
-    )
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
