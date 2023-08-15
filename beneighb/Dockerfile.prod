@@ -49,7 +49,7 @@ ENV BENEIGHB_HOME=/home/beneighb/web
 RUN mkdir $BENEIGHB_HOME
 RUN mkdir $BENEIGHB_HOME/staticfiles
 RUN mkdir $BENEIGHB_HOME/mediafiles
-RUN mkdir -p $BENEIGHB_HOME/logs/gunicorn
+RUN mkdir $BENEIGHB_HOME/logs
 WORKDIR $BENEIGHB_HOME
 
 # install dependencies
