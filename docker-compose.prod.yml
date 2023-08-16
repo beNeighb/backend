@@ -7,7 +7,7 @@ services:
     build:
       context: ./beneighb
       dockerfile: Dockerfile.prod
-    command: gunicorn beneighb.wsgi:application --bind 0.0.0.0:8000 --access-logfile '-'
+    command: gunicorn beneighb.wsgi:application --access-logfile '-' --bind 0.0.0.0:8000
     volumes:
       - static_volume:/home/beneighb/web/staticfiles
       - media_volume:/home/beneighb/web/mediafiles
