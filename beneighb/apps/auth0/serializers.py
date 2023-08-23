@@ -6,7 +6,7 @@ class LinkPasswordResetSerializer(PasswordResetSerializer):
     def get_email_options(self):
         extra_context = {
             'email_site_name': 'Beneighb',
-            'site_protocol': settings.SITE_PROTOCOL
+            'site_protocol': settings.SITE_PROTOCOL,
         }
 
         return {
@@ -15,5 +15,5 @@ class LinkPasswordResetSerializer(PasswordResetSerializer):
             # We'll need it for sure
             # 'html_email_template_name': 'reset_password_email.html',
             'extra_email_context': extra_context,
-            'subject_template_name': 'password_reset_subject.txt'
+            'subject_template_name': 'password_reset_subject.txt',
         }
