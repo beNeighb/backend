@@ -169,7 +169,13 @@ SIMPLE_JWT = {
 
 REST_AUTH = {
     'USE_JWT': True,
+    'PASSWORD_RESET_SERIALIZER': (
+        'apps.auth0.serializers.LinkPasswordResetSerializer'
+    )
 }
+
+SITE_LINK_URL = 'link.beneighb.com'
+SITE_PROTOCOL = 'https'
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_USE_TLS = True
