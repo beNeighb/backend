@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path, include
 
 from dj_rest_auth.views import PasswordResetView
 
@@ -8,6 +8,10 @@ from rest_framework_simplejwt.views import (
 )
 
 from apps.auth0.views import DummyView, BeneighbPasswordResetConfirmView
+
+
+from dj_rest_auth.registration.views import RegisterView
+from dj_rest_auth.registration import urls
 
 
 urlpatterns = [
@@ -20,4 +24,7 @@ urlpatterns = [
         BeneighbPasswordResetConfirmView.as_view(),
         name='password_reset_confirm',
     ),
+
+    path('registration/', include('dj_rest_auth.registration.urls')),
+
 ]
