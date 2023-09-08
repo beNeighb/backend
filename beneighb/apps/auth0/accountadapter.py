@@ -1,6 +1,4 @@
 from django.conf import settings
-
-from allauth.utils import build_absolute_uri
 from allauth.account.adapter import DefaultAccountAdapter
 
 

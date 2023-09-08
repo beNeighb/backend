@@ -73,7 +73,9 @@ ACCOUNT_ADAPTER = 'apps.auth0.accountadapter.CustomAccountAdapter'
 
 # TODO: Change to be able using locally
 # An email verification URL that the client will pick up.
-CUSTOM_ACCOUNT_CONFIRM_EMAIL_URL = f'{SITE_PROTOCOL}://{SITE_LINK_URL}/confirm-email/?key={0}'
+CUSTOM_ACCOUNT_CONFIRM_EMAIL_URL = (
+    f'{SITE_PROTOCOL}://{SITE_LINK_URL}/confirm-email/?key={0}'
+)
 
 # TODO: Try later
 # ACCOUNT_AUTHENTICATION_METHOD = 'email'
