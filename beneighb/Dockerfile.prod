@@ -27,8 +27,13 @@ RUN flake8 --ignore=E501,F401 .
 
 # install dependencies
 COPY ./requirements.txt .
-RUN pip wheel --no-cache-dir --no-deps --wheel-dir /usr/src/beneighb/wheels -r requirements.txt
 
+# Whole this block to fix issue with building cffi
+RUN apk add --update --no-cache --virtual .tmp-build-deps \
+    gcc libc-dev linux-headers postgresql-dev \
+    && apk add libffi-dev
+
+RUN pip wheel --no-cache-dir --no-deps --wheel-dir /usr/src/beneighb/wheels -r requirements.txt
 
 #########
 # FINAL #
