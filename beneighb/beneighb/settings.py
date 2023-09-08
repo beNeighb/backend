@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 import os
+
 from datetime import timedelta
 from pathlib import Path
 
@@ -57,11 +58,22 @@ INSTALLED_APPS = [
 
 ]
 
-SITE_ID = 1
+SITE_LINK_URL = 'link.beneighb.com'
+SITE_PROTOCOL = 'https'
 
 # Allauth settings
+SITE_ID = 1
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
+
+# Repoint this setting to a subclass of the DefaultAccountAdapter
+# so we can override how it handles account verification to allow
+# for usage in an SPA context.
+ACCOUNT_ADAPTER = 'apps.auth0.accountadapter.CustomAccountAdapter'
+
+# TODO: Change to be able using locally
+# An email verification URL that the client will pick up.
+CUSTOM_ACCOUNT_CONFIRM_EMAIL_URL = f'{SITE_PROTOCOL}://{SITE_LINK_URL}/confirm-email/?key={0}'
 
 # TODO: Try later
 # ACCOUNT_AUTHENTICATION_METHOD = 'email'
@@ -193,9 +205,6 @@ REST_AUTH = {
         'apps.auth0.serializers.LinkPasswordResetSerializer'
     ),
 }
-
-SITE_LINK_URL = 'link.beneighb.com'
-SITE_PROTOCOL = 'https'
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_USE_TLS = True

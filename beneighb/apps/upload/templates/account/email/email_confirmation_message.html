@@ -1,2 +1,19 @@
+{% load i18n %}
+{% load account %}
 
-The template that you want 2.
+{% block head_title %}{% trans "Confirm E-mail Address" %}{% endblock %}
+
+{% block content %}
+<h1>{% trans "Confirm E-mail Address" %}</h1>
+
+{% user_display user as user_display %}
+
+<p>
+  {% blocktrans with confirmation.email_address.email as email %}
+    Please confirm that <a href="mailto:{{ email }}">{{ email }}</a> is an e-mail address for user <b>{{ user_display }}</b>.
+  {% endblocktrans %}
+</p>
+
+To confirm this is correct, go to {{ activate_url }}
+
+{% endblock %}
