@@ -9,9 +9,6 @@ from rest_framework_simplejwt.views import (
 
 from apps.auth0.views import DummyView, BeneighbPasswordResetConfirmView
 
-from dj_rest_auth.registration.views import RegisterView
-from dj_rest_auth.registration import urls
-
 
 urlpatterns = [
     path('dummy/', DummyView.as_view(), name='dummy-view'),
