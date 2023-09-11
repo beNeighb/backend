@@ -12,8 +12,11 @@ services:
       - static_volume:/home/beneighb/web/staticfiles
       - media_volume:/home/beneighb/web/mediafiles
       - gunicorn_logs:/home/beneighb/web/logs/
+    ports:
+      - 587:587
     expose:
-        - 8000
+      - 8000
+      - 587
     env_file:
       - ./.env.prod
     depends_on:
