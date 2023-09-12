@@ -12,6 +12,7 @@ services:
       - static_volume:/home/beneighb/web/staticfiles
       - media_volume:/home/beneighb/web/mediafiles
       - gunicorn_logs:/home/beneighb/web/logs/
+    # TODO: Check if needed and remove
     ports:
       - 587:587
     expose:

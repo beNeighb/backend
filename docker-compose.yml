@@ -2,21 +2,37 @@ version: '3.8'
 
 services:
   web:
-    build: ./beneighb
+    platform: linux/amd64
+    build:
+      context: ./beneighb
+      dockerfile: Dockerfile
+    # restart: always
+    # command: gunicorn beneighb.wsgi:application --bind 0.0.0.0:8000 --access-logfile '-'
     command: python manage.py runserver 0.0.0.0:8000
     volumes:
-      - ./beneighb/:/usr/src/beneighb/
+      - static_volume:/home/beneighb/web/staticfiles
+      - media_volume:/home/beneighb/web/mediafiles
     ports:
+      - 587:587
       - 8000:8000
+    expose:
+      - 8000
+      - 587
     env_file:
       - ./.env.dev
+    depends_on:
+      - db
   db:
-    image: postgres:15.3-alpine3.18
+    image: ghcr.io/beneighb/backend/postgres
+    platform: linux/amd64
+    restart: always
     volumes:
-      - postgres_data:/var/lib/postgresql/data/
-    environment:
-      - POSTGRES_USER=beneighb
-      - POSTGRES_PASSWORD=beneighb
-      - POSTGRES_DB=beneighb
+      - ./postgres_data:/var/lib/postgresql/data/
+    env_file:
+      # TODO: Create .env.dev.db
+      - ./.env.prod.db
+
 volumes:
   postgres_data:
+  static_volume:
+  media_volume:
