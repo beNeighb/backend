@@ -73,8 +73,11 @@ ACCOUNT_ADAPTER = 'apps.auth0.accountadapter.CustomAccountAdapter'
 
 # TODO: Change to be able using locally
 # An email verification URL that the client will pick up.
+# CUSTOM_ACCOUNT_CONFIRM_EMAIL_URL = (
+    # f'{SITE_PROTOCOL}://{SITE_LINK_URL}/confirm-email/?' + 'key={0}'  # noqa
+# )
 CUSTOM_ACCOUNT_CONFIRM_EMAIL_URL = (
-    f'{SITE_PROTOCOL}://{SITE_LINK_URL}/confirm-email/?' + 'key={0}'  # noqa
+    'http://link.beneighb.com/confirm-email/?key={0}'  # noqa
 )
 
 # TODO: Try later
@@ -208,10 +211,9 @@ REST_AUTH = {
     ),
 }
 
-# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_USE_TLS = True
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_HOST_USER = 'beneighb@gmail.com'
-EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '123')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
 EMAIL_PORT = 587
