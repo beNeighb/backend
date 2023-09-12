@@ -38,28 +38,26 @@ INSTALLED_APPS = [
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
+    'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-
     'rest_framework',
     'rest_framework.authtoken',
     'dj_rest_auth',
-
-    'apps.upload',
-    'apps.auth0',
-
-
     # TODO: Move accordingly
-    'django.contrib.sites',
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
     'dj_rest_auth.registration',
-
+    'apps.auth0',
+    'apps.upload',
+    'apps.users',
 ]
 
 SITE_LINK_URL = 'link.beneighb.com'
 SITE_PROTOCOL = 'https'
+
+# AUTHENTICATION SETTINGS
 
 # Allauth settings
 SITE_ID = 1
@@ -74,14 +72,25 @@ ACCOUNT_ADAPTER = 'apps.auth0.accountadapter.CustomAccountAdapter'
 # TODO: Change to be able using locally
 # An email verification URL that the client will pick up.
 # CUSTOM_ACCOUNT_CONFIRM_EMAIL_URL = (
-    # f'{SITE_PROTOCOL}://{SITE_LINK_URL}/confirm-email/?' + 'key={0}'  # noqa
+# f'{SITE_PROTOCOL}://{SITE_LINK_URL}/confirm-email/?' + 'key={0}'  # noqa
 # )
+
 CUSTOM_ACCOUNT_CONFIRM_EMAIL_URL = (
     'http://link.beneighb.com/confirm-email/?key={0}'  # noqa
 )
 
-# TODO: Try later
-# ACCOUNT_AUTHENTICATION_METHOD = 'email'
+ACCOUNT_USER_MODEL = 'apps.users.CustomUser'
+ACCOUNT_USERNAME_REQUIRED = False
+
+AUTH_USER_MODEL = 'users.CustomUser'
+AUTHENTICATION_BACKENDS = ['apps.users.backends.EmailBackend']
+
+REST_AUTH = {
+    'USE_JWT': True,
+    'PASSWORD_RESET_SERIALIZER': (
+        'apps.auth0.serializers.LinkPasswordResetSerializer'
+    ),
+}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -204,14 +213,10 @@ SIMPLE_JWT = {
     'ROTATE_REFRESH_TOKENS': True,
 }
 
-REST_AUTH = {
-    'USE_JWT': True,
-    'PASSWORD_RESET_SERIALIZER': (
-        'apps.auth0.serializers.LinkPasswordResetSerializer'
-    ),
-}
-
+# Emails settings
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+if DEBUG:
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 EMAIL_USE_TLS = True
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_HOST_USER = 'beneighb@gmail.com'
