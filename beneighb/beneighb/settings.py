@@ -215,8 +215,10 @@ SIMPLE_JWT = {
 
 # Emails settings
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-if DEBUG:
-    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+# if DEBUG :
+#     TODO: Fix later
+#     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
 EMAIL_USE_TLS = True
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_HOST_USER = 'beneighb@gmail.com'
