@@ -57,3 +57,4 @@ typing_extensions==4.7.0
 urllib3==2.0.4
 wcwidth==0.2.6
 django-extensions==3.2.3
+google-api-python-client==2.99.0
