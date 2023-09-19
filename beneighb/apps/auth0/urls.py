@@ -7,7 +7,11 @@ from rest_framework_simplejwt.views import (
     TokenRefreshView,
 )
 
-from apps.auth0.views import DummyView, BeneighbPasswordResetConfirmView
+from apps.auth0.views import (
+    DummyView,
+    BeneighbPasswordResetConfirmView,
+    GoogleLoginView,
+)
 
 
 urlpatterns = [
@@ -20,7 +24,12 @@ urlpatterns = [
         BeneighbPasswordResetConfirmView.as_view(),
         name='password_reset_confirm',
     ),
-
+    # TODO: Remove the ones we don't need
     path('registration/', include('dj_rest_auth.registration.urls')),
-
+    path(
+        "login/google/",
+        GoogleLoginView.as_view(),
+        name="google_login"
+    ),
+    # path('accounts/', include('allauth.urls')),
 ]

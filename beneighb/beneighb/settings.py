@@ -43,16 +43,20 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework.authtoken',
-    'dj_rest_auth',
-    # TODO: Move accordingly
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',
+    'dj_rest_auth',
     'dj_rest_auth.registration',
     'apps.auth0',
     'apps.upload',
     'apps.users',
 ]
+
+if DEBUG:
+    INSTALLED_APPS.append('django_extensions')
+
 
 SITE_LINK_URL = 'link.beneighb.com'
 SITE_PROTOCOL = 'https'
@@ -82,8 +86,31 @@ CUSTOM_ACCOUNT_CONFIRM_EMAIL_URL = (
 ACCOUNT_USER_MODEL = 'apps.users.CustomUser'
 ACCOUNT_USERNAME_REQUIRED = False
 
+SOCIALACCOUNT_PROVIDERS = {
+    'GoogleProviderWithId': {
+        'SCOPE': ['profile', 'email'],
+        'AUTH_PARAMS': {
+            'access_type': 'offline',
+        },
+        'APP': {
+            # TODO: Move there later
+            # 'client_id': os.environ['CLIENT_ID'],
+            # 'secret': os.environ['CLIENT_SECRET'],
+            'client_id': '14323612063-rqh6uuglc2nalcdmf7i3jliehro9il92.apps.googleusercontent.com',
+            'secret': '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',
+        },
+        'REDIRECT_URI': 'http://127.0.0.1:8000/auth/login/google/callback/',
+    },
+}
+
 AUTH_USER_MODEL = 'users.CustomUser'
-AUTHENTICATION_BACKENDS = ['apps.users.backends.EmailBackend']
+
+AUTHENTICATION_BACKENDS = [
+    'apps.users.backends.EmailBackend',
+    'allauth.account.auth_backends.AuthenticationBackend',
+]
+ACCOUNT_DEFAULT_HTTP_PROTOCOL = 'http'
+
 
 REST_AUTH = {
     'USE_JWT': True,
@@ -173,7 +200,10 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
 STATIC_URL = '/static/'
-STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATIC_ROOT = 'staticfiles/'
+STATICFILES_DIRS = [
+    BASE_DIR / 'static/'
+]
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'mediafiles'
@@ -214,13 +244,12 @@ SIMPLE_JWT = {
 }
 
 # Emails settings
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-# if DEBUG :
-#     TODO: Fix later
-#     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-
 EMAIL_USE_TLS = True
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_HOST_USER = 'beneighb@gmail.com'
 EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
 EMAIL_PORT = 587
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+if not EMAIL_HOST_USER:
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'

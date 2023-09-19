@@ -155,3 +155,4 @@ cython_debug/
 push_images.sh
 data/
 postgres_data/
+beneighb/staticfiles
