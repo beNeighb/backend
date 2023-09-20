@@ -79,6 +79,23 @@ class GetTokenTestCase(TestCase):
         )
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
+    def test_get_token_with_non_verified_user(self):
+        USERNAME = 'testuser'
+        PASSWORD = '12345'
+        user = User.objects.create_user(username=USERNAME, password=PASSWORD)
+        user.verified = False
+        user.save()
+
+        client = APIClient()
+        response = client.post(
+            self.url, {'username': USERNAME, 'password': PASSWORD}
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        __import__('ipdb').set_trace()
+        self.assertIn('access', response.data)
+        self.assertIn('refresh', response.data)
+
     def test_get_token_successfull(self):
         USERNAME = 'testuser'
         PASSWORD = '12345'
