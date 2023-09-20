@@ -66,7 +66,11 @@ SITE_PROTOCOL = 'https'
 # Allauth settings
 SITE_ID = 1
 ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_UNIQUE_EMAIL = True
 ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
+ACCOUNT_USERNAME_REQUIRED = False
+ACCOUNT_AUTHENTICATION_METHOD = 'email'
+ACCOUNT_USER_MODEL = 'apps.users.CustomUser'
 
 # Repoint this setting to a subclass of the DefaultAccountAdapter
 # so we can override how it handles account verification to allow
@@ -83,8 +87,6 @@ CUSTOM_ACCOUNT_CONFIRM_EMAIL_URL = (
     'http://link.beneighb.com/confirm-email/?key={0}'  # noqa
 )
 
-ACCOUNT_USER_MODEL = 'apps.users.CustomUser'
-ACCOUNT_USERNAME_REQUIRED = False
 
 SOCIALACCOUNT_PROVIDERS = {
     'GoogleProviderWithId': {
@@ -93,20 +95,17 @@ SOCIALACCOUNT_PROVIDERS = {
             'access_type': 'offline',
         },
         'APP': {
-            # TODO: Move there later
-            # 'client_id': os.environ['CLIENT_ID'],
-            # 'secret': os.environ['CLIENT_SECRET'],
-            'client_id': '14323612063-rqh6uuglc2nalcdmf7i3jliehro9il92.apps.googleusercontent.com',
-            'secret': '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',
+            'client_id': os.environ.get('CLIENT_ID'),
+            'secret': os.environ.get('CLIENT_SECRET'),
         },
-        'REDIRECT_URI': 'http://127.0.0.1:8000/auth/login/google/callback/',
+        'REDIRECT_URI': 'https://link.beneighb.com/auth/login/google/callback/',  # noqa
     },
 }
 
 AUTH_USER_MODEL = 'users.CustomUser'
 
 AUTHENTICATION_BACKENDS = [
-    'apps.users.backends.EmailBackend',
+    # 'apps.users.backends.EmailBackend',
     'allauth.account.auth_backends.AuthenticationBackend',
 ]
 ACCOUNT_DEFAULT_HTTP_PROTOCOL = 'http'
@@ -229,9 +228,6 @@ else:
 
 REST_FRAMEWORK = {
     'DEFAULT_RENDERER_CLASSES': DEFAULT_RENDERER_CLASSES,
-}
-
-REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     )
@@ -241,6 +237,7 @@ SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
     'ROTATE_REFRESH_TOKENS': True,
+    'TOKEN_OBTAIN_SERIALIZER': 'apps.auth0.serializers.VerifiedEmailSerializer',  # noqa
 }
 
 # Emails settings
@@ -251,5 +248,5 @@ EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
 EMAIL_PORT = 587
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-if not EMAIL_HOST_USER:
+if not EMAIL_HOST_PASSWORD:
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'

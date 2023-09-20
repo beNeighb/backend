@@ -1,13 +1,24 @@
-from django.contrib.auth import get_user_model
+from unittest.mock import patch
+
 from django.http import HttpResponse
 from django.test import TestCase
 
-from unittest.mock import patch
 from rest_framework import status
 from rest_framework.test import APIClient
+from rest_framework.exceptions import ErrorDetail
 
-User = get_user_model()
+from apps.auth0.factories import (
+    CustomUserWithVerifiedEmailFactory,
+    CustomUserWithUnVerifiedEmailFactory,
+)
+
+
 AUTHORIZATION_HEADER_TEMPLATE = 'Bearer {token}'
+
+# Default user data
+EMAIL = 'testuser@testuser.com'
+PASSWORD = '12345'
+USERNAME = 'testuser'
 
 
 class AuthorizationTestCase(TestCase):
@@ -33,13 +44,15 @@ class AuthorizationTestCase(TestCase):
             )
 
     def test_can_authorize_with_correct_token(self):
-        USERNAME = 'testuser'
-        PASSWORD = '12345'
-        User.objects.create_user(username=USERNAME, password=PASSWORD)
+        user_with_verified_email = CustomUserWithVerifiedEmailFactory(
+            username=USERNAME, email=EMAIL
+        )
+        user_with_verified_email.set_password(PASSWORD)
+        user_with_verified_email.save()
 
         client = APIClient()
         response = client.post(
-            self.url, {'username': USERNAME, 'password': PASSWORD}
+            self.url, {'username': EMAIL, 'password': PASSWORD}
         )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -58,6 +71,18 @@ class AuthorizationTestCase(TestCase):
 class GetTokenTestCase(TestCase):
     url = '/auth/token/'
 
+    @classmethod
+    def _build_verified_user_with_password(
+        cls, username=USERNAME, email=EMAIL, password=PASSWORD
+    ):
+        user_with_verified_email = CustomUserWithVerifiedEmailFactory(
+            username=USERNAME, email=EMAIL
+        )
+        user_with_verified_email.set_password(PASSWORD)
+        user_with_verified_email.save()
+
+        return user_with_verified_email
+
     def test_get_token_with_non_existing_user(self):
         client = APIClient()
         response = client.post(
@@ -70,7 +95,7 @@ class GetTokenTestCase(TestCase):
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_get_token_with_incorrect_password(self):
-        User.objects.create_user(username='testuser', password='12345')
+        self._build_verified_user_with_password()
 
         client = APIClient()
         response = client.post(
@@ -80,30 +105,33 @@ class GetTokenTestCase(TestCase):
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_get_token_with_non_verified_user(self):
-        USERNAME = 'testuser'
-        PASSWORD = '12345'
-        user = User.objects.create_user(username=USERNAME, password=PASSWORD)
-        user.verified = False
-        user.save()
+        user_withot_unverified_email = CustomUserWithUnVerifiedEmailFactory(
+            username=USERNAME, email=EMAIL
+        )
+        user_withot_unverified_email.set_password(PASSWORD)
+        user_withot_unverified_email.save()
 
         client = APIClient()
         response = client.post(
-            self.url, {'username': USERNAME, 'password': PASSWORD}
+            self.url, {'username': EMAIL, 'password': PASSWORD}
         )
 
+        expected_response = {
+            'detail': ErrorDetail(
+                string='Sorry, but you can only login with verified email',
+                code='email_not_verified',
+            )
+        }
+
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
-        __import__('ipdb').set_trace()
-        self.assertIn('access', response.data)
-        self.assertIn('refresh', response.data)
+        self.assertEqual(expected_response, response.data)
 
     def test_get_token_successfull(self):
-        USERNAME = 'testuser'
-        PASSWORD = '12345'
-        User.objects.create_user(username=USERNAME, password=PASSWORD)
+        self._build_verified_user_with_password()
 
         client = APIClient()
         response = client.post(
-            self.url, {'username': USERNAME, 'password': PASSWORD}
+            self.url, {'username': EMAIL, 'password': PASSWORD}
         )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -114,19 +142,29 @@ class GetTokenTestCase(TestCase):
 class RefreshTokenTestCase(TestCase):
     url = '/auth/token/refresh/'
 
+    @classmethod
+    def _build_verified_user_with_password(
+        cls, username=USERNAME, email=EMAIL, password=PASSWORD
+    ):
+        user_with_verified_email = CustomUserWithVerifiedEmailFactory(
+            username=USERNAME, email=EMAIL
+        )
+        user_with_verified_email.set_password(PASSWORD)
+        user_with_verified_email.save()
+
+        return user_with_verified_email
+
     def test_incorrect_refresh_token(self):
         client = APIClient()
         response = client.post(self.url, {'refresh': 'skdfjdskjf'})
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_correct_refresh_token(self):
-        USERNAME = 'testuser'
-        PASSWORD = '12345'
-        User.objects.create_user(username=USERNAME, password=PASSWORD)
+        self._build_verified_user_with_password(email=EMAIL, password=PASSWORD)
 
         client = APIClient()
         response = client.post(
-            '/auth/token/', {'username': USERNAME, 'password': PASSWORD}
+            '/auth/token/', {'username': EMAIL, 'password': PASSWORD}
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -135,13 +173,11 @@ class RefreshTokenTestCase(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_refreshes_refresh_token(self):
-        USERNAME = 'testuser'
-        PASSWORD = '12345'
-        User.objects.create_user(username=USERNAME, password=PASSWORD)
+        self._build_verified_user_with_password(email=EMAIL, password=PASSWORD)
 
         client = APIClient()
         response = client.post(
-            '/auth/token/', {'username': USERNAME, 'password': PASSWORD}
+            '/auth/token/', {'username': EMAIL, 'password': PASSWORD}
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
