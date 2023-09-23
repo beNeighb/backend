@@ -223,14 +223,14 @@ class BeneighbPasswordResetConfirmViewTestCase(TestCase):
 # )
 class ResetEmailSendsCorrectEmailTestCase(TestCase):
     url = '/auth/password-reset/'
-    TEST_USER_EMAIL = 'test@user_email.com'
+    TEST_USER_EMAIL = 'test.user@email.com'
     data = {
         'email': TEST_USER_EMAIL,
     }
 
     def test_email_with_correct_link_is_sent(self):
     # def test_email_with_correct_link_is_sent(self, mocked_post):
-        CustomUserWithVerifiedEmailFactory(
+        user = CustomUserWithVerifiedEmailFactory(
             email=self.TEST_USER_EMAIL
         )
 
@@ -239,5 +239,7 @@ class ResetEmailSendsCorrectEmailTestCase(TestCase):
 
         from django.core import mail
         email = mail.outbox[0]
-        # __import__('ipdb').set_trace()
-        pass
+
+        # TODO: Add some asserts
+        email.body
+        email.subject
