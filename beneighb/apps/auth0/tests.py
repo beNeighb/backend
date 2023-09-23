@@ -215,3 +215,29 @@ class BeneighbPasswordResetConfirmViewTestCase(TestCase):
 
         mockec_called_request_data = mocked_post.call_args[0][0].data
         self.assertEquals(mockec_called_request_data, expected_args)
+
+
+# @patch(
+#     'apps.auth0.views.PasswordResetConfirmView.post',
+#     return_value=HttpResponse(),
+# )
+class ResetEmailSendsCorrectEmailTestCase(TestCase):
+    url = '/auth/password-reset/'
+    TEST_USER_EMAIL = 'test@user_email.com'
+    data = {
+        'email': TEST_USER_EMAIL,
+    }
+
+    def test_email_with_correct_link_is_sent(self):
+    # def test_email_with_correct_link_is_sent(self, mocked_post):
+        CustomUserWithVerifiedEmailFactory(
+            email=self.TEST_USER_EMAIL
+        )
+
+        client = APIClient()
+        response = client.post(self.url, self.data)
+
+        from django.core import mail
+        email = mail.outbox[0]
+        # __import__('ipdb').set_trace()
+        pass

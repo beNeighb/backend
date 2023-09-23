@@ -133,7 +133,7 @@ ROOT_URLCONF = 'beneighb.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates'],
+        'DIRS': [os.path.join(BASE_DIR, 'auth0/templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -200,9 +200,7 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATIC_ROOT = 'staticfiles/'
-STATICFILES_DIRS = [
-    BASE_DIR / 'static/'
-]
+STATICFILES_DIRS = [BASE_DIR / 'static/']
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'mediafiles'
@@ -230,7 +228,7 @@ REST_FRAMEWORK = {
     'DEFAULT_RENDERER_CLASSES': DEFAULT_RENDERER_CLASSES,
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
-    )
+    ),
 }
 
 SIMPLE_JWT = {

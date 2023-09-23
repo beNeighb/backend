@@ -1,11 +1,26 @@
 from django.conf import settings
 from rest_framework import exceptions
-from dj_rest_auth.serializers import PasswordResetSerializer
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from allauth.account.models import EmailAddress
 
+from dj_rest_auth import serializers
+from dj_rest_auth.serializers import PasswordResetSerializer
+
+from apps.auth0.forms import CustomAllAuthPasswordResetForm
+
 
 class LinkPasswordResetSerializer(PasswordResetSerializer):
+    def validate_email(self, value):
+        # use the custom reset form
+        self.reset_form = CustomAllAuthPasswordResetForm(
+            data=self.initial_data
+        )
+        if not self.reset_form.is_valid():
+            raise serializers.ValidationError(self.reset_form.errors)
+
+        return value
+
+    # TODO: do we still need it
     def get_email_options(self):
         extra_context = {
             'email_site_name': 'Beneighb',
