@@ -225,7 +225,6 @@ class ResetEmailSendsCorrectEmailTestCase(TestCase):
     }
 
     def test_email_with_correct_link_is_sent(self):
-    # def test_email_with_correct_link_is_sent(self, mocked_post):
         user = CustomUserWithVerifiedEmailFactory(
             email=self.TEST_USER_EMAIL
         )
@@ -238,6 +237,3 @@ class ResetEmailSendsCorrectEmailTestCase(TestCase):
 
         expected_link = 'https://link.beneighb.com'
         self.assertIn(expected_link, email.body)
-
-
-# class Custom
