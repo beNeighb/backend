@@ -31,22 +31,26 @@ class CustomAllAuthPasswordResetForm(AllAuthPasswordResetForm):
         )
 
         for user in self.users:
-            temp_key = token_generator.make_token(user)
+            token = token_generator.make_token(user)
 
-            path = (
-                f'custom_password_reset_url/'
-                f'{user_pk_to_url_str(user)}/{temp_key}/'
+            import uuid
+            uid = uuid.uuid4()
+
+            # Hack: getting 'link.beneighb.com' instead of 'api...' or test
+            url = (
+                'https://link.beneighb.com/auth/password-reset-confirm/'
+                f'{user_pk_to_url_str(user)}/{token}/'
             )
-            url = build_absolute_uri(request, path)
-            # Values which are passed to password_reset_key_message.txt
+
+            # Values which are passed to custom_password_reset_key_message.html
             context = {
                 'current_site': current_site,
                 'user': user,
                 'password_reset_url': url,
                 'request': request,
-                'path': path,
             }
 
+            # TODO: Do we still need it?
             if (
                 app_settings.AUTHENTICATION_METHOD
                 != app_settings.AuthenticationMethod.EMAIL

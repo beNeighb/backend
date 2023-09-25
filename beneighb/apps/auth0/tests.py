@@ -237,3 +237,4 @@ class ResetEmailSendsCorrectEmailTestCase(TestCase):
 
         expected_link = 'https://link.beneighb.com'
         self.assertIn(expected_link, email.body)
+        self.assertIn('Password Reset E-mail', email.subject)

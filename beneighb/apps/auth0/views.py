@@ -25,7 +25,6 @@ class BeneighbPasswordResetConfirmView(PasswordResetConfirmView):
     """
 
     def post(self, request, *args, **kwargs):
-        __import__('ipdb').set_trace()
         request_data_copy = request.data.copy()
         token = kwargs.get('token')
         uid = kwargs.get('uidb64')
