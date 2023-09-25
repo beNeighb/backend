@@ -217,10 +217,6 @@ class BeneighbPasswordResetConfirmViewTestCase(TestCase):
         self.assertEquals(mockec_called_request_data, expected_args)
 
 
-# @patch(
-#     'apps.auth0.views.PasswordResetConfirmView.post',
-#     return_value=HttpResponse(),
-# )
 class ResetEmailSendsCorrectEmailTestCase(TestCase):
     url = '/auth/password-reset/'
     TEST_USER_EMAIL = 'test.user@email.com'
@@ -240,6 +236,8 @@ class ResetEmailSendsCorrectEmailTestCase(TestCase):
         from django.core import mail
         email = mail.outbox[0]
 
-        # TODO: Add some asserts
-        email.body
-        email.subject
+        expected_link = 'https://link.beneighb.com'
+        self.assertIn(expected_link, email.body)
+
+
+# class Custom
