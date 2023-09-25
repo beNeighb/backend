@@ -225,14 +225,13 @@ class ResetEmailSendsCorrectEmailTestCase(TestCase):
     }
 
     def test_email_with_correct_link_is_sent(self):
-        user = CustomUserWithVerifiedEmailFactory(
-            email=self.TEST_USER_EMAIL
-        )
+        CustomUserWithVerifiedEmailFactory(email=self.TEST_USER_EMAIL)
 
         client = APIClient()
-        response = client.post(self.url, self.data)
+        client.post(self.url, self.data)
 
         from django.core import mail
+
         email = mail.outbox[0]
 
         expected_link = 'https://link.beneighb.com'

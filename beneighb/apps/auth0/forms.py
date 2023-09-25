@@ -1,14 +1,8 @@
 from django.contrib.sites.shortcuts import get_current_site
 from dj_rest_auth.forms import AllAuthPasswordResetForm
 
-from allauth.utils import build_absolute_uri
-from allauth.account import app_settings
 from allauth.account.forms import default_token_generator
-from allauth.account.utils import (
-    filter_users_by_email,
-    user_pk_to_url_str,
-    user_username,
-)
+from allauth.account.utils import filter_users_by_email, user_pk_to_url_str
 from allauth.account.adapter import get_adapter
 
 
@@ -32,9 +26,6 @@ class CustomAllAuthPasswordResetForm(AllAuthPasswordResetForm):
 
         for user in self.users:
             token = token_generator.make_token(user)
-
-            import uuid
-            uid = uuid.uuid4()
 
             # Hack: getting 'link.beneighb.com' instead of 'api...' or test
             url = (
