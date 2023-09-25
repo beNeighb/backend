@@ -1,5 +1,7 @@
-from django.contrib.sites.shortcuts import get_current_site
 from dj_rest_auth.forms import AllAuthPasswordResetForm
+
+from django.conf import settings
+from django.contrib.sites.shortcuts import get_current_site
 
 from allauth.account.forms import default_token_generator
 from allauth.account.utils import filter_users_by_email, user_pk_to_url_str
@@ -36,6 +38,7 @@ class CustomAllAuthPasswordResetForm(AllAuthPasswordResetForm):
             # Values which are passed to custom_password_reset_key_message.html
             context = {
                 'current_site': current_site,
+                'site_name': settings.SITE_NAME,
                 'user': user,
                 'password_reset_url': url,
                 'request': request,

@@ -60,6 +60,7 @@ if DEBUG:
 
 SITE_LINK_URL = 'link.beneighb.com'
 SITE_PROTOCOL = 'https'
+SITE_NAME = 'beneighb.com'
 
 # AUTHENTICATION SETTINGS
 
