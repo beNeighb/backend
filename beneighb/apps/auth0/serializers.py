@@ -11,7 +11,7 @@ from apps.auth0.forms import CustomAllAuthPasswordResetForm
 
 class LinkPasswordResetSerializer(PasswordResetSerializer):
     def validate_email(self, value):
-        # use the custom reset form
+        # Use the custom reset form
         self.reset_form = CustomAllAuthPasswordResetForm(
             data=self.initial_data
         )

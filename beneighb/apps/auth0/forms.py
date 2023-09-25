@@ -50,12 +50,6 @@ class CustomAllAuthPasswordResetForm(AllAuthPasswordResetForm):
                 'request': request,
             }
 
-            # TODO: Do we still need it?
-            if (
-                app_settings.AUTHENTICATION_METHOD
-                != app_settings.AuthenticationMethod.EMAIL
-            ):
-                context['username'] = user_username(user)
             get_adapter(request).send_mail(
                 'account/email/password_reset_key', email, context
             )
