@@ -85,7 +85,7 @@ ACCOUNT_ADAPTER = 'apps.auth0.accountadapter.CustomAccountAdapter'
 # )
 
 CUSTOM_ACCOUNT_CONFIRM_EMAIL_URL = (
-    'http://link.beneighb.com/confirm-email/?key={0}'  # noqa
+    'https://link.beneighb.com/confirm-email/?key={0}'  # noqa
 )
 
 
@@ -109,7 +109,7 @@ AUTHENTICATION_BACKENDS = [
     # 'apps.users.backends.EmailBackend',
     'allauth.account.auth_backends.AuthenticationBackend',
 ]
-ACCOUNT_DEFAULT_HTTP_PROTOCOL = 'http'
+ACCOUNT_DEFAULT_HTTP_PROTOCOL = 'https'
 
 
 REST_AUTH = {
@@ -249,3 +249,5 @@ EMAIL_PORT = 587
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 if not EMAIL_HOST_PASSWORD:
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+DEFAULT_FROM_EMAIL = '<beneighb@gmail.com>'

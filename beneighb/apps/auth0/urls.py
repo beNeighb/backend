@@ -14,7 +14,7 @@ from apps.auth0.views import (
 )
 
 # namespace ↓ (view names need to be prefixed with 'auth0:')
-app_name = 'auth0'
+# app_name = 'auth0'
 
 urlpatterns = [
     path('dummy/', DummyView.as_view(), name='dummy-view'),

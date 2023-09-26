@@ -1,0 +1,8 @@
+{% extends "account/email/base_message.txt" %}
+{% load account %}
+{% load i18n %}
+
+
+{% block content %}{% autoescape off %}You're receiving this e-mail because you or someone else has given your e-mail address to register an account on {{ current_site.name }}.
+
+To confirm this is correct, go to {{ activate_url }}{% endautoescape %}{% endblock %}

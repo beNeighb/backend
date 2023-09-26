@@ -6,12 +6,8 @@
 {% block content %}
 <h1>{% trans "Confirm E-mail Address" %}</h1>
 
-{% user_display user as user_display %}
-
 <p>
-  {% blocktrans with confirmation.email_address.email as email %}
-    Please confirm that <a href="mailto:{{ email }}">{{ email }}</a> is an e-mail address for user <b>{{ user_display }}</b>.
-  {% endblocktrans %}
+  You're receiving this e-mail because you or someone else has given your e-mail address to register an account on {{ current_site.name }}
 </p>
 
 To confirm this is correct, go to {{ activate_url }}

@@ -1,5 +1,6 @@
 from unittest.mock import patch
 
+from django.core import mail
 from django.http import HttpResponse
 from django.test import TestCase
 
@@ -8,10 +9,9 @@ from rest_framework.test import APIClient
 from rest_framework.exceptions import ErrorDetail
 
 from apps.auth0.factories import (
-    CustomUserWithVerifiedEmailFactory,
     CustomUserWithUnVerifiedEmailFactory,
+    CustomUserWithVerifiedEmailFactory,
 )
-
 
 AUTHORIZATION_HEADER_TEMPLATE = 'Bearer {token}'
 
@@ -188,6 +188,28 @@ class RefreshTokenTestCase(TestCase):
         self.assertNotEqual(refresh_token, response.data['refresh'])
 
 
+class RegistrationTestCase(TestCase):
+    url = '/auth/registration/'
+
+    def test_correct_confirmation_email(self):
+        PASSWORD = 'testPassword123!'
+        data = {
+            'email': 'test.user@email.com',
+            'password1': PASSWORD,
+            'password2': PASSWORD,
+        }
+
+        client = APIClient()
+        response = client.post(self.url, data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        email = mail.outbox[0]
+        expected_link = 'https://link.beneighb.com'
+
+        self.assertIn(expected_link, email.body)
+        self.assertIn('Please Confirm Your E-mail Address', email.subject)
+
+
 @patch(
     'apps.auth0.views.PasswordResetConfirmView.post',
     return_value=HttpResponse(),
@@ -230,10 +252,9 @@ class ResetEmailSendsCorrectEmailTestCase(TestCase):
         client = APIClient()
         client.post(self.url, self.data)
 
-        from django.core import mail
-
         email = mail.outbox[0]
-
         expected_link = 'https://link.beneighb.com'
+
         self.assertIn(expected_link, email.body)
+        self.assertIn('Your email is your username for login', email.body)
         self.assertIn('Password Reset E-mail', email.subject)

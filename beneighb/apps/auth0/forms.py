@@ -45,7 +45,7 @@ class CustomAllAuthPasswordResetForm(AllAuthPasswordResetForm):
             }
 
             get_adapter(request).send_mail(
-                'account/email/password_reset_key', email, context
+                'account/email/custom_password_reset_key', email, context
             )
 
         return self.cleaned_data['email']
