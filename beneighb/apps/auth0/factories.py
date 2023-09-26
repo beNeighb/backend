@@ -3,7 +3,7 @@ from allauth.account.models import EmailAddress
 from factory import Faker, post_generation, Sequence
 from factory.django import DjangoModelFactory
 
-from apps.users.models import CustomUser
+from apps.users.models import User
 
 
 class EmailFactory(DjangoModelFactory):
@@ -14,17 +14,17 @@ class EmailFactory(DjangoModelFactory):
     verified = False
 
 
-class CustomUserFactory(DjangoModelFactory):
+class UserFactory(DjangoModelFactory):
     class Meta:
-        model = CustomUser
+        model = User
 
     username = Sequence(lambda n: 'test_user{}'.format(n))
     email = Faker('email')
 
 
-class CustomUserWithUnVerifiedEmailFactory(DjangoModelFactory):
+class UserWithUnVerifiedEmailFactory(DjangoModelFactory):
     class Meta:
-        model = CustomUser
+        model = User
 
     username = Sequence(lambda n: 'test_user{}'.format(n))
     email = Faker('email')
@@ -34,7 +34,7 @@ class CustomUserWithUnVerifiedEmailFactory(DjangoModelFactory):
         EmailAddress.objects.create(user=self, email=self.email, verified=False)
 
 
-class CustomUserWithVerifiedEmailFactory(CustomUserWithUnVerifiedEmailFactory):
+class UserWithVerifiedEmailFactory(UserWithUnVerifiedEmailFactory):
     @post_generation
     def create_email_address(self, created, extracted, **kwargs):
         EmailAddress.objects.create(user=self, email=self.email, verified=True)

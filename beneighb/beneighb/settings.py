@@ -71,7 +71,7 @@ ACCOUNT_UNIQUE_EMAIL = True
 ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
 ACCOUNT_USERNAME_REQUIRED = False
 ACCOUNT_AUTHENTICATION_METHOD = 'email'
-ACCOUNT_USER_MODEL = 'apps.users.CustomUser'
+ACCOUNT_USER_MODEL = 'apps.users.User'
 
 # Repoint this setting to a subclass of the DefaultAccountAdapter
 # so we can override how it handles account verification to allow
@@ -103,7 +103,7 @@ SOCIALACCOUNT_PROVIDERS = {
     },
 }
 
-AUTH_USER_MODEL = 'users.CustomUser'
+AUTH_USER_MODEL = 'users.User'
 
 AUTHENTICATION_BACKENDS = [
     # 'apps.users.backends.EmailBackend',

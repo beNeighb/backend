@@ -9,8 +9,8 @@ from rest_framework.test import APIClient
 from rest_framework.exceptions import ErrorDetail
 
 from apps.auth0.factories import (
-    CustomUserWithUnVerifiedEmailFactory,
-    CustomUserWithVerifiedEmailFactory,
+    UserWithUnVerifiedEmailFactory,
+    UserWithVerifiedEmailFactory,
 )
 
 AUTHORIZATION_HEADER_TEMPLATE = 'Bearer {token}'
@@ -44,7 +44,7 @@ class AuthorizationTestCase(TestCase):
             )
 
     def test_can_authorize_with_correct_token(self):
-        user_with_verified_email = CustomUserWithVerifiedEmailFactory(
+        user_with_verified_email = UserWithVerifiedEmailFactory(
             username=USERNAME, email=EMAIL
         )
         user_with_verified_email.set_password(PASSWORD)
@@ -75,7 +75,7 @@ class GetTokenTestCase(TestCase):
     def _build_verified_user_with_password(
         cls, username=USERNAME, email=EMAIL, password=PASSWORD
     ):
-        user_with_verified_email = CustomUserWithVerifiedEmailFactory(
+        user_with_verified_email = UserWithVerifiedEmailFactory(
             username=USERNAME, email=EMAIL
         )
         user_with_verified_email.set_password(PASSWORD)
@@ -105,7 +105,7 @@ class GetTokenTestCase(TestCase):
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_get_token_with_non_verified_user(self):
-        user_withot_unverified_email = CustomUserWithUnVerifiedEmailFactory(
+        user_withot_unverified_email = UserWithUnVerifiedEmailFactory(
             username=USERNAME, email=EMAIL
         )
         user_withot_unverified_email.set_password(PASSWORD)
@@ -146,7 +146,7 @@ class RefreshTokenTestCase(TestCase):
     def _build_verified_user_with_password(
         cls, username=USERNAME, email=EMAIL, password=PASSWORD
     ):
-        user_with_verified_email = CustomUserWithVerifiedEmailFactory(
+        user_with_verified_email = UserWithVerifiedEmailFactory(
             username=USERNAME, email=EMAIL
         )
         user_with_verified_email.set_password(PASSWORD)
@@ -247,7 +247,7 @@ class ResetEmailSendsCorrectEmailTestCase(TestCase):
     }
 
     def test_email_with_correct_link_is_sent(self):
-        CustomUserWithVerifiedEmailFactory(email=self.TEST_USER_EMAIL)
+        UserWithVerifiedEmailFactory(email=self.TEST_USER_EMAIL)
 
         client = APIClient()
         client.post(self.url, self.data)
