@@ -3,17 +3,37 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.models import AbstractUser
+from django.contrib.postgres.fields import ArrayField
+
+
+class Genders(models.TextChoices):
+    MALE = 'male', _('Male')
+    FEMALE = 'female', _('Female')
+    OTHER = 'other', _('Other')
+
+
+class LanguageChoices(models.TextChoices):
+    ESPERANTO = 'eo', 'Esperanto'
+    UKRAINIAN = 'uk', 'Ukrainian'
+    ENGLISH = 'en', 'English'
+    ARABIC = 'ar', 'Arabic'
+    FRENCH = 'fr', 'French'
+    SPANISH = 'es', 'Spanish'
+    GERMAN = 'de', 'German'
+    ITALIAN = 'it', 'Italian'
+    CHINESE = 'zh', 'Chinese'
+    JAPANESE = 'ja', 'Japanese'
+    KOREAN = 'ko', 'Korean'
+    PORTUGUESE = 'pt', 'Portuguese'
+    TURKISH = 'tr', 'Turkish'
+    POLISH = 'pl', 'Polish'
+    RUSSIAN = 'ru', 'Russian'
 
 
 class Profile(models.Model):
     """
     This model is used for non-auth/login related fields.
     """
-
-    class Genders(models.TextChoices):
-        MALE = 'male', _('Male')
-        FEMALE = 'female', _('Female')
-        OTHER = 'other', _('Other')
 
     name = models.CharField(
         max_length=150,
@@ -26,7 +46,13 @@ class Profile(models.Model):
         choices=Genders.choices,
         blank=False,
     )
-    # speaking_languages = models.ManyToOneRel()
+    speaking_languages = ArrayField(
+        models.CharField(
+            choices=LanguageChoices.choices,
+            max_length=2,
+            blank=False,
+        )
+    )
 
 
 class User(AbstractUser):

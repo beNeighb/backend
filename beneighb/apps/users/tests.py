@@ -22,35 +22,20 @@ from apps.users.factories import (
 class CreateProfileTestCase(TestCase):
     url_template = '/users/{0}/create-profile/'
 
-    def test_create_profile_non_existing_user(self):
-        self.assertEqual(User.objects.count(), 0)
-
-        data = {
-            'name': 'Name',
-            'age_above_18': True,
-            'agreed_with_conditions': True,
-            'gender': 'female',
-        }
-
-        url = self.url_template.format(1)
-
-        client = APIClient()
-        response = client.post(url, data)
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
-
     def test_create_profile_successful(self):
-        data = {
+        correct_data = {
             'name': 'Name',
             'age_above_18': True,
             'agreed_with_conditions': True,
             'gender': 'female',
+            'speaking_languages': ['eo', 'uk'],
         }
 
         user = UserWithVerifiedEmailFactory()
         url = self.url_template.format(user.id)
 
         client = APIClient()
-        response = client.post(url, data)
+        response = client.post(url, correct_data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
         self.assertEqual(User.objects.count(), 1)
@@ -63,13 +48,27 @@ class CreateProfileTestCase(TestCase):
         self.assertEqual(profile.age_above_18, True)
         self.assertEqual(profile.agreed_with_conditions, True)
         self.assertEqual(profile.gender, 'female')
+        self.assertEqual(profile.speaking_languages, ['eo', 'uk'])
 
-    def test_create_profile_without_name(self):
-        data = {
+    def test_create_profile_non_existing_user(self):
+        self.assertEqual(User.objects.count(), 0)
+
+        correct_data = {
+            'name': 'Name',
             'age_above_18': True,
             'agreed_with_conditions': True,
             'gender': 'female',
+            'speaking_languages': ['eo', 'uk'],
         }
+
+        url = self.url_template.format(1)
+
+        client = APIClient()
+        response = client.post(url, correct_data)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_create_profile_without_any_data(self):
+        data = {}
 
         user = UserWithVerifiedEmailFactory()
         url = self.url_template.format(user.id)
@@ -85,82 +84,27 @@ class CreateProfileTestCase(TestCase):
                     ErrorDetail(
                         string='This field is required.', code='required'
                     )
-                ]
-            },
-        )
-
-    def test_create_profile_without_age_above_18(self):
-        data = {
-            'name': 'Name',
-            'agreed_with_conditions': True,
-            'gender': 'female',
-        }
-
-        user = UserWithVerifiedEmailFactory()
-        url = self.url_template.format(user.id)
-
-        client = APIClient()
-        response = client.post(url, data)
-
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(
-            response.data,
-            {
+                ],
                 'age_above_18': [
                     ErrorDetail(
                         string='This field is required.', code='required'
                     )
-                ]
-            },
-        )
-
-    def test_create_profile_without_agreed_with_conditions(self):
-        data = {
-            'name': 'Name',
-            'age_above_18': True,
-            'gender': 'female',
-        }
-
-        user = UserWithVerifiedEmailFactory()
-        url = self.url_template.format(user.id)
-
-        client = APIClient()
-        response = client.post(url, data)
-
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(
-            response.data,
-            {
+                ],
                 'agreed_with_conditions': [
                     ErrorDetail(
                         string='This field is required.', code='required'
                     )
-                ]
-            },
-        )
-
-    def test_create_profile_without_gender(self):
-        data = {
-            'name': 'Name',
-            'age_above_18': True,
-            'agreed_with_conditions': True,
-        }
-
-        user = UserWithVerifiedEmailFactory()
-        url = self.url_template.format(user.id)
-
-        client = APIClient()
-        response = client.post(url, data)
-
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(
-            response.data,
-            {
+                ],
                 'gender': [
                     ErrorDetail(
                         string='This field is required.', code='required'
                     )
-                ]
+                ],
+                'speaking_languages': [
+                    ErrorDetail(
+                        string='This field is required.', code='required'
+                    )
+                ],
             },
         )
 
@@ -170,6 +114,7 @@ class CreateProfileTestCase(TestCase):
             'age_above_18': True,
             'agreed_with_conditions': True,
             'gender': 'female2',
+            'speaking_languages': ['eo', 'uk'],
         }
 
         user = UserWithVerifiedEmailFactory()
@@ -184,8 +129,39 @@ class CreateProfileTestCase(TestCase):
             {
                 'gender': [
                     ErrorDetail(
-                        string='"female2" is not a valid choice.', code='invalid_choice'
+                        string='"female2" is not a valid choice.',
+                        code='invalid_choice',
                     )
                 ]
+            },
+        )
+
+    def test_create_profile_with_incorrect_speaking_language(self):
+        data = {
+            'name': 'Name',
+            'age_above_18': True,
+            'agreed_with_conditions': True,
+            'gender': 'female',
+            'speaking_languages': ['eo2', 'uk'],
+        }
+
+        user = UserWithVerifiedEmailFactory()
+        url = self.url_template.format(user.id)
+
+        client = APIClient()
+        response = client.post(url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(
+            response.data,
+            {
+                'speaking_languages': {
+                    0: [
+                        ErrorDetail(
+                            string='"eo2" is not a valid choice.',
+                            code='invalid_choice',
+                        )
+                    ]
+                }
             },
         )

@@ -6,6 +6,7 @@ class RequirableBooleanField(serializers.BooleanField):
     """
     Making BooleanField respect required=True.
     """
+
     default_empty_html = serializers.empty
 
 
@@ -15,4 +16,10 @@ class ProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Profile
-        fields = ['name', 'age_above_18', 'agreed_with_conditions', 'gender']
+        fields = [
+            'name',
+            'age_above_18',
+            'agreed_with_conditions',
+            'gender',
+            'speaking_languages',
+        ]
