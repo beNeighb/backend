@@ -8,16 +8,17 @@ from rest_framework import status
 from rest_framework.test import APIClient
 from rest_framework.exceptions import ErrorDetail
 
-from apps.auth0.factories import (
+from apps.users.factories import (
     UserWithUnVerifiedEmailFactory,
     UserWithVerifiedEmailFactory,
 )
+from apps.users.models import User, Profile
 
 AUTHORIZATION_HEADER_TEMPLATE = 'Bearer {token}'
 
 # Default user data
 EMAIL = 'testuser@testuser.com'
-PASSWORD = '12345'
+PASSWORD = 'Abc12345_'
 USERNAME = 'testuser'
 
 
@@ -191,8 +192,24 @@ class RefreshTokenTestCase(TestCase):
 class RegistrationTestCase(TestCase):
     url = '/auth/registration/'
 
+    def test_user_profile_is_not_created(self):
+        data = {
+            'email': 'test.user@email.com',
+            'password1': PASSWORD,
+            'password2': PASSWORD,
+        }
+
+        client = APIClient()
+        response = client.post(self.url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        self.assertEqual(User.objects.count(), 1)
+        self.assertEqual(Profile.objects.count(), 0)
+        user = User.objects.get()
+        self.assertEqual(user.profile, None)
+
     def test_correct_confirmation_email(self):
-        PASSWORD = 'testPassword123!'
         data = {
             'email': 'test.user@email.com',
             'password1': PASSWORD,

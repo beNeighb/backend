@@ -25,6 +25,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('upload/', image_upload, name='upload'),
     path('auth/', include('apps.auth0.urls')),
+    path('users/', include('apps.users.urls')),
 ]
 
 if bool(settings.DEBUG):
