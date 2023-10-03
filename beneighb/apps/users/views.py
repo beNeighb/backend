@@ -14,6 +14,12 @@ class ProfileCreateView(generics.CreateAPIView):
         user_id = self.kwargs.get('user_id')
         user = get_object_or_404(User, id=user_id)
 
+        if user.profile:
+            # TODO: Change after discussing with Andrii
+            from django.core.exceptions import PermissionDenied
+
+            raise PermissionDenied('Profile for this user already exists')
+
         profile = serializer.save()
         profile.user = user
 

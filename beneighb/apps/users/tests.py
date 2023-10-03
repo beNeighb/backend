@@ -11,31 +11,23 @@ from apps.users.factories import (
 )
 
 
-# data = {
-#     'name': 'Name',
-#     'ageAbove18': True,
-#     'agreedWithConditions': True,
-#     'gender': 'female',
-# }
-
-
 class CreateProfileTestCase(TestCase):
     url_template = '/users/{0}/create-profile/'
 
-    def test_create_profile_successful(self):
-        correct_data = {
-            'name': 'Name',
-            'age_above_18': True,
-            'agreed_with_conditions': True,
-            'gender': 'female',
-            'speaking_languages': ['eo', 'uk'],
-        }
+    correct_data = {
+        'name': 'Name',
+        'age_above_18': True,
+        'agreed_with_conditions': True,
+        'gender': 'female',
+        'speaking_languages': ['eo', 'uk'],
+    }
 
+    def test_create_profile_successful(self):
         user = UserWithVerifiedEmailFactory()
         url = self.url_template.format(user.id)
 
         client = APIClient()
-        response = client.post(url, correct_data)
+        response = client.post(url, self.correct_data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
         self.assertEqual(User.objects.count(), 1)
@@ -49,6 +41,27 @@ class CreateProfileTestCase(TestCase):
         self.assertEqual(profile.agreed_with_conditions, True)
         self.assertEqual(profile.gender, 'female')
         self.assertEqual(profile.speaking_languages, ['eo', 'uk'])
+
+    def test_create_profile_for_user_with_profile(self):
+        user = UserWithVerifiedEmailFactory()
+        url = self.url_template.format(user.id)
+
+        client = APIClient()
+
+        # Create profile first time
+        response = client.post(url, self.correct_data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        self.assertEqual(User.objects.count(), 1)
+
+        user = User.objects.get()
+        profile = user.profile
+        self.assertEqual(type(profile), Profile)
+        self.assertEqual(profile.name, 'Name')
+
+        # Trying to create profile second time
+        response = client.post(url, self.correct_data)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_create_profile_non_existing_user(self):
         self.assertEqual(User.objects.count(), 0)
