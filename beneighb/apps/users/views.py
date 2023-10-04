@@ -1,24 +1,30 @@
-from rest_framework import generics
 from django.shortcuts import get_object_or_404
+from rest_framework.permissions import IsAuthenticated
 
+from rest_framework import generics, status
+from rest_framework.exceptions import APIException
 
 from apps.users.models import Profile, User
 from apps.users.serializers import ProfileSerializer
 
 
+# TODO: Move to exceptions.py when we have more
+class UserProfileExistException(APIException):
+    status_code = status.HTTP_409_CONFLICT
+
+
 class ProfileCreateView(generics.CreateAPIView):
-    serializer_class = ProfileSerializer
     queryset = Profile.objects.all()
+    permission_classes = (IsAuthenticated,)
+    serializer_class = ProfileSerializer
 
     def perform_create(self, serializer):
-        user_id = self.kwargs.get('user_id')
-        user = get_object_or_404(User, id=user_id)
+        user = self.request.user
 
         if user.profile:
-            # TODO: Change after discussing with Andrii
-            from django.core.exceptions import PermissionDenied
-
-            raise PermissionDenied('Profile for this user already exists')
+            raise UserProfileExistException(
+                'Profile for this user already exists'
+            )
 
         profile = serializer.save()
         profile.user = user

@@ -6,13 +6,16 @@ from rest_framework.exceptions import ErrorDetail
 
 from apps.users.models import Profile, User
 from apps.users.factories import (
-    UserWithUnVerifiedEmailFactory,
     UserWithVerifiedEmailFactory,
 )
 
 
+AUTHORIZATION_HEADER_TEMPLATE = 'Bearer {token}'
+
+
 class CreateProfileTestCase(TestCase):
     url_template = '/users/{0}/create-profile/'
+    AUTH_DUMMY_URL = '/auth/dummy/'
 
     correct_data = {
         'name': 'Name',
@@ -22,11 +25,33 @@ class CreateProfileTestCase(TestCase):
         'speaking_languages': ['eo', 'uk'],
     }
 
+    def _update_client_with_correct_token(self, user, client):
+        from rest_framework_simplejwt.tokens import RefreshToken
+        refresh_token = RefreshToken.for_user(user)
+
+        AUTHORIZATION_HEADER = AUTHORIZATION_HEADER_TEMPLATE.format(
+            token=refresh_token.access_token
+        )
+        client.credentials(HTTP_AUTHORIZATION=AUTHORIZATION_HEADER)
+
+    def test_returns_401_without_token(self):
+        user = UserWithVerifiedEmailFactory()
+        url = self.url_template.format(user.id)
+
+        client = APIClient()
+
+        response = client.post(url, self.correct_data)
+        self.assertEqual(
+            response.status_code, status.HTTP_401_UNAUTHORIZED
+        )
+
     def test_create_profile_successful(self):
         user = UserWithVerifiedEmailFactory()
         url = self.url_template.format(user.id)
 
         client = APIClient()
+        self._update_client_with_correct_token(user, client)
+
         response = client.post(url, self.correct_data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
@@ -47,6 +72,7 @@ class CreateProfileTestCase(TestCase):
         url = self.url_template.format(user.id)
 
         client = APIClient()
+        self._update_client_with_correct_token(user, client)
 
         # Create profile first time
         response = client.post(url, self.correct_data)
@@ -61,24 +87,7 @@ class CreateProfileTestCase(TestCase):
 
         # Trying to create profile second time
         response = client.post(url, self.correct_data)
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-
-    def test_create_profile_non_existing_user(self):
-        self.assertEqual(User.objects.count(), 0)
-
-        correct_data = {
-            'name': 'Name',
-            'age_above_18': True,
-            'agreed_with_conditions': True,
-            'gender': 'female',
-            'speaking_languages': ['eo', 'uk'],
-        }
-
-        url = self.url_template.format(1)
-
-        client = APIClient()
-        response = client.post(url, correct_data)
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
 
     def test_create_profile_without_any_data(self):
         data = {}
@@ -87,6 +96,8 @@ class CreateProfileTestCase(TestCase):
         url = self.url_template.format(user.id)
 
         client = APIClient()
+        self._update_client_with_correct_token(user, client)
+
         response = client.post(url, data)
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -134,6 +145,8 @@ class CreateProfileTestCase(TestCase):
         url = self.url_template.format(user.id)
 
         client = APIClient()
+        self._update_client_with_correct_token(user, client)
+
         response = client.post(url, data)
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -162,6 +175,8 @@ class CreateProfileTestCase(TestCase):
         url = self.url_template.format(user.id)
 
         client = APIClient()
+        self._update_client_with_correct_token(user, client)
+
         response = client.post(url, data)
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
