@@ -1,20 +1,18 @@
 from django.test import TestCase
+from rest_framework_simplejwt.tokens import RefreshToken
 
 from rest_framework import status
 from rest_framework.test import APIClient
 from rest_framework.exceptions import ErrorDetail
 
 from apps.users.models import Profile, User
-from apps.users.factories import (
-    UserWithVerifiedEmailFactory,
-)
-
+from apps.users.factories import UserWithVerifiedEmailFactory
 
 AUTHORIZATION_HEADER_TEMPLATE = 'Bearer {token}'
 
 
 class CreateProfileTestCase(TestCase):
-    url_template = '/users/{0}/create-profile/'
+    url = '/users/create-profile/'
     AUTH_DUMMY_URL = '/auth/dummy/'
 
     correct_data = {
@@ -26,7 +24,6 @@ class CreateProfileTestCase(TestCase):
     }
 
     def _update_client_with_correct_token(self, user, client):
-        from rest_framework_simplejwt.tokens import RefreshToken
         refresh_token = RefreshToken.for_user(user)
 
         AUTHORIZATION_HEADER = AUTHORIZATION_HEADER_TEMPLATE.format(
@@ -36,23 +33,19 @@ class CreateProfileTestCase(TestCase):
 
     def test_returns_401_without_token(self):
         user = UserWithVerifiedEmailFactory()
-        url = self.url_template.format(user.id)
 
         client = APIClient()
 
-        response = client.post(url, self.correct_data)
-        self.assertEqual(
-            response.status_code, status.HTTP_401_UNAUTHORIZED
-        )
+        response = client.post(self.url, self.correct_data)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_create_profile_successful(self):
         user = UserWithVerifiedEmailFactory()
-        url = self.url_template.format(user.id)
 
         client = APIClient()
         self._update_client_with_correct_token(user, client)
 
-        response = client.post(url, self.correct_data)
+        response = client.post(self.url, self.correct_data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
         self.assertEqual(User.objects.count(), 1)
@@ -69,13 +62,12 @@ class CreateProfileTestCase(TestCase):
 
     def test_create_profile_for_user_with_profile(self):
         user = UserWithVerifiedEmailFactory()
-        url = self.url_template.format(user.id)
 
         client = APIClient()
         self._update_client_with_correct_token(user, client)
 
         # Create profile first time
-        response = client.post(url, self.correct_data)
+        response = client.post(self.url, self.correct_data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
         self.assertEqual(User.objects.count(), 1)
@@ -86,19 +78,18 @@ class CreateProfileTestCase(TestCase):
         self.assertEqual(profile.name, 'Name')
 
         # Trying to create profile second time
-        response = client.post(url, self.correct_data)
+        response = client.post(self.url, self.correct_data)
         self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
 
     def test_create_profile_without_any_data(self):
         data = {}
 
         user = UserWithVerifiedEmailFactory()
-        url = self.url_template.format(user.id)
 
         client = APIClient()
         self._update_client_with_correct_token(user, client)
 
-        response = client.post(url, data)
+        response = client.post(self.url, data)
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(
@@ -142,12 +133,11 @@ class CreateProfileTestCase(TestCase):
         }
 
         user = UserWithVerifiedEmailFactory()
-        url = self.url_template.format(user.id)
 
         client = APIClient()
         self._update_client_with_correct_token(user, client)
 
-        response = client.post(url, data)
+        response = client.post(self.url, data)
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(
@@ -172,12 +162,11 @@ class CreateProfileTestCase(TestCase):
         }
 
         user = UserWithVerifiedEmailFactory()
-        url = self.url_template.format(user.id)
 
         client = APIClient()
         self._update_client_with_correct_token(user, client)
 
-        response = client.post(url, data)
+        response = client.post(self.url, data)
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(
