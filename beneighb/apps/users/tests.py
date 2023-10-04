@@ -32,8 +32,6 @@ class CreateProfileTestCase(TestCase):
         client.credentials(HTTP_AUTHORIZATION=AUTHORIZATION_HEADER)
 
     def test_returns_401_without_token(self):
-        user = UserWithVerifiedEmailFactory()
-
         client = APIClient()
 
         response = client.post(self.url, self.correct_data)
