@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'apps.auth0',
     'apps.upload',
     'apps.users',
+    'apps.marketplace',
 ]
 
 if DEBUG:
