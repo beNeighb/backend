@@ -23,5 +23,8 @@ class SubCategory(models.Model):
     description = models.TextField(null=True, blank=True)
     parent = models.ForeignKey('Category', on_delete=models.CASCADE)
 
+    def __str__(self):
+        return self.name
+
     class Meta:
         verbose_name_plural = "Subcategories"
