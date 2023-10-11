@@ -7,6 +7,7 @@ admin.site.register(
     Category,
     list_display=[
         'name',
+        'id',
         'description',
     ],
 )
@@ -14,8 +15,9 @@ admin.site.register(
 admin.site.register(
     SubCategory,
     list_display=[
-        'parent',
         'name',
+        'id',
         'description',
+        'parent',
     ],
 )
