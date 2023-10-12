@@ -1,3 +1,4 @@
+from copy import deepcopy
 from django.test import TestCase
 from rest_framework_simplejwt.tokens import RefreshToken
 
@@ -5,10 +6,11 @@ from rest_framework import status
 from rest_framework.test import APIClient
 from rest_framework.exceptions import ErrorDetail
 
+
 from apps.users.models import Profile, User
 from apps.users.factories import (
-    UserWithVerifiedEmailFactory,
     UserWithProfileFactory,
+    UserWithVerifiedEmailFactory,
 )
 
 AUTHORIZATION_HEADER_TEMPLATE = 'Bearer {token}'
@@ -24,6 +26,51 @@ class CreateProfileTestCase(TestCase):
         'gender': 'female',
         'speaking_languages': ['eo', 'uk'],
     }
+
+    list_of_all_languages = [
+        'af',
+        'ar',
+        'hy',
+        'bn',
+        'bg',
+        'zh',
+        'hr',
+        'cs',
+        'da',
+        'nl',
+        'en',
+        'et',
+        'fa',
+        'fi',
+        'fr',
+        'ka',
+        'de',
+        'el',
+        'hi',
+        'hu',
+        'id',
+        'it',
+        'ja',
+        'kk',
+        'ko',
+        'ku',
+        'mk',
+        'no',
+        'pl',
+        'pt',
+        'ro',
+        'ru',
+        'sk',
+        'sl',
+        'es',
+        'sv',
+        'th',
+        'tr',
+        'uk',
+        'ur',
+        'uz',
+        'vi',
+    ]
 
     def _update_client_with_correct_token(self, user, client):
         refresh_token = RefreshToken.for_user(user)
@@ -59,6 +106,29 @@ class CreateProfileTestCase(TestCase):
         self.assertEqual(profile.agreed_with_conditions, True)
         self.assertEqual(profile.gender, 'female')
         self.assertEqual(profile.speaking_languages, ['eo', 'uk'])
+
+    def test_create_profile_successful_with_all_languages(self):
+        user = UserWithVerifiedEmailFactory()
+
+        client = APIClient()
+        self._update_client_with_correct_token(user, client)
+
+        correct_data_with_all_languages = deepcopy(self.correct_data)
+        correct_data_with_all_languages[
+            'speaking_languages'
+        ] = self.list_of_all_languages
+
+        response = client.post(self.url, correct_data_with_all_languages)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        self.assertEqual(User.objects.count(), 1)
+
+        user = User.objects.get()
+        profile = user.profile
+
+        self.assertEqual(
+            profile.speaking_languages, self.list_of_all_languages
+        )
 
     def test_create_profile_for_user_with_profile(self):
         user = UserWithVerifiedEmailFactory()
