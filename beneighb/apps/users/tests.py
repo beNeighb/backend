@@ -7,6 +7,7 @@ from rest_framework.test import APIClient
 from rest_framework.exceptions import ErrorDetail
 
 from apps.marketplace.factories import SubcategoryFactory
+from apps.marketplace.models import Subcategory
 
 from apps.users.models import Profile, User
 from apps.users.factories import (
@@ -26,6 +27,7 @@ class CreateProfileTestCase(TestCase):
         'agreed_with_conditions': True,
         'gender': 'female',
         'speaking_languages': ['eo', 'uk'],
+        'subcategories': [],
     }
 
     list_of_all_languages = [
@@ -72,11 +74,6 @@ class CreateProfileTestCase(TestCase):
         'uz',
         'vi',
     ]
-
-    @classmethod
-    def setUpTestData(cls):
-        cls.subcategory = SubcategoryFactory()
-        cls.correct_data['subcategories'] = [cls.subcategory.id]
 
     def _update_client_with_correct_token(self, user, client):
         refresh_token = RefreshToken.for_user(user)
@@ -196,11 +193,6 @@ class CreateProfileTestCase(TestCase):
                         string='This field is required.', code='required'
                     )
                 ],
-                'subcategories': [
-                    ErrorDetail(
-                        string='This list may not be empty.', code='empty'
-                    )
-                ],
             },
         )
 
@@ -254,13 +246,48 @@ class CreateProfileTestCase(TestCase):
             },
         )
 
-    def test_create_profile_without_categories(self):
+    def test_create_profile_with_subcategories(self):
+        subcategory_1 = SubcategoryFactory()
+        subcategory_2 = SubcategoryFactory()
+
         data = {
             'name': 'Name',
             'age_above_18': True,
             'agreed_with_conditions': True,
             'gender': 'female',
             'speaking_languages': ['eo', 'uk'],
+            'subcategories': [subcategory_1.id, subcategory_2.id],
+        }
+
+        user = UserWithVerifiedEmailFactory()
+
+        client = APIClient()
+        self._update_client_with_correct_token(user, client)
+
+        response = client.post(self.url, data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        profile = User.objects.get().profile
+
+        self.assertEqual(
+            set(profile.subcategories.values_list('id', flat=True)),
+            set(data['subcategories']),
+        )
+
+    def test_create_profile_with_non_existing_subcategory(self):
+        non_existing_subcategory_id = 100
+        self.assertEqual(
+            Subcategory.objects.filter(id=non_existing_subcategory_id).count(),
+            0,
+        )
+
+        data = {
+            'name': 'Name',
+            'age_above_18': True,
+            'agreed_with_conditions': True,
+            'gender': 'female',
+            'speaking_languages': ['eo', 'uk'],
+            'subcategories': [non_existing_subcategory_id],
         }
 
         user = UserWithVerifiedEmailFactory()
@@ -273,13 +300,7 @@ class CreateProfileTestCase(TestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(
             response.data,
-            {
-                'subcategories': [
-                    ErrorDetail(
-                        string='This list may not be empty.', code='empty'
-                    )
-                ]
-            },
+            {'subcategories': ['Invalid pk "100" - object does not exist.']},
         )
 
 
