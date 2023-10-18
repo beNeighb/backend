@@ -15,7 +15,7 @@ class Category(models.Model):
         verbose_name_plural = "Categories"
 
 
-class SubCategory(models.Model):
+class Subcategory(models.Model):
     name = models.CharField(
         max_length=150,
         blank=False,

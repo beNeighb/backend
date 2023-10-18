@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Category, SubCategory
+from .models import Category, Subcategory
 
 
 admin.site.register(
@@ -13,7 +13,7 @@ admin.site.register(
 )
 
 admin.site.register(
-    SubCategory,
+    Subcategory,
     list_display=[
         'name',
         'id',

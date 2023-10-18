@@ -22,4 +22,5 @@ class ProfileSerializer(serializers.ModelSerializer):
             'agreed_with_conditions',
             'gender',
             'speaking_languages',
+            'subcategories',
         ]

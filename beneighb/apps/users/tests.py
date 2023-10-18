@@ -6,6 +6,7 @@ from rest_framework import status
 from rest_framework.test import APIClient
 from rest_framework.exceptions import ErrorDetail
 
+from apps.marketplace.factories import SubcategoryFactory
 
 from apps.users.models import Profile, User
 from apps.users.factories import (
@@ -71,6 +72,11 @@ class CreateProfileTestCase(TestCase):
         'uz',
         'vi',
     ]
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.subcategory = SubcategoryFactory()
+        cls.correct_data['subcategories'] = [cls.subcategory.id]
 
     def _update_client_with_correct_token(self, user, client):
         refresh_token = RefreshToken.for_user(user)
@@ -190,17 +196,17 @@ class CreateProfileTestCase(TestCase):
                         string='This field is required.', code='required'
                     )
                 ],
+                'subcategories': [
+                    ErrorDetail(
+                        string='This list may not be empty.', code='empty'
+                    )
+                ],
             },
         )
 
     def test_create_profile_with_incorrect_gender(self):
-        data = {
-            'name': 'Name',
-            'age_above_18': True,
-            'agreed_with_conditions': True,
-            'gender': 'female2',
-            'speaking_languages': ['eo', 'uk'],
-        }
+        data = deepcopy(self.correct_data)
+        data['gender'] = 'female2'
 
         user = UserWithVerifiedEmailFactory()
 
@@ -223,13 +229,8 @@ class CreateProfileTestCase(TestCase):
         )
 
     def test_create_profile_with_incorrect_speaking_language(self):
-        data = {
-            'name': 'Name',
-            'age_above_18': True,
-            'agreed_with_conditions': True,
-            'gender': 'female',
-            'speaking_languages': ['eo2', 'uk'],
-        }
+        data = deepcopy(self.correct_data)
+        data['speaking_languages'] = ['eo2', 'uk']
 
         user = UserWithVerifiedEmailFactory()
 
@@ -250,6 +251,34 @@ class CreateProfileTestCase(TestCase):
                         )
                     ]
                 }
+            },
+        )
+
+    def test_create_profile_without_categories(self):
+        data = {
+            'name': 'Name',
+            'age_above_18': True,
+            'agreed_with_conditions': True,
+            'gender': 'female',
+            'speaking_languages': ['eo', 'uk'],
+        }
+
+        user = UserWithVerifiedEmailFactory()
+
+        client = APIClient()
+        self._update_client_with_correct_token(user, client)
+
+        response = client.post(self.url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(
+            response.data,
+            {
+                'subcategories': [
+                    ErrorDetail(
+                        string='This list may not be empty.', code='empty'
+                    )
+                ]
             },
         )
 
@@ -281,12 +310,14 @@ class SingleProfileViewTestCase(TestCase):
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_get_profile_successful(self):
+        subcategory = SubcategoryFactory()
         EXPECTED_DATA = {
             'name': 'John Doe',
             'age_above_18': True,
             'agreed_with_conditions': True,
             'gender': 'female',
             'speaking_languages': ['eo', 'uk'],
+            'subcategories': [subcategory.id],
         }
 
         user = UserWithProfileFactory(
@@ -298,6 +329,8 @@ class SingleProfileViewTestCase(TestCase):
             profile__gender=EXPECTED_DATA['gender'],
             profile__speaking_languages=EXPECTED_DATA['speaking_languages'],
         )
+        user.profile.subcategories.add(subcategory)
+        user.profile.save()
 
         client = APIClient()
         self._update_client_with_correct_token(user, client)
