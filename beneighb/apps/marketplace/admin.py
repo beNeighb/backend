@@ -1,10 +1,10 @@
 from django.contrib import admin
 
-from .models import Category, Subcategory
+from .models import ServiceCategory, Service
 
 
 admin.site.register(
-    Category,
+    ServiceCategory,
     list_display=[
         'name',
         'id',
@@ -13,7 +13,7 @@ admin.site.register(
 )
 
 admin.site.register(
-    Subcategory,
+    Service,
     list_display=[
         'name',
         'id',

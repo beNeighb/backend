@@ -1,7 +1,7 @@
 from django.db import models
 
 
-class Category(models.Model):
+class ServiceCategory(models.Model):
     name = models.CharField(
         max_length=150,
         blank=False,
@@ -15,13 +15,13 @@ class Category(models.Model):
         verbose_name_plural = "Categories"
 
 
-class Subcategory(models.Model):
+class Service(models.Model):
     name = models.CharField(
         max_length=150,
         blank=False,
     )
     description = models.TextField(null=True, blank=True)
-    parent = models.ForeignKey('Category', on_delete=models.CASCADE)
+    parent = models.ForeignKey('ServiceCategory', on_delete=models.CASCADE)
 
     def __str__(self):
         return self.name

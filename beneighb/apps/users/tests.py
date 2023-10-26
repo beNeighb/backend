@@ -6,8 +6,8 @@ from rest_framework import status
 from rest_framework.test import APIClient
 from rest_framework.exceptions import ErrorDetail
 
-from apps.marketplace.factories import SubcategoryFactory
-from apps.marketplace.models import Subcategory
+from apps.marketplace.factories import ServiceFactory
+from apps.marketplace.models import Service
 
 from apps.users.models import Profile, User
 from apps.users.factories import (
@@ -247,8 +247,8 @@ class CreateProfileTestCase(TestCase):
         )
 
     def test_create_profile_with_subcategories(self):
-        subcategory_1 = SubcategoryFactory()
-        subcategory_2 = SubcategoryFactory()
+        subcategory_1 = ServiceFactory()
+        subcategory_2 = ServiceFactory()
 
         data = {
             'name': 'Name',
@@ -277,7 +277,7 @@ class CreateProfileTestCase(TestCase):
     def test_create_profile_with_non_existing_subcategory(self):
         non_existing_subcategory_id = 100
         self.assertEqual(
-            Subcategory.objects.filter(id=non_existing_subcategory_id).count(),
+            Service.objects.filter(id=non_existing_subcategory_id).count(),
             0,
         )
 
@@ -331,14 +331,14 @@ class SingleProfileViewTestCase(TestCase):
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_get_profile_successful(self):
-        subcategory = SubcategoryFactory()
+        service = ServiceFactory()
         EXPECTED_DATA = {
             'name': 'John Doe',
             'age_above_18': True,
             'agreed_with_conditions': True,
             'gender': 'female',
             'speaking_languages': ['eo', 'uk'],
-            'subcategories': [subcategory.id],
+            'subcategories': [service.id],
         }
 
         user = UserWithProfileFactory(
@@ -350,7 +350,7 @@ class SingleProfileViewTestCase(TestCase):
             profile__gender=EXPECTED_DATA['gender'],
             profile__speaking_languages=EXPECTED_DATA['speaking_languages'],
         )
-        user.profile.subcategories.add(subcategory)
+        user.profile.subcategories.add(service)
         user.profile.save()
 
         client = APIClient()
