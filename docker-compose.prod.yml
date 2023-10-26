@@ -33,6 +33,7 @@ services:
     platform: linux/amd64
     image: ghcr.io/beneighb/backend/nginx
     build: ./nginx
+    command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
     volumes:
       - static_volume:/home/beneighb/web/staticfiles
       - media_volume:/home/beneighb/web/mediafiles
