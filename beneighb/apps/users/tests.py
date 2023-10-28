@@ -27,7 +27,7 @@ class CreateProfileTestCase(TestCase):
         'agreed_with_conditions': True,
         'gender': 'female',
         'speaking_languages': ['eo', 'uk'],
-        'subcategories': [],
+        'services': [],
     }
 
     list_of_all_languages = [
@@ -246,9 +246,9 @@ class CreateProfileTestCase(TestCase):
             },
         )
 
-    def test_create_profile_with_subcategories(self):
-        subcategory_1 = ServiceFactory()
-        subcategory_2 = ServiceFactory()
+    def test_create_profile_with_services(self):
+        service_1 = ServiceFactory()
+        service_2 = ServiceFactory()
 
         data = {
             'name': 'Name',
@@ -256,7 +256,7 @@ class CreateProfileTestCase(TestCase):
             'agreed_with_conditions': True,
             'gender': 'female',
             'speaking_languages': ['eo', 'uk'],
-            'subcategories': [subcategory_1.id, subcategory_2.id],
+            'services': [service_1.id, service_2.id],
         }
 
         user = UserWithVerifiedEmailFactory()
@@ -270,14 +270,14 @@ class CreateProfileTestCase(TestCase):
         profile = User.objects.get().profile
 
         self.assertEqual(
-            set(profile.subcategories.values_list('id', flat=True)),
-            set(data['subcategories']),
+            set(profile.services.values_list('id', flat=True)),
+            set(data['services']),
         )
 
-    def test_create_profile_with_non_existing_subcategory(self):
-        non_existing_subcategory_id = 100
+    def test_create_profile_with_non_existing_service(self):
+        non_existing_service_id = 100
         self.assertEqual(
-            Service.objects.filter(id=non_existing_subcategory_id).count(),
+            Service.objects.filter(id=non_existing_service_id).count(),
             0,
         )
 
@@ -287,7 +287,7 @@ class CreateProfileTestCase(TestCase):
             'agreed_with_conditions': True,
             'gender': 'female',
             'speaking_languages': ['eo', 'uk'],
-            'subcategories': [non_existing_subcategory_id],
+            'services': [non_existing_service_id],
         }
 
         user = UserWithVerifiedEmailFactory()
@@ -300,7 +300,7 @@ class CreateProfileTestCase(TestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(
             response.data,
-            {'subcategories': ['Invalid pk "100" - object does not exist.']},
+            {'services': ['Invalid pk "100" - object does not exist.']},
         )
 
 
@@ -338,7 +338,7 @@ class SingleProfileViewTestCase(TestCase):
             'agreed_with_conditions': True,
             'gender': 'female',
             'speaking_languages': ['eo', 'uk'],
-            'subcategories': [service.id],
+            'services': [service.id],
         }
 
         user = UserWithProfileFactory(
@@ -350,7 +350,7 @@ class SingleProfileViewTestCase(TestCase):
             profile__gender=EXPECTED_DATA['gender'],
             profile__speaking_languages=EXPECTED_DATA['speaking_languages'],
         )
-        user.profile.subcategories.add(service)
+        user.profile.services.add(service)
         user.profile.save()
 
         client = APIClient()

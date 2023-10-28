@@ -81,9 +81,7 @@ class Profile(models.Model):
             blank=False,
         )
     )
-    subcategories = models.ManyToManyField(
-        'marketplace.Service', related_name='subcategories', blank=True
-    )
+    services = models.ManyToManyField('marketplace.Service', blank=True)
 
     def __str__(self):
         return self.name
