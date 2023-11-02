@@ -26,6 +26,7 @@ urlpatterns = [
     path('upload/', image_upload, name='upload'),
     path('auth/', include('apps.auth0.urls')),
     path('users/', include('apps.users.urls')),
+    path('marketplace/', include('apps.marketplace.urls')),
 ]
 
 if bool(settings.DEBUG):

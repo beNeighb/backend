@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.postgres.fields import ArrayField
 
 
 class ServiceCategory(models.Model):
@@ -25,3 +26,29 @@ class Service(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class Task(models.Model):
+    class EventTypes(models.TextChoices):
+        ONLINE = ('online', 'Online')
+        OFFLINE = ('offline', 'Offline')
+
+    created_at = models.DateTimeField(auto_now_add=True, editable=False)
+    service = models.ForeignKey('Service', on_delete=models.PROTECT)
+    datetime_known = models.BooleanField()
+    datetime_options = ArrayField(
+        models.DateTimeField(),
+        size=3
+    )
+    event_type = models.CharField(
+        choices=EventTypes.choices,
+        max_length=7,
+    )
+    address = models.CharField(
+        choices=EventTypes.choices,
+        max_length=128,
+    )
+    price_offer = models.IntegerField()
+
+    def __str__(self):
+        return f'Task-{self.id} - {self.service.name}'
