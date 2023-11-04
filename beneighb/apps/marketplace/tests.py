@@ -86,3 +86,17 @@ class CreateTaskTestCase(TestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
         self.assertEqual(Task.objects.count(), 0)
+
+    def test_create_task_without_datetime_known(self):
+        user = UserWithVerifiedEmailFactory()
+
+        client = self.get_client_with_valid_token(user)
+
+        data_without_datetime_known = deepcopy(self.correct_data)
+        del data_without_datetime_known['datetime_known']
+
+        response = client.post(self.url, data_without_datetime_known)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        self.assertEqual(Task.objects.count(), 0)
+
