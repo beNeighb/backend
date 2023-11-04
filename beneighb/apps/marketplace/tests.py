@@ -1,13 +1,14 @@
+from copy import deepcopy
+
 from django.test import TestCase
+from rest_framework_simplejwt.tokens import RefreshToken
 
 from rest_framework import status
 from rest_framework.test import APIClient
-from rest_framework_simplejwt.tokens import RefreshToken
 
-from apps.marketplace.models import Task
-from apps.marketplace.factories import ServiceFactory
 from apps.users.factories import UserWithVerifiedEmailFactory
-
+from apps.marketplace.models import Service, Task
+from apps.marketplace.factories import ServiceFactory
 
 AUTHORIZATION_HEADER_TEMPLATE = 'Bearer {token}'
 
@@ -37,6 +38,11 @@ class CreateTaskTestCase(TestCase):
         )
         client.credentials(HTTP_AUTHORIZATION=AUTHORIZATION_HEADER)
 
+    def get_client_with_valid_token(self, user):
+        client = APIClient()
+        self._update_client_with_correct_token(user, client)
+        return client
+
     def test_returns_401_without_token(self):
         client = APIClient()
 
@@ -46,8 +52,7 @@ class CreateTaskTestCase(TestCase):
     def test_create_task_successful(self):
         user = UserWithVerifiedEmailFactory()
 
-        client = APIClient()
-        self._update_client_with_correct_token(user, client)
+        client = self.get_client_with_valid_token(user)
 
         response = client.post(self.url, self.correct_data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -63,3 +68,21 @@ class CreateTaskTestCase(TestCase):
         self.assertEqual(task.event_type, self.correct_data['event_type'])
         self.assertEqual(task.address, self.correct_data['address'])
         self.assertEqual(task.price_offer, self.correct_data['price_offer'])
+
+    def test_create_task_with_incorrect_service_id(self):
+        user = UserWithVerifiedEmailFactory()
+
+        client = self.get_client_with_valid_token(user)
+
+        incorrect_service_id = Service.objects.last().id + 1
+        self.assertEqual(
+            Service.objects.filter(id=incorrect_service_id).count(), 0
+        )
+
+        data_with_incorrect_service_id = deepcopy(self.correct_data)
+        data_with_incorrect_service_id['service'] = incorrect_service_id
+
+        response = client.post(self.url, data_with_incorrect_service_id)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        self.assertEqual(Task.objects.count(), 0)
