@@ -38,14 +38,15 @@ class Task(models.Model):
     datetime_known = models.BooleanField()
     datetime_options = ArrayField(
         models.DateTimeField(),
-        size=3
+        size=3,
+        default=list,
+        blank=True,
     )
     event_type = models.CharField(
         choices=EventTypes.choices,
         max_length=7,
     )
     address = models.CharField(
-        choices=EventTypes.choices,
         max_length=128,
     )
     price_offer = models.IntegerField()

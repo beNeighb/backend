@@ -1,14 +1,13 @@
-from django.shortcuts import render
 from rest_framework import generics, status
+from rest_framework.permissions import IsAuthenticated
 
+from apps.marketplace.models import Task
 from apps.marketplace.serializers import TaskSerializer
-
-# Create your views here.
 
 
 class TaskCreateView(generics.CreateAPIView):
-    # queryset = Profile.objects.all()
-    # permission_classes = (IsAuthenticated,)
+    queryset = Task.objects.all()
+    permission_classes = (IsAuthenticated,)
     serializer_class = TaskSerializer
 
     # def perform_create(self, serializer):

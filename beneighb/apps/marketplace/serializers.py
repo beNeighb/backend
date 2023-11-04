@@ -11,11 +11,17 @@ from apps.marketplace.models import Task
 
 
 class TaskSerializer(serializers.ModelSerializer):
-    pass
     # age_above_18 = RequirableBooleanField(required=True)
     # agreed_with_conditions = RequirableBooleanField(required=True)
 
     class Meta:
         model = Task
         fields = [
+            'created_at',
+            'service',
+            'datetime_known',
+            'datetime_options',
+            'event_type',
+            'address',
+            'price_offer',
         ]
