@@ -9,17 +9,3 @@ class TaskCreateView(generics.CreateAPIView):
     queryset = Task.objects.all()
     permission_classes = (IsAuthenticated,)
     serializer_class = TaskSerializer
-
-    # def perform_create(self, serializer):
-    #     user = self.request.user
-
-    #     if user.profile:
-    #         raise UserProfileExistException(
-    #             'Profile for this user already exists'
-    #         )
-
-    #     profile = serializer.save()
-    #     profile.user = user
-
-    #     # Save the profile
-    #     user.save()
