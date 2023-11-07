@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import ServiceCategory, Service
+from .models import ServiceCategory, Service, Task
 
 
 admin.site.register(
@@ -19,5 +19,19 @@ admin.site.register(
         'id',
         'description',
         'parent',
+    ],
+)
+
+admin.site.register(
+    Task,
+    list_display=[
+        'service',
+        'id',
+        'created_at',
+        'datetime_known',
+        'datetime_options',
+        'event_type',
+        'address',
+        'price_offer',
     ],
 )
