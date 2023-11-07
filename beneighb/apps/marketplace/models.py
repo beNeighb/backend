@@ -46,9 +46,7 @@ class Task(models.Model):
         choices=EventTypes.choices,
         max_length=7,
     )
-    address = models.CharField(
-        max_length=128,
-    )
+    address = models.CharField(max_length=128, null=True, blank=True)
     price_offer = models.IntegerField()
 
     def __str__(self):
