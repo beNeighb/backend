@@ -1,7 +1,7 @@
 from factory import SubFactory
 from factory.django import DjangoModelFactory
 
-from apps.marketplace.models import ServiceCategory, Service
+from apps.marketplace.models import ServiceCategory, Service, Task
 
 
 class ServiceCategoryFactory(DjangoModelFactory):
@@ -14,3 +14,8 @@ class ServiceFactory(DjangoModelFactory):
         model = Service
 
     parent = SubFactory(ServiceCategoryFactory)
+
+
+class TaskFactory(DjangoModelFactory):
+    class Meta:
+        model = Task

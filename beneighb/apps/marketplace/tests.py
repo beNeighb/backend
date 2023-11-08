@@ -10,7 +10,7 @@ from rest_framework.exceptions import ErrorDetail
 
 from apps.users.factories import UserWithVerifiedEmailFactory
 from apps.marketplace.models import Service, Task
-from apps.marketplace.factories import ServiceFactory
+from apps.marketplace.factories import ServiceFactory, TaskFactory
 
 
 # TODO: Move to utils
