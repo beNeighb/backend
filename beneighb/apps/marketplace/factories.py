@@ -19,3 +19,8 @@ class ServiceFactory(DjangoModelFactory):
 class TaskFactory(DjangoModelFactory):
     class Meta:
         model = Task
+
+    datetime_known = True
+    event_type = 'online'
+    price_offer = 100
+    service = SubFactory(ServiceFactory)

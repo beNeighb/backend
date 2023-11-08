@@ -5,7 +5,7 @@ from apps.marketplace.models import Task
 from apps.marketplace.serializers import TaskSerializer
 
 
-class TaskCreateView(generics.CreateAPIView):
+class TaskView(generics.CreateAPIView, generics.RetrieveAPIView):
     queryset = Task.objects.all()
     permission_classes = (IsAuthenticated,)
     serializer_class = TaskSerializer

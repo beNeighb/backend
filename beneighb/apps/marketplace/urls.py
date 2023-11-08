@@ -1,10 +1,12 @@
 from django.urls import path
 
-from apps.marketplace.views import TaskCreateView
+from apps.marketplace.views import TaskView
 
 
 urlpatterns = [
     path(
-        'tasks/', TaskCreateView.as_view(), name='tasks',
+        'tasks/<int:pk>/',
+        TaskView.as_view(),
+        name='tasks',
     ),
 ]
