@@ -20,6 +20,12 @@ class TaskSerializer(serializers.ModelSerializer):
         model = Task
         fields = '__all__'
 
+    def is_valid(self, *args, **kwargs):
+        # Setting owner of the task to current user
+        self.initial_data._mutable = True
+        self.initial_data['owner'] = self.context['request'].user.id
+        return super().is_valid(*args, **kwargs)
+
     def validate(self, data):
         datetime_known = data['datetime_known']
         datetime_options = data.get('datetime_options')
@@ -41,11 +47,11 @@ class TaskSerializer(serializers.ModelSerializer):
         def _is_date_in_future(dt_option):
             return dt_option > datetime.now(tz=timezone.utc)
 
-        if not datetime_known:
+        if datetime_known:
             if not datetime_options:
                 raise serializers.ValidationError(
                     {
-                        'datetime_options': 'datetime_options is required when date_timeknow is False'
+                        'datetime_options': 'datetime_options is required when date_timeknow is True'
                     }
                 )
             else:
@@ -60,7 +66,7 @@ class TaskSerializer(serializers.ModelSerializer):
             if datetime_options:
                 raise serializers.ValidationError(
                     {
-                        'datetime_options': 'For datetime_known=True datetime_options should be empty'
+                        'datetime_options': 'For datetime_known=False datetime_options should be empty'
                     }
                 )
 

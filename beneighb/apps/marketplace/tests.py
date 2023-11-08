@@ -56,7 +56,11 @@ class CreateTaskTestCase(TestCase):
 
         client = get_client_with_valid_token(user)
 
-        response = client.post(self.url, self.correct_data)
+        datetime_option = datetime.now(tz=timezone.utc) + timedelta(days=1)
+        correct_data = deepcopy(self.correct_data)
+        correct_data['datetime_options'] = [datetime_option]
+
+        response = client.post(self.url, correct_data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
         self.assertEqual(Task.objects.count(), 1)
@@ -66,7 +70,7 @@ class CreateTaskTestCase(TestCase):
         self.assertIsNotNone(task.created_at)
         self.assertEqual(task.service, self.SERVICE)
         self.assertEqual(task.datetime_known, True)
-        self.assertEqual(task.datetime_options, [])
+        self.assertEqual(task.datetime_options, [datetime_option])
         self.assertEqual(task.event_type, self.correct_data['event_type'])
         self.assertEqual(task.address, self.correct_data['address'])
         self.assertEqual(task.price_offer, self.correct_data['price_offer'])
@@ -132,7 +136,7 @@ class CreateTaskPriceOfferTestCase(TestCase):
         cls.SERVICE = ServiceFactory()
         cls.data = {
             'service': cls.SERVICE.id,
-            'datetime_known': True,
+            'datetime_known': False,
             'event_type': 'online',
         }
 
@@ -236,7 +240,7 @@ class CreateTaskEventTypeTestCase(TestCase):
         cls.SERVICE = ServiceFactory()
         cls.data = {
             'service': cls.SERVICE.id,
-            'datetime_known': True,
+            'datetime_known': False,
             'datetime_options': [],
             'event_type': 'offline',
             'address': 'Some test address',
@@ -374,7 +378,7 @@ class CreateTaskDatetimeKnownTestCase(TestCase):
         cls.SERVICE = ServiceFactory()
         cls.data = {
             'service': cls.SERVICE.id,
-            'datetime_known': False,
+            'datetime_known': True,
             'datetime_options': [],
             'event_type': 'offline',
             'address': 'Some test address',
@@ -410,14 +414,14 @@ class CreateTaskDatetimeKnownTestCase(TestCase):
         task = Task.objects.first()
         self.assertEqual(task.datetime_options, data['datetime_options'])
 
-    def test_create_task_datetime_known_and_options_present(self):
+    def test_create_task_datetime_unknown_and_options_present(self):
         user = UserWithVerifiedEmailFactory()
 
         client = get_client_with_valid_token(user)
 
         datetime_option = datetime.now(tz=timezone.utc) + timedelta(days=1)
         data = deepcopy(self.data)
-        data['datetime_known'] = True
+        data['datetime_known'] = False
         data['datetime_options'] = [datetime_option]
 
         response = client.post(self.url, data)
@@ -428,7 +432,7 @@ class CreateTaskDatetimeKnownTestCase(TestCase):
             response.data,
             {
                 'datetime_options': [
-                    'For datetime_known=True datetime_options should be empty'
+                    'For datetime_known=False datetime_options should be empty'
                 ]
             },
         )
@@ -445,7 +449,7 @@ class CreateTaskDatetimeKnownTestCase(TestCase):
             response.data,
             {
                 'datetime_options': [
-                    'datetime_options is required when date_timeknow is False'
+                    'datetime_options is required when date_timeknow is True'
                 ]
             },
         )
