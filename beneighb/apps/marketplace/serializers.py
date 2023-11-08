@@ -1,5 +1,4 @@
 from datetime import datetime, timezone
-from operator import add
 from rest_framework import serializers
 from apps.marketplace.models import Task
 
@@ -22,7 +21,9 @@ class TaskSerializer(serializers.ModelSerializer):
 
     def is_valid(self, *args, **kwargs):
         # Setting owner of the task to current user
-        self.initial_data._mutable = True
+        # For some reason on production self.initial_data is a regular dict
+        if hasattr(self.initial_data, '_mutable'):
+            self.initial_data._mutable = True
         self.initial_data['owner'] = self.context['request'].user.id
         return super().is_valid(*args, **kwargs)
 
@@ -51,7 +52,10 @@ class TaskSerializer(serializers.ModelSerializer):
             if not datetime_options:
                 raise serializers.ValidationError(
                     {
-                        'datetime_options': 'datetime_options is required when date_timeknow is True'
+                        'datetime_options': (
+                            'datetime_options is required'
+                            ' when date_timeknow is True'
+                        )
                     }
                 )
             else:
@@ -59,14 +63,20 @@ class TaskSerializer(serializers.ModelSerializer):
                     if not _is_date_in_future(option):
                         raise serializers.ValidationError(
                             {
-                                'datetime_options': 'All datetime_options should be in the future'
+                                'datetime_options': (
+                                    'All datetime_options '
+                                    'should be in the future'
+                                )
                             }
                         )
         else:
             if datetime_options:
                 raise serializers.ValidationError(
                     {
-                        'datetime_options': 'For datetime_known=False datetime_options should be empty'
+                        'datetime_options': (
+                            'For datetime_known=False '
+                            'datetime_options should be empty'
+                        )
                     }
                 )
 
@@ -76,14 +86,19 @@ class TaskSerializer(serializers.ModelSerializer):
             if address:
                 raise serializers.ValidationError(
                     {
-                        'address': "For event_type=online address shouldn't be present",
+                        'address': (
+                            "For event_type=online address "
+                            "shouldn't be present"
+                        ),
                     }
                 )
         else:
             if not address:
                 raise serializers.ValidationError(
                     {
-                        'address': 'For event_type=offline address is required',
+                        'address': (
+                            'For event_type=offline address ' 'is required'
+                        ),
                     }
                 )
 
