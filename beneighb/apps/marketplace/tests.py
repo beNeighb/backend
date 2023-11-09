@@ -120,7 +120,10 @@ class CreateTaskTestCase(TestCase):
             {
                 'service': [
                     ErrorDetail(
-                        string=f'Invalid pk "{incorrect_service_id}" - object does not exist.',
+                        string=(
+                            f'Invalid pk "{incorrect_service_id}"'
+                            ' - object does not exist.'
+                        ),
                         code='does_not_exist',
                     )
                 ]
@@ -312,7 +315,10 @@ class CreateTaskEventTypeTestCase(TestCase):
             {
                 'address': [
                     ErrorDetail(
-                        string="For event_type=online address shouldn't be present",
+                        string=(
+                            "For event_type=online "
+                            "address shouldn't be present"
+                        ),
                         code='invalid',
                     )
                 ]
@@ -473,7 +479,8 @@ class CreateTaskDatetimeKnownTestCase(TestCase):
                         ErrorDetail(
                             string=(
                                 'Datetime has wrong format. '
-                                'Use one of these formats instead: YYYY-MM-DDThh:mm[:ss[.uuuuuu]][+HH:MM|-HH:MM|Z].'
+                                'Use one of these formats instead: '
+                                'YYYY-MM-DDThh:mm[:ss[.uuuuuu]][+HH:MM|-HH:MM|Z].'  # noqa
                             ),
                             code='invalid',
                         )
@@ -531,7 +538,10 @@ class CreateTaskDatetimeKnownTestCase(TestCase):
             {
                 'datetime_options': [
                     ErrorDetail(
-                        string='List contains 4 items, it should contain no more than 3.',
+                        string=(
+                            'List contains 4 items, '
+                            'it should contain no more than 3.'
+                        ),
                         code='max_length',
                     )
                 ]
@@ -641,4 +651,5 @@ class GetTaskTestsCase(TestCase):
 
         response = client.get(self.url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data[0]['id'], task.id)
         self.assertEqual(response.data[0]['owner'], user.id)
