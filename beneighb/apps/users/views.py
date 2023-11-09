@@ -12,7 +12,7 @@ class UserProfileExistException(APIException):
     status_code = status.HTTP_409_CONFLICT
 
 
-class SingleProfileView(generics.RetrieveAPIView):
+class MyProfileView(generics.RetrieveAPIView):
     permission_classes = (IsAuthenticated,)
     serializer_class = ProfileSerializer
 
@@ -24,6 +24,12 @@ class SingleProfileView(generics.RetrieveAPIView):
         from django.http import Http404
 
         raise Http404("User doesn't have a profile yet")
+
+
+class ProfileView(generics.RetrieveAPIView):
+    permission_classes = (IsAuthenticated,)
+    serializer_class = ProfileSerializer
+    queryset = Profile.objects.all()
 
 
 class ProfileCreateView(generics.CreateAPIView):

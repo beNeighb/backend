@@ -18,6 +18,23 @@ from apps.users.factories import (
 AUTHORIZATION_HEADER_TEMPLATE = 'Bearer {token}'
 
 
+# TODO: Move to utils
+def update_client_with_correct_token(user, client):
+    AUTHORIZATION_HEADER_TEMPLATE = 'Bearer {token}'
+    refresh_token = RefreshToken.for_user(user)
+
+    AUTHORIZATION_HEADER = AUTHORIZATION_HEADER_TEMPLATE.format(
+        token=refresh_token.access_token
+    )
+    client.credentials(HTTP_AUTHORIZATION=AUTHORIZATION_HEADER)
+
+
+def get_client_with_valid_token(user):
+    client = APIClient()
+    update_client_with_correct_token(user, client)
+    return client
+
+
 class CreateProfileTestCase(TestCase):
     url = '/users/create-profile/'
 
@@ -75,14 +92,6 @@ class CreateProfileTestCase(TestCase):
         'vi',
     ]
 
-    def _update_client_with_correct_token(self, user, client):
-        refresh_token = RefreshToken.for_user(user)
-
-        AUTHORIZATION_HEADER = AUTHORIZATION_HEADER_TEMPLATE.format(
-            token=refresh_token.access_token
-        )
-        client.credentials(HTTP_AUTHORIZATION=AUTHORIZATION_HEADER)
-
     def test_returns_401_without_token(self):
         client = APIClient()
 
@@ -92,8 +101,7 @@ class CreateProfileTestCase(TestCase):
     def test_create_profile_successful(self):
         user = UserWithVerifiedEmailFactory()
 
-        client = APIClient()
-        self._update_client_with_correct_token(user, client)
+        client = get_client_with_valid_token(user)
 
         response = client.post(self.url, self.correct_data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -113,8 +121,7 @@ class CreateProfileTestCase(TestCase):
     def test_create_profile_successful_with_all_languages(self):
         user = UserWithVerifiedEmailFactory()
 
-        client = APIClient()
-        self._update_client_with_correct_token(user, client)
+        client = get_client_with_valid_token(user)
 
         correct_data_with_all_languages = deepcopy(self.correct_data)
         correct_data_with_all_languages[
@@ -136,8 +143,7 @@ class CreateProfileTestCase(TestCase):
     def test_create_profile_for_user_with_profile(self):
         user = UserWithVerifiedEmailFactory()
 
-        client = APIClient()
-        self._update_client_with_correct_token(user, client)
+        client = get_client_with_valid_token(user)
 
         # Create profile first time
         response = client.post(self.url, self.correct_data)
@@ -159,8 +165,7 @@ class CreateProfileTestCase(TestCase):
 
         user = UserWithVerifiedEmailFactory()
 
-        client = APIClient()
-        self._update_client_with_correct_token(user, client)
+        client = get_client_with_valid_token(user)
 
         response = client.post(self.url, data)
 
@@ -202,8 +207,7 @@ class CreateProfileTestCase(TestCase):
 
         user = UserWithVerifiedEmailFactory()
 
-        client = APIClient()
-        self._update_client_with_correct_token(user, client)
+        client = get_client_with_valid_token(user)
 
         response = client.post(self.url, data)
 
@@ -226,8 +230,7 @@ class CreateProfileTestCase(TestCase):
 
         user = UserWithVerifiedEmailFactory()
 
-        client = APIClient()
-        self._update_client_with_correct_token(user, client)
+        client = get_client_with_valid_token(user)
 
         response = client.post(self.url, data)
 
@@ -261,8 +264,7 @@ class CreateProfileTestCase(TestCase):
 
         user = UserWithVerifiedEmailFactory()
 
-        client = APIClient()
-        self._update_client_with_correct_token(user, client)
+        client = get_client_with_valid_token(user)
 
         response = client.post(self.url, data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -292,8 +294,7 @@ class CreateProfileTestCase(TestCase):
 
         user = UserWithVerifiedEmailFactory()
 
-        client = APIClient()
-        self._update_client_with_correct_token(user, client)
+        client = get_client_with_valid_token(user)
 
         response = client.post(self.url, data)
 
@@ -304,7 +305,69 @@ class CreateProfileTestCase(TestCase):
         )
 
 
-class SingleProfileViewTestCase(TestCase):
+class ProfileViewTestCase(TestCase):
+    url_template = '/users/profiles/{}/'
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.USER = UserWithProfileFactory()
+        cls.PROFILE = cls.USER.profile
+        cls.url = cls.url_template.format(cls.PROFILE.id)
+
+    def _update_client_with_correct_token(self, user, client):
+        refresh_token = RefreshToken.for_user(user)
+
+        AUTHORIZATION_HEADER = AUTHORIZATION_HEADER_TEMPLATE.format(
+            token=refresh_token.access_token
+        )
+        client.credentials(HTTP_AUTHORIZATION=AUTHORIZATION_HEADER)
+
+    def test_returns_401_without_token(self):
+        client = APIClient()
+
+        response = client.get(self.url)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_profile_not_exist(self):
+        client = get_client_with_valid_token(self.USER)
+
+        nonexisting_profile_id = self.PROFILE.id + 1
+        self.assertEqual(
+            Profile.objects.filter(id=nonexisting_profile_id).count(), 0
+        )
+
+        url = self.url_template.format(nonexisting_profile_id)
+        response = client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_get_profile_successful(self):
+        user = UserWithProfileFactory()
+        profile = user.profile
+
+        service = ServiceFactory()
+        profile.services.add(service)
+        profile.save()
+
+        EXPECTED_DATA = {
+            'id': profile.id,
+            'name': profile.name,
+            'age_above_18': profile.age_above_18,
+            'agreed_with_conditions': profile.agreed_with_conditions,
+            'gender': profile.gender,
+            'speaking_languages': profile.speaking_languages,
+            'services': [service.id],
+        }
+
+        client = get_client_with_valid_token(self.USER)
+
+        url = self.url_template.format(user.profile.id)
+
+        response = client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data, EXPECTED_DATA)
+
+
+class MyProfileViewTestCase(TestCase):
     url = '/users/profile/'
 
     def _update_client_with_correct_token(self, user, client):
@@ -352,6 +415,8 @@ class SingleProfileViewTestCase(TestCase):
         )
         user.profile.services.add(service)
         user.profile.save()
+
+        EXPECTED_DATA['id'] = user.profile.id
 
         client = APIClient()
         self._update_client_with_correct_token(user, client)

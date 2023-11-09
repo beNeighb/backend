@@ -17,6 +17,7 @@ class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = Profile
         fields = [
+            'id',
             'name',
             'age_above_18',
             'agreed_with_conditions',
