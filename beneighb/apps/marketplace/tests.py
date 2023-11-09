@@ -591,3 +591,54 @@ class GetTaskTestCase(TestCase):
 
         response = client.get(url)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+
+class GetTaskTestsCase(TestCase):
+    url = '/marketplace/tasks/'
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.USER = UserWithVerifiedEmailFactory()
+        cls.TASK_1 = TaskFactory(owner=cls.USER)
+        cls.TASK_2 = TaskFactory(owner=cls.USER)
+        cls.TASKS = [cls.TASK_1, cls.TASK_2]
+
+    def test_returns_401_without_token(self):
+        client = APIClient()
+
+        response = client.get(self.url)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_successful(self):
+        client = get_client_with_valid_token(self.USER)
+
+        response = client.get(self.url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 2)
+
+        task = response.data[0]
+        self.assertEqual(task['service'], self.TASK_1.service_id)
+        self.assertEqual(task['datetime_known'], self.TASK_1.datetime_known)
+        self.assertEqual(
+            task['datetime_options'], self.TASK_1.datetime_options
+        )
+        self.assertEqual(task['event_type'], self.TASK_1.event_type)
+        self.assertEqual(task['address'], self.TASK_1.address)
+        self.assertEqual(task['price_offer'], self.TASK_1.price_offer)
+
+    def test_no_tasks(self):
+        user = UserWithVerifiedEmailFactory()
+        client = get_client_with_valid_token(user)
+
+        response = client.get(self.url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data, [])
+
+    def test_shows_only_tasks_owned_by_user(self):
+        user = UserWithVerifiedEmailFactory()
+        task = TaskFactory(owner=user)
+        client = get_client_with_valid_token(user)
+
+        response = client.get(self.url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data[0]['owner'], user.id)

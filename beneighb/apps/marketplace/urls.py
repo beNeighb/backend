@@ -1,18 +1,18 @@
 from django.urls import path
 
-from apps.marketplace.views import TaskView
+from apps.marketplace.views import TaskCreateListView, TaskRetrieveView
 
 
 # TODO: Find a better way to put this urls in one
 urlpatterns = [
     path(
-        'tasks/<int:pk>/',
-        TaskView.as_view(),
-        name='task',
+        'tasks/',
+        TaskCreateListView.as_view(),
+        name='tasks',
     ),
     path(
-        'tasks/',
-        TaskView.as_view(),
-        name='tasks',
+        'tasks/<int:pk>/',
+        TaskRetrieveView.as_view(),
+        name='task',
     ),
 ]
