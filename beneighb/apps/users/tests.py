@@ -351,9 +351,6 @@ class ProfileViewTestCase(TestCase):
         EXPECTED_DATA = {
             'id': profile.id,
             'name': profile.name,
-            'age_above_18': profile.age_above_18,
-            'agreed_with_conditions': profile.agreed_with_conditions,
-            'gender': profile.gender,
             'speaking_languages': profile.speaking_languages,
             'services': [service.id],
         }

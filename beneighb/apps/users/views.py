@@ -4,12 +4,18 @@ from rest_framework import generics, status
 from rest_framework.exceptions import APIException
 
 from apps.users.models import Profile
-from apps.users.serializers import ProfileSerializer
+from apps.users.serializers import ProfileSerializer, ShortProfileSerializer
 
 
 # TODO: Move to exceptions.py when we have more
 class UserProfileExistException(APIException):
     status_code = status.HTTP_409_CONFLICT
+
+
+class ProfileView(generics.RetrieveAPIView):
+    permission_classes = (IsAuthenticated,)
+    serializer_class = ShortProfileSerializer
+    queryset = Profile.objects.all()
 
 
 class MyProfileView(generics.RetrieveAPIView):
@@ -24,12 +30,6 @@ class MyProfileView(generics.RetrieveAPIView):
         from django.http import Http404
 
         raise Http404("User doesn't have a profile yet")
-
-
-class ProfileView(generics.RetrieveAPIView):
-    permission_classes = (IsAuthenticated,)
-    serializer_class = ProfileSerializer
-    queryset = Profile.objects.all()
 
 
 class ProfileCreateView(generics.CreateAPIView):

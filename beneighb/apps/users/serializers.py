@@ -25,3 +25,14 @@ class ProfileSerializer(serializers.ModelSerializer):
             'speaking_languages',
             'services',
         ]
+
+
+class ShortProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Profile
+        fields = [
+            'id',
+            'name',
+            'speaking_languages',
+            'services',
+        ]
