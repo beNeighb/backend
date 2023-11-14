@@ -5,7 +5,7 @@ from django.core.cache import cache
 from apps.marketplace.models import Task
 from apps.marketplace.serializers import TaskSerializer
 
-from rest_framework import generics, status
+from rest_framework import generics
 from rest_framework.permissions import BasePermission, IsAuthenticated
 
 logger = logging.getLogger(__name__)
