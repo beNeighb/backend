@@ -75,6 +75,30 @@ class CreateTaskTestCase(TestCase):
         self.assertEqual(task.address, self.correct_data['address'])
         self.assertEqual(task.price_offer, self.correct_data['price_offer'])
 
+    def test_create_task_idempotent(self):
+        user = UserWithVerifiedEmailFactory()
+
+        idempotency_key = 'Some idempotency key'
+        client = get_client_with_valid_token(user)
+
+        datetime_option = datetime.now(tz=timezone.utc) + timedelta(days=1)
+        correct_data = deepcopy(self.correct_data)
+        correct_data['datetime_options'] = [datetime_option]
+
+        response = client.post(
+            self.url, correct_data, HTTP_X_IDEMPOTENCY_KEY=idempotency_key
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        self.assertEqual(Task.objects.count(), 1)
+
+        response = client.post(
+            self.url, correct_data, HTTP_X_IDEMPOTENCY_KEY=idempotency_key
+        )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        self.assertEqual(Task.objects.count(), 1)
+
     def test_create_task_without_service_id(self):
         user = UserWithVerifiedEmailFactory()
 
