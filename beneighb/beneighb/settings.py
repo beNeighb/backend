@@ -165,17 +165,20 @@ DATABASES = {
     }
 }
 
+
+REDIS_HOST = os.environ.get('REDIS_HOST', '127.0.0.1')
+REDIS_PORT = os.environ.get('REDIS_PORT', '6379')
 CACHES = {
-    "default": {
-        "BACKEND": "django.core.cache.backends.redis.RedisCache",
-        "LOCATION": "redis://127.0.0.1:6379",
+    'default': {
+        'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+        'LOCATION': 'redis://{}:{}/1'.format(REDIS_HOST, REDIS_PORT),
     }
 }
 
 # For local usage
 # CACHES = {
-#     "default": {
-#         "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+#     'default': {
+#         'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
 #     }
 # }
 

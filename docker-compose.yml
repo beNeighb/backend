@@ -20,8 +20,11 @@ services:
       - 587
     env_file:
       - ./.env.dev
+    environment:
+      - REDIS_HOST=redis
     depends_on:
       - db
+      - redis
   db:
     image: ghcr.io/beneighb/backend/postgres
     platform: linux/amd64
