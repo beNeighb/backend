@@ -30,12 +30,29 @@ class IsIdempotent(BasePermission):
         return is_idempotent
 
 
-class TaskCreateListView(generics.ListCreateAPIView):
+class TaskCreateView(generics.CreateAPIView):
     permission_classes = (IsAuthenticated, IsIdempotent)
+    serializer_class = TaskSerializer
+    queryset = Task.objects.all()
+
+
+class TaskMineListView(generics.ListCreateAPIView):
+    permission_classes = (IsAuthenticated,)
     serializer_class = TaskSerializer
 
     def get_queryset(self):
         return Task.objects.filter(owner=self.request.user)
+
+
+class TaskForMeListView(generics.ListCreateAPIView):
+    permission_classes = (IsAuthenticated,)
+    serializer_class = TaskSerializer
+
+    def get_queryset(self):
+        user = self.request.user
+        user_services = user.profile.services.all()
+        # TODO: Check if can be optimized
+        return Task.objects.filter(service__in=user_services)
 
 
 class TaskRetrieveView(generics.RetrieveAPIView):

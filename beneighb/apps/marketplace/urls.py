@@ -1,13 +1,27 @@
 from django.urls import path
 
-from apps.marketplace.views import TaskCreateListView, TaskRetrieveView
+from apps.marketplace.views import (
+    TaskCreateView,
+    TaskForMeListView,
+    TaskMineListView,
+    TaskRetrieveView,
+)
 
 
-# TODO: Find a better way to put this urls in one
 urlpatterns = [
     path(
         'tasks/',
-        TaskCreateListView.as_view(),
+        TaskCreateView.as_view(),
+        name='tasks',
+    ),
+    path(
+        'tasks/mine/',
+        TaskMineListView.as_view(),
+        name='tasks',
+    ),
+    path(
+        'tasks/for-me/',
+        TaskForMeListView.as_view(),
         name='tasks',
     ),
     path(
