@@ -721,9 +721,7 @@ class ListForMeTasksTestsCase(TestCase):
         task_2 = TaskFactory(
             owner=UserWithVerifiedEmailFactory(), service=service_2
         )
-        task_3 = TaskFactory(
-            owner=UserWithVerifiedEmailFactory(), service=service_3
-        )
+        TaskFactory(owner=UserWithVerifiedEmailFactory(), service=service_3)
 
         response = client.get(self.url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
