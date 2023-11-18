@@ -54,6 +54,5 @@ class UserWithVerifiedEmailFactory(UserWithUnVerifiedEmailFactory):
         EmailAddress.objects.create(user=self, email=self.email, verified=True)
 
 
-# TODO: Here
 class UserWithProfileFactory(UserFactory):
     profile = SubFactory(ProfileFactory)
