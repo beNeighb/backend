@@ -41,7 +41,8 @@ class TaskMineListView(generics.ListCreateAPIView):
     serializer_class = TaskSerializer
 
     def get_queryset(self):
-        return Task.objects.filter(owner=self.request.user)
+        profile = self.request.user.profile
+        return Task.objects.filter(owner=profile)
 
 
 class TaskForMeListView(generics.ListCreateAPIView):

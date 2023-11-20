@@ -24,7 +24,7 @@ class TaskSerializer(serializers.ModelSerializer):
         # For some reason on production self.initial_data is a regular dict
         if hasattr(self.initial_data, '_mutable'):
             self.initial_data._mutable = True
-        self.initial_data['owner'] = self.context['request'].user.id
+        self.initial_data['owner'] = self.context['request'].user.profile.id
         return super().is_valid(*args, **kwargs)
 
     def validate(self, data):

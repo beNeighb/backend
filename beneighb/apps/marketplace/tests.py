@@ -9,10 +9,7 @@ from rest_framework import status
 from rest_framework.test import APIClient
 from rest_framework.exceptions import ErrorDetail
 
-from apps.users.factories import (
-    UserWithVerifiedEmailFactory,
-    UserWithProfileFactory,
-)
+from apps.users.factories import UserWithProfileFactory, ProfileFactory
 from apps.marketplace.models import Service, Task
 from apps.marketplace.factories import ServiceFactory, TaskFactory
 
@@ -60,7 +57,7 @@ class CreateTaskTestCase(TestCase):
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_create_task_successful(self):
-        user = UserWithVerifiedEmailFactory()
+        user = UserWithProfileFactory()
 
         client = get_client_with_valid_token(user)
 
@@ -84,7 +81,7 @@ class CreateTaskTestCase(TestCase):
         self.assertEqual(task.price_offer, self.correct_data['price_offer'])
 
     def test_create_task_idempotent(self):
-        user = UserWithVerifiedEmailFactory()
+        user = UserWithProfileFactory()
 
         idempotency_key = 'Some idempotency key'
         client = get_client_with_valid_token(user)
@@ -108,7 +105,7 @@ class CreateTaskTestCase(TestCase):
         self.assertEqual(Task.objects.count(), 1)
 
     def test_create_task_without_service_id(self):
-        user = UserWithVerifiedEmailFactory()
+        user = UserWithProfileFactory()
 
         client = get_client_with_valid_token(user)
 
@@ -131,7 +128,7 @@ class CreateTaskTestCase(TestCase):
         )
 
     def test_create_task_with_incorrect_service_id(self):
-        user = UserWithVerifiedEmailFactory()
+        user = UserWithProfileFactory()
 
         client = get_client_with_valid_token(user)
 
@@ -176,7 +173,7 @@ class CreateTaskPriceOfferTestCase(TestCase):
         }
 
     def test_create_task_without_price_offer(self):
-        user = UserWithVerifiedEmailFactory()
+        user = UserWithProfileFactory()
 
         client = get_client_with_valid_token(user)
 
@@ -196,7 +193,7 @@ class CreateTaskPriceOfferTestCase(TestCase):
         )
 
     def test_create_task_with_negative_price_offer(self):
-        user = UserWithVerifiedEmailFactory()
+        user = UserWithProfileFactory()
 
         client = get_client_with_valid_token(user)
 
@@ -220,7 +217,7 @@ class CreateTaskPriceOfferTestCase(TestCase):
         )
 
     def test_create_task_with_zero_price_offer(self):
-        user = UserWithVerifiedEmailFactory()
+        user = UserWithProfileFactory()
 
         client = get_client_with_valid_token(user)
 
@@ -244,7 +241,7 @@ class CreateTaskPriceOfferTestCase(TestCase):
         )
 
     def test_create_task_with_price_offer_not_int(self):
-        user = UserWithVerifiedEmailFactory()
+        user = UserWithProfileFactory()
 
         client = get_client_with_valid_token(user)
 
@@ -283,7 +280,7 @@ class CreateTaskEventTypeTestCase(TestCase):
         }
 
     def test_create_task_without_event_type(self):
-        user = UserWithVerifiedEmailFactory()
+        user = UserWithProfileFactory()
 
         client = get_client_with_valid_token(user)
 
@@ -306,7 +303,7 @@ class CreateTaskEventTypeTestCase(TestCase):
         )
 
     def test_create_task_with_incorrect_event_type(self):
-        user = UserWithVerifiedEmailFactory()
+        user = UserWithProfileFactory()
 
         client = get_client_with_valid_token(user)
 
@@ -330,7 +327,7 @@ class CreateTaskEventTypeTestCase(TestCase):
         )
 
     def test_create_task_with_event_type_online_and_address(self):
-        user = UserWithVerifiedEmailFactory()
+        user = UserWithProfileFactory()
 
         client = get_client_with_valid_token(user)
 
@@ -358,7 +355,7 @@ class CreateTaskEventTypeTestCase(TestCase):
         )
 
     def test_create_task_with_event_type_offline_without_address(self):
-        user = UserWithVerifiedEmailFactory()
+        user = UserWithProfileFactory()
 
         client = get_client_with_valid_token(user)
 
@@ -383,7 +380,7 @@ class CreateTaskEventTypeTestCase(TestCase):
         )
 
     def test_create_task_with_event_type_offline_with_empty_address(self):
-        user = UserWithVerifiedEmailFactory()
+        user = UserWithProfileFactory()
 
         client = get_client_with_valid_token(user)
 
@@ -424,7 +421,7 @@ class CreateTaskDatetimeKnownTestCase(TestCase):
         }
 
     def test_create_task_without_datetime_known(self):
-        user = UserWithVerifiedEmailFactory()
+        user = UserWithProfileFactory()
 
         client = get_client_with_valid_token(user)
 
@@ -437,7 +434,7 @@ class CreateTaskDatetimeKnownTestCase(TestCase):
         self.assertEqual(Task.objects.count(), 0)
 
     def test_create_task_successful(self):
-        user = UserWithVerifiedEmailFactory()
+        user = UserWithProfileFactory()
 
         client = get_client_with_valid_token(user)
 
@@ -453,7 +450,7 @@ class CreateTaskDatetimeKnownTestCase(TestCase):
         self.assertEqual(task.datetime_options, data['datetime_options'])
 
     def test_create_task_datetime_unknown_and_options_present(self):
-        user = UserWithVerifiedEmailFactory()
+        user = UserWithProfileFactory()
 
         client = get_client_with_valid_token(user)
 
@@ -476,7 +473,7 @@ class CreateTaskDatetimeKnownTestCase(TestCase):
         )
 
     def test_create_task_without_required_datetime_options(self):
-        user = UserWithVerifiedEmailFactory()
+        user = UserWithProfileFactory()
         client = get_client_with_valid_token(user)
 
         response = client.post(self.url, self.data)
@@ -493,7 +490,7 @@ class CreateTaskDatetimeKnownTestCase(TestCase):
         )
 
     def test_create_task_with_incorrect_format_required_datetime_options(self):
-        user = UserWithVerifiedEmailFactory()
+        user = UserWithProfileFactory()
         client = get_client_with_valid_token(user)
 
         data = deepcopy(self.data)
@@ -522,7 +519,7 @@ class CreateTaskDatetimeKnownTestCase(TestCase):
         )
 
     def test_create_task_with_datetime_option_in_the_past(self):
-        user = UserWithVerifiedEmailFactory()
+        user = UserWithProfileFactory()
         client = get_client_with_valid_token(user)
 
         datetime_option_1 = datetime.now(tz=timezone.utc) + timedelta(days=1)
@@ -553,7 +550,7 @@ class CreateTaskDatetimeKnownTestCase(TestCase):
         )
 
     def test_create_task_with_more_than_3_datetime_options(self):
-        user = UserWithVerifiedEmailFactory()
+        user = UserWithProfileFactory()
         client = get_client_with_valid_token(user)
 
         data = deepcopy(self.data)
@@ -586,8 +583,8 @@ class RetrieveTaskTestCase(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-        cls.USER = UserWithVerifiedEmailFactory()
-        cls.TASK = TaskFactory(owner=cls.USER)
+        cls.USER = UserWithProfileFactory()
+        cls.TASK = TaskFactory(owner=cls.USER.profile)
         cls.default_url = '/marketplace/tasks/{}/'.format(cls.TASK.id)
 
     def test_returns_401_without_token(self):
@@ -614,7 +611,7 @@ class RetrieveTaskTestCase(TestCase):
         self.assertEqual(response.data['price_offer'], self.TASK.price_offer)
 
     def test_successful_by_another_user(self):
-        user = UserWithVerifiedEmailFactory()
+        user = UserWithProfileFactory()
         client = get_client_with_valid_token(user)
 
         response = client.get(self.default_url)
@@ -640,9 +637,9 @@ class ListMineTasksTestsCase(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-        cls.USER = UserWithVerifiedEmailFactory()
-        cls.TASK_1 = TaskFactory(owner=cls.USER)
-        cls.TASK_2 = TaskFactory(owner=cls.USER)
+        cls.USER = UserWithProfileFactory()
+        cls.TASK_1 = TaskFactory(owner=cls.USER.profile)
+        cls.TASK_2 = TaskFactory(owner=cls.USER.profile)
         cls.TASKS = [cls.TASK_1, cls.TASK_2]
 
     def test_returns_401_without_token(self):
@@ -669,7 +666,7 @@ class ListMineTasksTestsCase(TestCase):
         self.assertEqual(task['price_offer'], self.TASK_1.price_offer)
 
     def test_no_tasks(self):
-        user = UserWithVerifiedEmailFactory()
+        user = UserWithProfileFactory()
         client = get_client_with_valid_token(user)
 
         response = client.get(self.url)
@@ -677,14 +674,14 @@ class ListMineTasksTestsCase(TestCase):
         self.assertEqual(response.data, [])
 
     def test_shows_only_tasks_owned_by_user(self):
-        user = UserWithVerifiedEmailFactory()
-        task = TaskFactory(owner=user)
+        user = UserWithProfileFactory()
+        task = TaskFactory(owner=user.profile)
         client = get_client_with_valid_token(user)
 
         response = client.get(self.url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data[0]['id'], task.id)
-        self.assertEqual(response.data[0]['owner'], user.id)
+        self.assertEqual(response.data[0]['owner'], user.profile.id)
 
 
 class ListForMeTasksTestsCase(TestCase):
@@ -715,13 +712,9 @@ class ListForMeTasksTestsCase(TestCase):
         user.profile.services.add(service_1, service_2)
         user.profile.save()
 
-        task_1 = TaskFactory(
-            owner=UserWithVerifiedEmailFactory(), service=service_1
-        )
-        task_2 = TaskFactory(
-            owner=UserWithVerifiedEmailFactory(), service=service_2
-        )
-        TaskFactory(owner=UserWithVerifiedEmailFactory(), service=service_3)
+        task_1 = TaskFactory(owner=ProfileFactory(), service=service_1)
+        task_2 = TaskFactory(owner=ProfileFactory(), service=service_2)
+        TaskFactory(owner=ProfileFactory(), service=service_3)
 
         response = client.get(self.url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)

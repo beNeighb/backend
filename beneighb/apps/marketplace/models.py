@@ -35,7 +35,7 @@ class Task(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
     service = models.ForeignKey('Service', on_delete=models.PROTECT)
-    owner = models.ForeignKey('users.User', on_delete=models.CASCADE)
+    owner = models.ForeignKey('users.Profile', on_delete=models.CASCADE)
     datetime_known = models.BooleanField()
     datetime_options = ArrayField(
         models.DateTimeField(),
