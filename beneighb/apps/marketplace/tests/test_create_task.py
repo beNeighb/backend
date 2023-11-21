@@ -3,32 +3,15 @@ from datetime import datetime, timedelta, timezone
 
 from django.test import TestCase
 from django.core.cache import cache
-from rest_framework_simplejwt.tokens import RefreshToken
 
 from rest_framework import status
 from rest_framework.test import APIClient
 from rest_framework.exceptions import ErrorDetail
 
-from apps.users.factories import UserWithProfileFactory, ProfileFactory
+from apps.users.factories import UserWithProfileFactory
 from apps.marketplace.models import Service, Task
-from apps.marketplace.factories import ServiceFactory, TaskFactory
-
-
-# TODO: Move to utils
-def update_client_with_correct_token(user, client):
-    AUTHORIZATION_HEADER_TEMPLATE = 'Bearer {token}'
-    refresh_token = RefreshToken.for_user(user)
-
-    AUTHORIZATION_HEADER = AUTHORIZATION_HEADER_TEMPLATE.format(
-        token=refresh_token.access_token
-    )
-    client.credentials(HTTP_AUTHORIZATION=AUTHORIZATION_HEADER)
-
-
-def get_client_with_valid_token(user):
-    client = APIClient()
-    update_client_with_correct_token(user, client)
-    return client
+from apps.marketplace.factories import ServiceFactory
+from apps.marketplace.tests.utils import get_client_with_valid_token
 
 
 class CreateTaskTestCase(TestCase):
@@ -576,160 +559,3 @@ class CreateTaskDatetimeKnownTestCase(TestCase):
                 ]
             },
         )
-
-
-class RetrieveTaskTestCase(TestCase):
-    url_template = '/marketplace/tasks/{}/'
-
-    @classmethod
-    def setUpTestData(cls):
-        cls.USER = UserWithProfileFactory()
-        cls.TASK = TaskFactory(owner=cls.USER.profile)
-        cls.default_url = '/marketplace/tasks/{}/'.format(cls.TASK.id)
-
-    def test_returns_401_without_token(self):
-        client = APIClient()
-
-        response = client.get(self.default_url)
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
-
-    def test_successful(self):
-        client = get_client_with_valid_token(self.USER)
-
-        response = client.get(self.default_url)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-
-        self.assertEqual(response.data['service'], self.TASK.service_id)
-        self.assertEqual(
-            response.data['datetime_known'], self.TASK.datetime_known
-        )
-        self.assertEqual(
-            response.data['datetime_options'], self.TASK.datetime_options
-        )
-        self.assertEqual(response.data['event_type'], self.TASK.event_type)
-        self.assertEqual(response.data['address'], self.TASK.address)
-        self.assertEqual(response.data['price_offer'], self.TASK.price_offer)
-
-    def test_successful_by_another_user(self):
-        user = UserWithProfileFactory()
-        client = get_client_with_valid_token(user)
-
-        response = client.get(self.default_url)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-
-        self.assertEqual(response.data['service'], self.TASK.service_id)
-
-    def test_non_existing_task_id(self):
-        client = get_client_with_valid_token(self.USER)
-
-        NON_EXISTING_TASK_ID = 1000
-        self.assertEqual(
-            Task.objects.filter(id=NON_EXISTING_TASK_ID).count(), 0
-        )
-        url = self.url_template.format(NON_EXISTING_TASK_ID)
-
-        response = client.get(url)
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
-
-
-class ListMineTasksTestsCase(TestCase):
-    url = '/marketplace/tasks/mine/'
-
-    @classmethod
-    def setUpTestData(cls):
-        cls.USER = UserWithProfileFactory()
-        cls.TASK_1 = TaskFactory(owner=cls.USER.profile)
-        cls.TASK_2 = TaskFactory(owner=cls.USER.profile)
-        cls.TASKS = [cls.TASK_1, cls.TASK_2]
-
-    def test_returns_401_without_token(self):
-        client = APIClient()
-
-        response = client.get(self.url)
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
-
-    def test_successful(self):
-        client = get_client_with_valid_token(self.USER)
-
-        response = client.get(self.url)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 2)
-
-        task = response.data[0]
-        self.assertEqual(task['service'], self.TASK_1.service_id)
-        self.assertEqual(task['datetime_known'], self.TASK_1.datetime_known)
-        self.assertEqual(
-            task['datetime_options'], self.TASK_1.datetime_options
-        )
-        self.assertEqual(task['event_type'], self.TASK_1.event_type)
-        self.assertEqual(task['address'], self.TASK_1.address)
-        self.assertEqual(task['price_offer'], self.TASK_1.price_offer)
-
-    def test_no_tasks(self):
-        user = UserWithProfileFactory()
-        client = get_client_with_valid_token(user)
-
-        response = client.get(self.url)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data, [])
-
-    def test_shows_only_tasks_owned_by_user(self):
-        user = UserWithProfileFactory()
-        task = TaskFactory(owner=user.profile)
-        client = get_client_with_valid_token(user)
-
-        response = client.get(self.url)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data[0]['id'], task.id)
-        self.assertEqual(response.data[0]['owner'], user.profile.id)
-
-
-class ListForMeTasksTestsCase(TestCase):
-    url = '/marketplace/tasks/for-me/'
-
-    def test_returns_401_without_token(self):
-        client = APIClient()
-
-        response = client.get(self.url)
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
-
-    def test_no_tasks(self):
-        user = UserWithProfileFactory()
-        client = get_client_with_valid_token(user)
-
-        response = client.get(self.url)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data, [])
-
-    def test_show_applicable_tasks(self):
-        user = UserWithProfileFactory()
-        client = get_client_with_valid_token(user)
-
-        service_1 = ServiceFactory(name='service_1')
-        service_2 = ServiceFactory(name='service_1')
-        service_3 = ServiceFactory(name='service_1')
-
-        user.profile.services.add(service_1, service_2)
-        user.profile.save()
-
-        task_1 = TaskFactory(owner=ProfileFactory(), service=service_1)
-        task_2 = TaskFactory(owner=ProfileFactory(), service=service_2)
-        TaskFactory(owner=ProfileFactory(), service=service_3)
-
-        response = client.get(self.url)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 2)
-
-        tasks = {task_1.id: task_1, task_2.id: task_2}
-        for result_task in response.data:
-            task = tasks[result_task['id']]
-            self.assertEqual(result_task['service'], task.service_id)
-            self.assertEqual(
-                result_task['datetime_known'], task.datetime_known
-            )
-            self.assertEqual(
-                result_task['datetime_options'], task.datetime_options
-            )
-            self.assertEqual(result_task['event_type'], task.event_type)
-            self.assertEqual(result_task['address'], task.address)
-            self.assertEqual(result_task['price_offer'], task.price_offer)
