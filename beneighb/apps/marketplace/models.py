@@ -52,3 +52,18 @@ class Task(models.Model):
 
     def __str__(self):
         return f'Task-{self.id} - {self.service.name}'
+
+
+class Offer(models.Model):
+    class StatusTypes(models.TextChoices):
+        ONLINE = ('pending', 'Pending')
+        OFFLINE = ('confirmed', 'Confirmed')
+
+    task = models.ForeignKey('marketplace.Task', on_delete=models.CASCADE)
+    helper = models.ForeignKey('users.Profile', on_delete=models.CASCADE)
+
+    status = models.CharField(
+        choices=StatusTypes.choices,
+        max_length=9,
+    )
+    created_at = models.DateTimeField(auto_now_add=True, editable=False)

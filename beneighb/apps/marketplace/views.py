@@ -2,8 +2,8 @@ import logging
 
 from django.core.cache import cache
 
-from apps.marketplace.models import Task
-from apps.marketplace.serializers import TaskSerializer
+from apps.marketplace.models import Offer, Task
+from apps.marketplace.serializers import OfferSerializer, TaskSerializer
 
 from rest_framework import generics
 from rest_framework.permissions import BasePermission, IsAuthenticated
@@ -60,3 +60,12 @@ class TaskRetrieveView(generics.RetrieveAPIView):
     queryset = Task.objects.all()
     permission_classes = (IsAuthenticated,)
     serializer_class = TaskSerializer
+
+
+class OfferCreateView(generics.CreateAPIView):
+    permission_classes = (IsAuthenticated, )
+    # permission_classes = (IsAuthenticated, IsIdempotent)
+    serializer_class = OfferSerializer
+    queryset = Offer.objects.all()
+
+
