@@ -63,9 +63,7 @@ class TaskRetrieveView(generics.RetrieveAPIView):
 
 
 class OfferCreateView(generics.CreateAPIView):
-    permission_classes = (IsAuthenticated, )
+    permission_classes = (IsAuthenticated,)
     # permission_classes = (IsAuthenticated, IsIdempotent)
     serializer_class = OfferSerializer
     queryset = Offer.objects.all()
-
-
