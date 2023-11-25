@@ -8,7 +8,7 @@ from django.test import TestCase
 from rest_framework import status
 from rest_framework.test import APIClient
 
-# from rest_framework.exceptions import ErrorDetail
+from rest_framework.exceptions import ErrorDetail
 
 from apps.users.factories import UserWithProfileFactory
 from apps.marketplace.models import Offer, Task
@@ -27,24 +27,20 @@ class CreateOfferTestCase(TestCase):
             'status': 'pending',
         }
 
-    # TODO: Change on response about idempotency
-    # def tearDown(self):
-    #     cache.clear()
-    #     super().tearDown()
-
     def test_returns_401_without_token(self):
         client = APIClient()
 
         response = client.post(self.url, self.correct_data)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
-    def test_create_task_successful(self):
+    def test_create_offer_successful(self):
         user = UserWithProfileFactory()
         client = get_client_with_valid_token(user)
 
         response = client.post(self.url, self.correct_data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
+        self.assertIsNotNone(response.data['created_at'])
         self.assertEqual(Offer.objects.count(), 1)
 
         offer = Offer.objects.get()
@@ -54,7 +50,18 @@ class CreateOfferTestCase(TestCase):
         self.assertEqual(offer.helper, user.profile)
         self.assertEqual(offer.status, 'pending')
 
-    def test_create_task_with_incorrect_task_id(self):
+        # Checking response correctness here, because we need offer.id
+        expected_data_without_created_at = {
+            'id': offer.id,
+            'status': 'pending',
+            'task': self.TASK.id,
+            'helper': user.profile.id,
+        }
+
+        for key, val in expected_data_without_created_at.items():
+            self.assertEqual(response.data[key], val)
+
+    def test_create_offer_with_incorrect_task_id(self):
         user = UserWithProfileFactory()
         client = get_client_with_valid_token(user)
 
@@ -73,7 +80,7 @@ class CreateOfferTestCase(TestCase):
 
         self.assertEqual(Offer.objects.count(), 0)
 
-    def test_create_task_with_incorrect_status(self):
+    def test_create_offer_with_incorrect_status(self):
         user = UserWithProfileFactory()
         client = get_client_with_valid_token(user)
 
@@ -87,26 +94,25 @@ class CreateOfferTestCase(TestCase):
 
         self.assertEqual(Offer.objects.count(), 0)
 
-    # def test_create_task_idempotent(self):
-    #     user = UserWithProfileFactory()
+    def test_cannot_create_second_offer_for_task(self):
+        user = UserWithProfileFactory()
+        client = get_client_with_valid_token(user)
 
-    #     idempotency_key = 'Some idempotency key'
-    #     client = get_client_with_valid_token(user)
+        response = client.post(self.url, self.correct_data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
-    #     datetime_option = datetime.now(tz=timezone.utc) + timedelta(days=1)
-    #     correct_data = deepcopy(self.correct_data)
-    #     correct_data['datetime_options'] = [datetime_option]
+        self.assertEqual(Offer.objects.count(), 1)
 
-    #     response = client.post(
-    #         self.url, correct_data, HTTP_X_IDEMPOTENCY_KEY=idempotency_key
-    #     )
-    #     self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-
-    #     self.assertEqual(Task.objects.count(), 1)
-
-    #     response = client.post(
-    #         self.url, correct_data, HTTP_X_IDEMPOTENCY_KEY=idempotency_key
-    #     )
-    #     self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-
-    #     self.assertEqual(Task.objects.count(), 1)
+        response = client.post(self.url, self.correct_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(
+            response.data,
+            {
+                'non_field_errors': [
+                    ErrorDetail(
+                        string='Only one offer is allowed per task.',
+                        code='invalid',
+                    )
+                ]
+            },
+        )

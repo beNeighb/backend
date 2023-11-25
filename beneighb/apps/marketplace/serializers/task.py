@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 from rest_framework import serializers
-from apps.marketplace.models import Offer, Task
+from apps.marketplace.models import Task
 
 
 # TODO: Move this class to some utils to reuse in all apps
@@ -110,31 +110,3 @@ class TaskSerializer(serializers.ModelSerializer):
                     'price_offer': 'price_offer should be greater than 0',
                 }
             )
-
-
-class OfferSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Offer
-        fields = '__all__'
-
-    def is_valid(self, *args, **kwargs):
-        if hasattr(self.initial_data, '_mutable'):
-            self.initial_data._mutable = True
-        self.initial_data['helper'] = self.context['request'].user.profile.id
-        return super().is_valid(*args, **kwargs)
-
-    # def validate(self, data):
-    #     datetime_known = data['datetime_known']
-    #     datetime_options = data.get('datetime_options')
-
-    #     self._validate_datetime_options(datetime_known, datetime_options)
-
-    #     event_type = data['event_type']
-    #     address = data.get('address')
-
-    #     self._validate_event_type_address(event_type, address)
-
-    #     price_offer = data['price_offer']
-    #     self._validate_price_offer(price_offer)
-
-    #     return super().validate(data)
