@@ -56,8 +56,8 @@ class Task(models.Model):
 
 class Offer(models.Model):
     class StatusTypes(models.TextChoices):
-        ONLINE = ('pending', 'Pending')
-        OFFLINE = ('confirmed', 'Confirmed')
+        PENDING = ('pending', 'Pending')
+        CONFIRMED = ('confirmed', 'Confirmed')
 
     task = models.ForeignKey('marketplace.Task', on_delete=models.CASCADE)
     helper = models.ForeignKey('users.Profile', on_delete=models.CASCADE)
