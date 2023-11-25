@@ -2,6 +2,7 @@ from factory import SubFactory
 from factory.django import DjangoModelFactory
 
 from apps.marketplace.models import ServiceCategory, Service, Task
+from apps.users.factories import ProfileFactory
 
 
 class ServiceCategoryFactory(DjangoModelFactory):
@@ -24,3 +25,4 @@ class TaskFactory(DjangoModelFactory):
     event_type = 'online'
     price_offer = 100
     service = SubFactory(ServiceFactory)
+    owner = SubFactory(ProfileFactory)

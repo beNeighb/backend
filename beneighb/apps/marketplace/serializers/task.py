@@ -20,7 +20,7 @@ class TaskSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
     def is_valid(self, *args, **kwargs):
-        # Setting owner of the task to current user
+        # Setting owner of the task to current user's profile
         # For some reason on production self.initial_data is a regular dict
         if hasattr(self.initial_data, '_mutable'):
             self.initial_data._mutable = True
