@@ -11,6 +11,7 @@ class OfferSerializer(serializers.ModelSerializer):
         if hasattr(self.initial_data, '_mutable'):
             self.initial_data._mutable = True
         self.initial_data['helper'] = self.context['request'].user.profile.id
+        self.initial_data['status'] = Offer.StatusTypes.PENDING
         return super().is_valid(*args, **kwargs)
 
     def validate(self, data):

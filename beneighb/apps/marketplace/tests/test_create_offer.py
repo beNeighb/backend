@@ -19,7 +19,6 @@ class CreateOfferTestCase(TestCase):
         cls.TASK = TaskFactory()
         cls.correct_data = {
             'task': cls.TASK.id,
-            'status': 'pending',
         }
 
     def test_returns_401_without_token(self):
@@ -68,20 +67,6 @@ class CreateOfferTestCase(TestCase):
         data = {
             'status': 'pending',
             'task': NON_EXISTING_TASK_ID,
-        }
-
-        response = client.post(self.url, data)
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
-        self.assertEqual(Offer.objects.count(), 0)
-
-    def test_create_offer_with_incorrect_status(self):
-        user = UserWithProfileFactory()
-        client = get_client_with_valid_token(user)
-
-        data = {
-            'status': 'incorrect status',
-            'task': self.TASK.id,
         }
 
         response = client.post(self.url, data)
