@@ -1,9 +1,4 @@
-# from copy import deepcopy
-# from datetime import datetime, timedelta, timezone
-
 from django.test import TestCase
-
-# from django.core.cache import cache
 
 from rest_framework import status
 from rest_framework.test import APIClient
@@ -43,7 +38,7 @@ class CreateOfferTestCase(TestCase):
         self.assertIsNotNone(response.data['created_at'])
         self.assertEqual(Offer.objects.count(), 1)
 
-        offer = Offer.objects.get()
+        offer = Offer.objects.first()
 
         self.assertIsNotNone(offer.created_at)
         self.assertEqual(offer.task, self.TASK)
