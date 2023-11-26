@@ -110,6 +110,9 @@ class User(AbstractUser):
             verified = email.verified
         return verified
 
+    def __str__(self):
+        return self.email
+
 
 """receivers to add a Profile for newly created users"""
 
