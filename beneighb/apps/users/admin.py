@@ -5,7 +5,12 @@ from .models import Profile, User
 
 
 class CustomUserAdmin(UserAdmin):
-    list_display = ['email', 'first_name', 'last_name', 'email_verified']
+    list_display = [
+        'email',
+        'first_name',
+        'last_name',
+        'email_verified',
+    ]
     readonly_fields = ['email_verified']
     add_fieldsets = (
         (
@@ -14,6 +19,7 @@ class CustomUserAdmin(UserAdmin):
                 'classes': ('wide',),
                 'fields': (
                     'email',
+                    'profile',
                     'password1',
                     'password2',
                 ),
@@ -21,13 +27,41 @@ class CustomUserAdmin(UserAdmin):
         ),
     )
 
+    fieldsets = (
+        (
+            None,
+            {
+                'fields': (
+                    'email',
+                    'password',
+                    'profile',
+                ),
+            },
+        ),
+        (
+            'Permissions',
+            {
+                'fields': (
+                    'is_active',
+                    'is_staff',
+                    'is_superuser',
+                    # 'groups',
+                    # 'user_permissions',
+                ),
+            },
+        ),
+        (
+            'Important dates',
+            {
+                'fields': ('last_login', 'date_joined'),
+            },
+        ),
+    )
+
     def get_fields(self, request, obj=None):
         fields = super().get_fields(request, obj)
-
-        # Exclude the password field from the list of fields
-        fields = [field for field in fields if field != 'password']
-
-        return fields
+        fields_wo_password = [field for field in fields if field != 'password']
+        return fields_wo_password
 
 
 admin.site.register(User, CustomUserAdmin)
