@@ -4,6 +4,7 @@ from django.contrib.auth.admin import UserAdmin
 from .models import Profile, User
 
 
+@admin.register(User)
 class CustomUserAdmin(UserAdmin):
     list_display = [
         'email',
@@ -45,8 +46,6 @@ class CustomUserAdmin(UserAdmin):
                     'is_active',
                     'is_staff',
                     'is_superuser',
-                    # 'groups',
-                    # 'user_permissions',
                 ),
             },
         ),
@@ -64,16 +63,36 @@ class CustomUserAdmin(UserAdmin):
         return fields_wo_password
 
 
-admin.site.register(User, CustomUserAdmin)
+class UserInline(admin.StackedInline):
+    model = User
+    can_delete = False
+    verbose_name_plural = 'Users'
+
+    fieldsets = (
+        (
+            None,
+            {
+                'fields': ('username', 'email', 'password'),
+            },
+        ),
+        (
+            'Permissions',
+            {
+                'fields': ('is_active', 'is_staff', 'is_superuser'),
+            },
+        ),
+    )
 
 
-admin.site.register(
-    Profile,
-    list_display=[
+@admin.register(Profile)
+class CustomProfileAdmin(admin.ModelAdmin):
+    list_display = [
+        'user',
         'name',
         'age_above_18',
         'agreed_with_conditions',
         'gender',
         'speaking_languages',
-    ],
-)
+    ]
+
+    inlines = [UserInline]
