@@ -66,7 +66,7 @@ class CreateTaskTestCase(TestCase):
     def test_create_task_idempotent(self):
         user = UserWithProfileFactory()
 
-        idempotency_key = 'Some idempotency key'
+        idempotency_key = 'Some-idempotency-key'
         client = get_client_with_valid_token(user)
 
         datetime_option = datetime.now(tz=timezone.utc) + timedelta(days=1)
