@@ -44,9 +44,9 @@ class OfferSerializer(serializers.ModelSerializer):
     def _validate_helper_has_matching_service(self, task, profile_id):
         helper = self._get_helper_profile()
 
-        if not task.service in helper.services.all():
+        if task.service not in helper.services.all():
             raise serializers.ValidationError(
                 [
-                    'You cannot create offer because you do not have a matching service.'
+                    'You cannot create offer because you do not have a matching service.'  # noqa
                 ]
             )
