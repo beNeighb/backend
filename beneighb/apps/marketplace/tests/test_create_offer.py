@@ -29,6 +29,7 @@ class CreateOfferTestCase(TestCase):
 
     def test_create_offer_successful(self):
         user = UserWithProfileFactory()
+        user.profile.services.add(self.TASK.service)
         client = get_client_with_valid_token(user)
 
         response = client.post(self.url, self.correct_data)
@@ -76,6 +77,7 @@ class CreateOfferTestCase(TestCase):
 
     def test_cannot_create_second_offer_for_task(self):
         user = UserWithProfileFactory()
+        user.profile.services.add(self.TASK.service)
         client = get_client_with_valid_token(user)
 
         response = client.post(self.url, self.correct_data)
@@ -115,6 +117,27 @@ class CreateOfferTestCase(TestCase):
                 'non_field_errors': [
                     ErrorDetail(
                         string='You can not offer to help your own task',
+                        code='invalid',
+                    )
+                ]
+            },
+        )
+
+    def test_cannot_create_offer_for_helper_without_matching_service(self):
+        user = UserWithProfileFactory()
+        self.assertEqual(user.profile.services.count(), 0)
+
+        client = get_client_with_valid_token(user)
+
+        response = client.post(self.url, self.correct_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        self.assertEqual(
+            response.data,
+            {
+                'non_field_errors': [
+                    ErrorDetail(
+                        string='You cannot create offer because you do not have a matching service.',  # noqa
                         code='invalid',
                     )
                 ]
