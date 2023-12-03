@@ -24,7 +24,7 @@ class OfferSerializer(serializers.ModelSerializer):
     def _validate_helper(self, task, profile_id):
         self._validate_not_owner(task, profile_id)
         self._validate_doesnt_have_offer_for_the_task(task, profile_id)
-        self._validate_helper_has_correct_service(task, profile_id)
+        self._validate_helper_has_matching_service(task, profile_id)
 
     def _validate_not_owner(self, task, profile_id):
         if task.owner.id == profile_id:
@@ -38,7 +38,7 @@ class OfferSerializer(serializers.ModelSerializer):
                 ['Only one offer is allowed per task.']
             )
 
-    def _validate_helper_has_correct_service(self, task, profile_id):
+    def _validate_helper_has_matching_service(self, task, profile_id):
         helper = self.context['request'].user.profile
 
         if not task.service in helper.services.all():
