@@ -7,16 +7,19 @@ class OfferSerializer(serializers.ModelSerializer):
         model = Offer
         fields = '__all__'
 
+    def _get_helper_profile(self):
+        return self.context['request'].user.profile
+
     def is_valid(self, *args, **kwargs):
         if hasattr(self.initial_data, '_mutable'):
             self.initial_data._mutable = True
-        self.initial_data['helper'] = self.context['request'].user.profile.id
+        self.initial_data['helper'] = self._get_helper_profile().id
         self.initial_data['status'] = Offer.StatusTypes.PENDING
         return super().is_valid(*args, **kwargs)
 
     def validate(self, data):
         task = data['task']
-        profile_id = self.context['request'].user.profile.id
+        profile_id = self._get_helper_profile().id
 
         self._validate_helper(task, profile_id)
         return super().validate(data)
@@ -39,7 +42,7 @@ class OfferSerializer(serializers.ModelSerializer):
             )
 
     def _validate_helper_has_matching_service(self, task, profile_id):
-        helper = self.context['request'].user.profile
+        helper = self._get_helper_profile()
 
         if not task.service in helper.services.all():
             raise serializers.ValidationError(
