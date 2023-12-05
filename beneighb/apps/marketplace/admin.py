@@ -59,6 +59,14 @@ class OfferAdminSerializer(OfferSerializer):
 
 
 class OfferAdmin(admin.ModelAdmin):
+    list_display = [
+        'id',
+        'task',
+        'helper',
+        'status',
+        'created_at',
+    ]
+
     model = Offer
 
     def save_model(self, request, obj, form, change):

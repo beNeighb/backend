@@ -67,3 +67,6 @@ class Offer(models.Model):
         max_length=9,
     )
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
+
+    def __str__(self):
+        return f'Offer-{self.id}|Task-{self.task.id}'
