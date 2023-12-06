@@ -1,6 +1,7 @@
 from datetime import datetime, timezone
 from rest_framework import serializers
 from apps.marketplace.models import Task
+from apps.marketplace.serializers.offer import OfferWithHelperSerializer
 
 
 # TODO: Move this class to some utils to reuse in all apps
@@ -14,10 +15,23 @@ class RequirableBooleanField(serializers.BooleanField):
 
 class TaskSerializer(serializers.ModelSerializer):
     datetime_known = RequirableBooleanField(required=True)
+    offers = OfferWithHelperSerializer(
+        many=True, read_only=True, source='offer_set'
+    )
 
     class Meta:
         model = Task
-        fields = '__all__'
+        fields = (
+            'id',
+            'service',
+            'owner',
+            'datetime_known',
+            'datetime_options',
+            'event_type',
+            'address',
+            'price_offer',
+            'offers',
+        )
 
     def is_valid(self, *args, **kwargs):
         # Setting owner of the task to current user's profile
