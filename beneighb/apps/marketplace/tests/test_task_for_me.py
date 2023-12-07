@@ -16,6 +16,17 @@ from apps.marketplace.tests.utils import get_client_with_valid_token
 class TaskForMeListTestsCase(TestCase):
     url = '/marketplace/tasks/for-me/'
 
+    def assert_helper_equal(self, response_helper, db_helper):
+        self.assertEqual(response_helper['id'], db_helper.id)
+        self.assertEqual(response_helper['name'], db_helper.name)
+        self.assertEqual(
+            response_helper['speaking_languages'], db_helper.speaking_languages
+        )
+        self.assertEqual(
+            set(response_helper['services']),
+            set(db_helper.services.values_list('id', flat=True)),
+        )
+
     def test_returns_401_without_token(self):
         client = APIClient()
 
@@ -79,3 +90,53 @@ class TaskForMeListTestsCase(TestCase):
         self.assertEqual(len(response.data), 1)
         self.assertEqual(response.data[0]['id'], task_1.id)
         self.assertNotEqual(response.data[0]['id'], my_task.id)
+
+    def test_show_with_my_offer_in_task(self):
+        service_1 = ServiceFactory(name='service_1')
+        user = UserWithProfileFactory()
+        user.profile.services.add(service_1)
+        user.profile.save()
+
+        task_1 = TaskFactory(owner=ProfileFactory(), service=service_1)
+        offer = OfferFactory(task=task_1, helper=user.profile)
+
+        client = get_client_with_valid_token(user)
+
+        response = client.get(self.url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+
+        offers = response.data[0]['offers']
+        mine_offer = offers[0]
+        self.assertEqual(mine_offer['id'], offer.id)
+        self.assertEqual(mine_offer['status'], offer.status)
+
+        helper = mine_offer['helper']
+        self.assert_helper_equal(helper, user.profile)
+
+    def test_doesnt_show_other_offers_in_task(self):
+        service_1 = ServiceFactory(name='service_1')
+        user = UserWithProfileFactory()
+        user.profile.services.add(service_1)
+        user.profile.save()
+
+        task = TaskFactory(owner=ProfileFactory(), service=service_1)
+        my_offer = OfferFactory(task=task, helper=user.profile)
+        other_offer_1 = OfferFactory(task=task)  # noqa
+        other_offer_2 = OfferFactory(task=task)  # noqa
+
+        client = get_client_with_valid_token(user)
+
+        response = client.get(self.url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+
+        offers = response.data[0]['offers']
+        self.assertEqual(len(offers), 1)
+
+        offer = offers[0]
+        self.assertEqual(offer['id'], my_offer.id)
+        self.assertEqual(offer['status'], my_offer.status)
+
+        offer_helper = offer['helper']
+        self.assert_helper_equal(offer_helper, user.profile)
