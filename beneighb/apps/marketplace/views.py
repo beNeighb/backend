@@ -5,9 +5,8 @@ from django.core.cache import cache
 from apps.marketplace.models import Offer, Task
 from apps.marketplace.serializers import (
     OfferSerializer,
-    TaskSerializer,
-    TaskForMeSerializer,
-    TaskRetrieveSerializer,
+    TaskCreateSerializer,
+    TaskWithOffersSerializer,
 )
 
 from rest_framework import generics
@@ -37,13 +36,13 @@ class IsIdempotent(BasePermission):
 
 class TaskCreateView(generics.CreateAPIView):
     permission_classes = (IsAuthenticated, IsIdempotent)
-    serializer_class = TaskSerializer
+    serializer_class = TaskCreateSerializer
     queryset = Task.objects.all()
 
 
 class TaskMineListView(generics.ListCreateAPIView):
     permission_classes = (IsAuthenticated,)
-    serializer_class = TaskSerializer
+    serializer_class = TaskWithOffersSerializer
 
     def get_queryset(self):
         profile = self.request.user.profile
@@ -52,7 +51,7 @@ class TaskMineListView(generics.ListCreateAPIView):
 
 class TaskForMeListView(generics.ListCreateAPIView):
     permission_classes = (IsAuthenticated,)
-    serializer_class = TaskForMeSerializer
+    serializer_class = TaskWithOffersSerializer
 
     def get_queryset(self):
         user = self.request.user
@@ -66,7 +65,7 @@ class TaskForMeListView(generics.ListCreateAPIView):
 class TaskRetrieveView(generics.RetrieveAPIView):
     queryset = Task.objects.all()
     permission_classes = (IsAuthenticated,)
-    serializer_class = TaskRetrieveSerializer
+    serializer_class = TaskWithOffersSerializer
 
 
 class OfferCreateView(generics.CreateAPIView):
