@@ -44,6 +44,40 @@ class TaskForMeSerializer(serializers.ModelSerializer):
         return representation
 
 
+class TaskRetrieveSerializer(serializers.ModelSerializer):
+    datetime_known = RequirableBooleanField(required=True)
+    offers = OfferWithHelperSerializer(
+        many=True, read_only=True, source='offer_set'
+    )
+
+    class Meta:
+        model = Task
+        fields = (
+            'id',
+            'service',
+            'owner',
+            'datetime_known',
+            'datetime_options',
+            'event_type',
+            'address',
+            'price_offer',
+            'offers',
+        )
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+
+        current_user = self.context['request'].user.profile
+
+        offers = instance.offer_set.all()
+        if instance.owner != current_user:
+            offers = instance.offer_set.filter(helper=current_user)
+
+        offer_serializer = OfferWithHelperSerializer(offers, many=True)
+        representation['offers'] = offer_serializer.data
+        return representation
+
+
 class TaskSerializer(serializers.ModelSerializer):
     datetime_known = RequirableBooleanField(required=True)
     offers = OfferWithHelperSerializer(

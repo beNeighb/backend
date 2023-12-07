@@ -7,6 +7,7 @@ from apps.marketplace.serializers import (
     OfferSerializer,
     TaskSerializer,
     TaskForMeSerializer,
+    TaskRetrieveSerializer,
 )
 
 from rest_framework import generics
@@ -65,7 +66,7 @@ class TaskForMeListView(generics.ListCreateAPIView):
 class TaskRetrieveView(generics.RetrieveAPIView):
     queryset = Task.objects.all()
     permission_classes = (IsAuthenticated,)
-    serializer_class = TaskSerializer
+    serializer_class = TaskRetrieveSerializer
 
 
 class OfferCreateView(generics.CreateAPIView):

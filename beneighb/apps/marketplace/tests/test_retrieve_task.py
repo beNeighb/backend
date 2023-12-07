@@ -4,8 +4,8 @@ from rest_framework import status
 from rest_framework.test import APIClient
 
 from apps.users.factories import UserWithProfileFactory
-from apps.marketplace.models import Task
-from apps.marketplace.factories import TaskFactory
+from apps.marketplace.models import Offer, Task
+from apps.marketplace.factories import OfferFactory, TaskFactory
 from apps.marketplace.tests.utils import get_client_with_valid_token
 
 
@@ -17,6 +17,21 @@ class RetrieveTaskTestCase(TestCase):
         cls.USER = UserWithProfileFactory()
         cls.TASK = TaskFactory(owner=cls.USER.profile)
         cls.default_url = '/marketplace/tasks/{}/'.format(cls.TASK.id)
+
+    def assert_offer_equal(self, response_offer, offer):
+        self.assertEqual(response_offer['id'], offer.id)
+        self.assertEqual(response_offer['status'], offer.status)
+        self.assert_helper_equal(response_offer['helper'], offer.helper)
+
+    def assert_helper_equal(self, response_helper, db_helper):
+        self.assertEqual(response_helper['id'], db_helper.id)
+        self.assertEqual(response_helper['name'], db_helper.name)
+        self.assertEqual(
+            response_helper['speaking_languages'], db_helper.speaking_languages
+        )
+        self.assertEqual(
+            response_helper['services'], list(db_helper.services.all())
+        )
 
     def test_returns_401_without_token(self):
         client = APIClient()
@@ -61,3 +76,34 @@ class RetrieveTaskTestCase(TestCase):
 
         response = client.get(url)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_my_task_includes_all_offers(self):
+        offer_1 = OfferFactory(task=self.TASK)
+        offer_2 = OfferFactory(task=self.TASK)
+        offer_3 = OfferFactory(task=self.TASK)
+
+        client = get_client_with_valid_token(self.USER)
+
+        response = client.get(self.default_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        offers = response.data['offers']
+        self.assertEqual(len(offers), 3)
+        for response_offer in offers:
+            offer = Offer.objects.get(id=response_offer['id'])
+            self.assert_offer_equal(response_offer, offer)
+
+    def test_another_user_task_includes_only_my_offer(self):
+        user = UserWithProfileFactory()
+        offer_1 = OfferFactory(task=self.TASK, helper=user.profile)
+        offer_2 = OfferFactory(task=self.TASK)
+        offer_3 = OfferFactory(task=self.TASK)
+
+        client = get_client_with_valid_token(user)
+
+        response = client.get(self.default_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        offers = response.data['offers']
+        self.assertEqual(len(offers), 1)
+        self.assert_offer_equal(offers[0], offer_1)
