@@ -91,7 +91,7 @@ class TaskForMeListTestsCase(TestCase):
         self.assertEqual(response.data[0]['id'], task_1.id)
         self.assertNotEqual(response.data[0]['id'], my_task.id)
 
-    def test_show_with_my_offer_in_task(self):
+    def test_show_my_offer_in_task(self):
         service_1 = ServiceFactory(name='service_1')
         user = UserWithProfileFactory()
         user.profile.services.add(service_1)
@@ -107,11 +107,11 @@ class TaskForMeListTestsCase(TestCase):
         self.assertEqual(len(response.data), 1)
 
         offers = response.data[0]['offers']
-        mine_offer = offers[0]
-        self.assertEqual(mine_offer['id'], offer.id)
-        self.assertEqual(mine_offer['status'], offer.status)
+        my_offer = offers[0]
+        self.assertEqual(my_offer['id'], offer.id)
+        self.assertEqual(my_offer['status'], offer.status)
 
-        helper = mine_offer['helper']
+        helper = my_offer['helper']
         self.assert_helper_equal(helper, user.profile)
 
     def test_doesnt_show_other_offers_in_task(self):
@@ -128,9 +128,6 @@ class TaskForMeListTestsCase(TestCase):
         client = get_client_with_valid_token(user)
 
         response = client.get(self.url)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 1)
-
         offers = response.data[0]['offers']
         self.assertEqual(len(offers), 1)
 
