@@ -1,5 +1,2 @@
-from .task import (
-    TaskCreateSerializer,
-    TaskWithOffersSerializer,
-)  # noqa
+from .task import TaskCreateSerializer, TaskWithOffersSerializer  # noqa
 from .offer import OfferSerializer  # noqa

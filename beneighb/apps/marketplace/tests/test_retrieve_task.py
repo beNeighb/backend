@@ -78,9 +78,8 @@ class RetrieveTaskTestCase(TestCase):
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_my_task_includes_all_offers(self):
-        offer_1 = OfferFactory(task=self.TASK)
-        offer_2 = OfferFactory(task=self.TASK)
-        offer_3 = OfferFactory(task=self.TASK)
+        for i in range(3):
+            OfferFactory(task=self.TASK)
 
         client = get_client_with_valid_token(self.USER)
 
@@ -96,8 +95,8 @@ class RetrieveTaskTestCase(TestCase):
     def test_another_user_task_includes_only_my_offer(self):
         user = UserWithProfileFactory()
         offer_1 = OfferFactory(task=self.TASK, helper=user.profile)
-        offer_2 = OfferFactory(task=self.TASK)
-        offer_3 = OfferFactory(task=self.TASK)
+        for i in range(2):
+            OfferFactory(task=self.TASK)
 
         client = get_client_with_valid_token(user)
 
