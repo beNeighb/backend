@@ -1,5 +1,14 @@
 from rest_framework import serializers
 from apps.marketplace.models import Offer
+from apps.users.serializers import ShortProfileSerializer
+
+
+class OfferWithHelperSerializer(serializers.ModelSerializer):
+    helper = ShortProfileSerializer(read_only=True)
+
+    class Meta:
+        model = Offer
+        fields = ('id', 'helper', 'status', 'created_at')
 
 
 class OfferSerializer(serializers.ModelSerializer):
