@@ -6,6 +6,7 @@ from apps.marketplace.views import (
     TaskForMeListView,
     TaskMineListView,
     TaskRetrieveView,
+    TaskWithMyOfferListView,
 )
 
 
@@ -23,6 +24,11 @@ urlpatterns = [
     path(
         'tasks/for-me/',
         TaskForMeListView.as_view(),
+        name='tasks-for-me',
+    ),
+    path(
+        'tasks/with-my-offer/',
+        TaskWithMyOfferListView.as_view(),
         name='tasks-for-me',
     ),
     path(
