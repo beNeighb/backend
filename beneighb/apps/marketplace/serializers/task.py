@@ -23,6 +23,7 @@ class TaskWithOffersSerializer(serializers.ModelSerializer):
         model = Task
         fields = (
             'id',
+            'created_at',
             'service',
             'owner',
             'datetime_known',

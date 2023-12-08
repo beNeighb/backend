@@ -64,6 +64,7 @@ class TaskForMeListTestsCase(TestCase):
         for result_task in response.data:
             task = tasks[result_task['id']]
             self.assertEqual(result_task['service'], task.service_id)
+            self.assertIsNotNone(result_task['created_at'])
             self.assertEqual(
                 result_task['datetime_known'], task.datetime_known
             )
