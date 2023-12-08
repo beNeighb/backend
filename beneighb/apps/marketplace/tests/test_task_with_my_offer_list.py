@@ -5,7 +5,7 @@ from unittest import mock
 from rest_framework import status
 from rest_framework.test import APIClient
 
-from apps.users.factories import ProfileFactory, UserWithProfileFactory
+from apps.users.factories import UserWithProfileFactory
 from apps.marketplace.factories import (
     OfferFactory,
     ServiceFactory,
@@ -32,18 +32,17 @@ class TaskWithMyOfferListTestsCase(TestCase):
         self.assertEqual(response.data, [])
 
     def test_show_tasks_with_my_offer(self):
-        service_1 = ServiceFactory(name='service_1')
+        service = ServiceFactory(name='service')
         user = UserWithProfileFactory()
-        user.profile.services.add(service_1)
+        user.profile.services.add(service)
         user.profile.save()
 
-        task_1 = TaskFactory(owner=ProfileFactory(), service=service_1)
-        task_2 = TaskFactory(service=service_1)
-        task_3 = TaskFactory(service=service_1)
+        task_1 = TaskFactory(service=service)
+        task_2 = TaskFactory(service=service)
+        task_without_my_offer = TaskFactory(service=service)  # noqa
 
-        my_offer_1 = OfferFactory(helper=user.profile, task=task_1)
-        my_offer_2 = OfferFactory(helper=user.profile, task=task_2)
-        another_offer_3 = OfferFactory(task=task_3)  # noqa
+        my_offer_1 = OfferFactory(helper=user.profile, task=task_1)  # noqa
+        my_offer_2 = OfferFactory(helper=user.profile, task=task_2)  # noqa
 
         client = get_client_with_valid_token(user)
 
@@ -51,59 +50,72 @@ class TaskWithMyOfferListTestsCase(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 2)
 
-        my_speaking_languages = user.profile.speaking_languages
-        expected_my_offer_1 = {
-            'id': my_offer_1.id,
-            'status': my_offer_1.status,
+        response_task_ids = [task['id'] for task in response.data]
+        self.assertEqual(response_task_ids, [task_1.id, task_2.id])
+
+    def test_returns_correct_fields(self):
+        service = ServiceFactory(name='service')
+        user = UserWithProfileFactory()
+        user.profile.services.add(service)
+        user.profile.save()
+
+        task = TaskFactory(service=service)
+        my_offer = OfferFactory(helper=user.profile, task=task)
+
+        client = get_client_with_valid_token(user)
+
+        response = client.get(self.url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        expected_my_offer = {
+            'id': my_offer.id,
+            'status': my_offer.status,
             'created_at': mock.ANY,
             'helper': {
                 'id': user.profile.id,
                 'name': user.profile.name,
-                'speaking_languages': my_speaking_languages,
-                'services': [service_1.id],
+                'speaking_languages': user.profile.speaking_languages,
+                'services': [service.id],
             },
         }
 
-        expected_my_offer_2 = {
-            'id': my_offer_2.id,
-            'status': my_offer_2.status,
-            'created_at': mock.ANY,
-            'helper': {
-                'id': user.profile.id,
-                'name': user.profile.name,
-                'speaking_languages': my_speaking_languages,
-                'services': [service_1.id],
-            },
-        }
-
-        expected_task_1 = OrderedDict(
+        expected_task = OrderedDict(
             {
-                'id': task_1.id,
+                'id': task.id,
                 'created_at': mock.ANY,
-                'service': service_1.id,
-                'owner': task_1.owner_id,
-                'datetime_known': task_1.datetime_known,
-                'datetime_options': task_1.datetime_options,
-                'event_type': task_1.event_type,
-                'address': task_1.address,
-                'price_offer': task_1.price_offer,
-                'offers': [expected_my_offer_1],
-            }
-        )
-        expected_task_2 = OrderedDict(
-            {
-                'id': task_2.id,
-                'created_at': mock.ANY,
-                'service': service_1.id,
-                'owner': task_2.owner_id,
-                'datetime_known': task_2.datetime_known,
-                'datetime_options': task_2.datetime_options,
-                'event_type': task_2.event_type,
-                'address': task_2.address,
-                'price_offer': task_2.price_offer,
-                'offers': [expected_my_offer_2],
+                'service': service.id,
+                'owner': task.owner_id,
+                'datetime_known': task.datetime_known,
+                'datetime_options': task.datetime_options,
+                'event_type': task.event_type,
+                'address': task.address,
+                'price_offer': task.price_offer,
+                'offers': [expected_my_offer],
             }
         )
 
-        self.assertEqual(response.data[0], expected_task_1)
-        self.assertEqual(response.data[1], expected_task_2)
+        self.assertEqual(response.data[0], expected_task)
+
+    def test_doesnt_show_other_offers_in_task(self):
+        service = ServiceFactory(name='service')
+        user = UserWithProfileFactory()
+        user.profile.services.add(service)
+        user.profile.save()
+
+        task = TaskFactory(service=service)
+
+        my_offer_1 = OfferFactory(helper=user.profile, task=task)
+        my_offer_2 = OfferFactory(helper=user.profile, task=task)
+        another_offer = OfferFactory(task=task)  # noqa
+
+        client = get_client_with_valid_token(user)
+
+        response = client.get(self.url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        offers_ids = [offer['id'] for offer in response.data[0]['offers']]
+
+        self.assertIn(my_offer_1.id, offers_ids)
+        self.assertIn(my_offer_2.id, offers_ids)
+
+        self.assertNotIn(another_offer.id, offers_ids)
