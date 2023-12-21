@@ -59,18 +59,3 @@ class TaskRetrieveView(generics.RetrieveAPIView):
     queryset = Task.objects.all()
     permission_classes = (IsAuthenticated,)
     serializer_class = TaskWithOffersSerializer
-
-
-class OfferCreateView(generics.CreateAPIView):
-    permission_classes = (IsAuthenticated,)
-    serializer_class = OfferSerializer
-    queryset = Offer.objects.all()
-
-
-class OfferMineListView(generics.ListCreateAPIView):
-    permission_classes = (IsAuthenticated,)
-    serializer_class = OfferSerializer
-
-    def get_queryset(self):
-        my_profile = self.request.user.profile
-        return Offer.objects.filter(helper=my_profile)
