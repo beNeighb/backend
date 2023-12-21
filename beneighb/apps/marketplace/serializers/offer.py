@@ -8,7 +8,7 @@ class OfferWithHelperSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Offer
-        fields = ('id', 'helper', 'status', 'created_at')
+        fields = ('id', 'helper', 'status', 'created_at', 'is_accepted')
 
 
 class OfferSerializer(serializers.ModelSerializer):

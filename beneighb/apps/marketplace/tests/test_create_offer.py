@@ -50,6 +50,7 @@ class CreateOfferTestCase(TestCase):
             'id': offer.id,
             'status': 'pending',
             'task': self.TASK.id,
+            'is_accepted': False,
             'helper': user.profile.id,
         }
 

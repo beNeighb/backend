@@ -62,6 +62,8 @@ class Offer(models.Model):
     task = models.ForeignKey('marketplace.Task', on_delete=models.CASCADE)
     helper = models.ForeignKey('users.Profile', on_delete=models.CASCADE)
 
+    is_accepted = models.BooleanField(default=False)
+
     status = models.CharField(
         choices=StatusTypes.choices,
         max_length=9,
