@@ -6,7 +6,6 @@ from rest_framework.permissions import IsAuthenticated
 from apps.marketplace.permissions import IsIdempotent
 from apps.marketplace.models import Offer, Task
 from apps.marketplace.serializers import (
-    OfferSerializer,
     TaskCreateSerializer,
     TaskWithOffersSerializer,
 )

@@ -1,8 +1,8 @@
-from .task import (
+from .task import (  # noqa: F401
     TaskCreateView,
     TaskForMeListView,
     TaskMineListView,
     TaskRetrieveView,
     TaskWithMyOfferListView,
-)  # noqa
+)
 from .offer import OfferCreateView, OfferMineListView  # noqa

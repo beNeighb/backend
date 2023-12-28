@@ -44,13 +44,26 @@ class OfferSerializer(serializers.ModelSerializer):
         return super().validate(data)
 
     def _validate_is_accepted(self, data):
+        if data.get('is_accepted') is False:
+            return
+
         if self.instance is None:
-            if data.get('is_accepted', True):
-                raise serializers.ValidationError(
-                    {
-                        'is_accepted': 'You cannot create offer with is_accepted=True',
-                    }
-                )
+            raise serializers.ValidationError(
+                {
+                    'is_accepted': 'You cannot create offer with is_accepted=True',  # noqa
+                }
+            )
+
+        accepted_offers = self.instance.task.offer_set.filter(
+            is_accepted=True
+        ).exclude(id=self.instance.id)
+
+        if accepted_offers.exists():
+            raise serializers.ValidationError(
+                {
+                    'is_accepted': 'You cannot set is_accepted=True because there is already accepted offer for this task.'  # noqa
+                }
+            )
 
     def _validate_helper(self, task, profile_id):
         self._validate_not_owner(task, profile_id)
