@@ -71,6 +71,7 @@ class TaskWithMyOfferListTestsCase(TestCase):
             'id': my_offer.id,
             'status': my_offer.status,
             'created_at': mock.ANY,
+            'is_accepted': False,
             'helper': {
                 'id': user.profile.id,
                 'name': user.profile.name,

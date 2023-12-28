@@ -66,5 +66,6 @@ class OfferMineListTestCase(TestCase):
             'created_at': mock.ANY,
             'task': offer.task.id,
             'helper': offer.helper.id,
+            'is_accepted': False,
         }
         self.assertEqual(response.data[0], expected_data)

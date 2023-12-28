@@ -74,7 +74,9 @@ class OfferAdmin(admin.ModelAdmin):
         data_for_serializer['helper'] = data_for_serializer['helper'].id
         data_for_serializer['task'] = data_for_serializer['task'].id
 
-        serializer = OfferAdminSerializer(data=data_for_serializer)
+        serializer = OfferAdminSerializer(
+            data=data_for_serializer, instance=form.instance
+        )
 
         if serializer.is_valid():
             obj.save()

@@ -8,13 +8,20 @@ class OfferWithHelperSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Offer
-        fields = ('id', 'helper', 'status', 'created_at')
+        fields = ('id', 'helper', 'status', 'created_at', 'is_accepted')
 
 
 class OfferSerializer(serializers.ModelSerializer):
     class Meta:
         model = Offer
-        fields = '__all__'
+        fields = (
+            'id',
+            'task',
+            'helper',
+            'status',
+            'created_at',
+            'is_accepted',
+        )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -32,8 +39,31 @@ class OfferSerializer(serializers.ModelSerializer):
         task = data['task']
         profile_id = self.helper.id
 
+        self._validate_is_accepted(data)
         self._validate_helper(task, profile_id)
         return super().validate(data)
+
+    def _validate_is_accepted(self, data):
+        if data.get('is_accepted') is False:
+            return
+
+        if self.instance is None:
+            raise serializers.ValidationError(
+                {
+                    'is_accepted': 'You cannot create offer with is_accepted=True',  # noqa
+                }
+            )
+
+        accepted_offers = self.instance.task.offer_set.filter(
+            is_accepted=True
+        ).exclude(id=self.instance.id)
+
+        if accepted_offers.exists():
+            raise serializers.ValidationError(
+                {
+                    'is_accepted': 'You cannot set is_accepted=True because there is already accepted offer for this task.'  # noqa
+                }
+            )
 
     def _validate_helper(self, task, profile_id):
         self._validate_not_owner(task, profile_id)
@@ -47,7 +77,11 @@ class OfferSerializer(serializers.ModelSerializer):
             )
 
     def _validate_doesnt_have_offer_for_the_task(self, task, profile_id):
-        if task.offer_set.filter(helper=profile_id).count():
+        tasks_qs = task.offer_set.filter(helper=profile_id)
+        if self.instance:
+            tasks_qs = tasks_qs.exclude(id=self.instance.id)
+
+        if tasks_qs.exists():
             raise serializers.ValidationError(
                 ['Only one offer is allowed per task.']
             )
