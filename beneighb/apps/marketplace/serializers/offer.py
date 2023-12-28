@@ -64,7 +64,11 @@ class OfferSerializer(serializers.ModelSerializer):
             )
 
     def _validate_doesnt_have_offer_for_the_task(self, task, profile_id):
-        if task.offer_set.filter(helper=profile_id).count():
+        tasks_qs = task.offer_set.filter(helper=profile_id)
+        if self.instance:
+            tasks_qs = tasks_qs.exclude(id=self.instance.id)
+
+        if tasks_qs.exists():
             raise serializers.ValidationError(
                 ['Only one offer is allowed per task.']
             )
