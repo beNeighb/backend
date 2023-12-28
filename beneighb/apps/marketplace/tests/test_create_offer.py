@@ -57,6 +57,29 @@ class CreateOfferTestCase(TestCase):
         for key, val in expected_data_without_created_at.items():
             self.assertEqual(response.data[key], val)
 
+    def test_create_offer_with_is_accepted_true(self):
+        user = UserWithProfileFactory()
+        user.profile.services.add(self.TASK.service)
+        client = get_client_with_valid_token(user)
+
+        data = {
+            **self.correct_data,
+            'is_accepted': True,
+        }
+        response = client.post(self.url, data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(
+            response.data,
+            {
+                'is_accepted': [
+                    ErrorDetail(
+                        string='You cannot create offer with is_accepted=True',
+                        code='invalid',
+                    )
+                ]
+            },
+        )
+
     def test_create_offer_with_incorrect_task_id(self):
         user = UserWithProfileFactory()
         client = get_client_with_valid_token(user)

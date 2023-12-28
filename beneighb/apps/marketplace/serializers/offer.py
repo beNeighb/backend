@@ -14,7 +14,14 @@ class OfferWithHelperSerializer(serializers.ModelSerializer):
 class OfferSerializer(serializers.ModelSerializer):
     class Meta:
         model = Offer
-        fields = '__all__'
+        fields = (
+            'id',
+            'task',
+            'helper',
+            'status',
+            'created_at',
+            'is_accepted',
+        )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -32,8 +39,18 @@ class OfferSerializer(serializers.ModelSerializer):
         task = data['task']
         profile_id = self.helper.id
 
+        self._validate_is_accepted(data)
         self._validate_helper(task, profile_id)
         return super().validate(data)
+
+    def _validate_is_accepted(self, data):
+        if self.instance is None:
+            if data.get('is_accepted', True):
+                raise serializers.ValidationError(
+                    {
+                        'is_accepted': 'You cannot create offer with is_accepted=True',
+                    }
+                )
 
     def _validate_helper(self, task, profile_id):
         self._validate_not_owner(task, profile_id)
