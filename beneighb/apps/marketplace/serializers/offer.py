@@ -8,7 +8,7 @@ class OfferWithHelperSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Offer
-        fields = ('id', 'helper', 'status', 'created_at', 'is_accepted')
+        fields = ('id', 'helper', 'status', 'created_at')
 
 
 class OfferSerializer(serializers.ModelSerializer):
@@ -20,7 +20,6 @@ class OfferSerializer(serializers.ModelSerializer):
             'helper',
             'status',
             'created_at',
-            'is_accepted',
         )
 
     def __init__(self, *args, **kwargs):
@@ -39,29 +38,29 @@ class OfferSerializer(serializers.ModelSerializer):
         task = data['task']
         profile_id = self.helper.id
 
-        self._validate_is_accepted(data)
+        self._validate_status(data)
         self._validate_helper(task, profile_id)
         return super().validate(data)
 
-    def _validate_is_accepted(self, data):
-        if data.get('is_accepted') is False:
+    def _validate_status(self, data):
+        if data.get('status') == Offer.StatusTypes.PENDING:
             return
 
         if self.instance is None:
             raise serializers.ValidationError(
                 {
-                    'is_accepted': 'You cannot create offer with is_accepted=True',  # noqa
+                    'is_accepted': 'You cannot create offer with status=accepted',  # noqa
                 }
             )
 
         accepted_offers = self.instance.task.offer_set.filter(
-            is_accepted=True
+            status=Offer.StatusTypes.ACCEPTED
         ).exclude(id=self.instance.id)
 
         if accepted_offers.exists():
             raise serializers.ValidationError(
                 {
-                    'is_accepted': 'You cannot set is_accepted=True because there is already accepted offer for this task.'  # noqa
+                    'is_accepted': 'You cannot set status=accepted because there is already accepted offer for this task.'  # noqa
                 }
             )
 
