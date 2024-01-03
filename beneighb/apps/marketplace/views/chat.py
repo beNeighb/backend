@@ -6,14 +6,14 @@ from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
 
 from apps.marketplace.models import Chat
-from apps.marketplace.serializers import ChatSerializer
+from apps.marketplace.serializers import ChatWithMessageDataSerializer
 
 logger = logging.getLogger(__name__)
 
 
 class ChatMineListView(generics.ListCreateAPIView):
     permission_classes = (IsAuthenticated,)
-    serializer_class = ChatSerializer
+    serializer_class = ChatWithMessageDataSerializer
 
     def get_queryset(self):
         my_profile = self.request.user.profile

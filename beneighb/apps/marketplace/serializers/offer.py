@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .chat import ShortChatSerializer
+from .chat import ChatSerializer
 
 from apps.users.serializers import ShortProfileSerializer
 from apps.marketplace.models import Offer
@@ -152,7 +152,7 @@ class OfferSimpleSerializer(serializers.ModelSerializer):
 
 class OfferWithChatSerializer(serializers.Serializer):
     offer = OfferSimpleSerializer(read_only=True)
-    chat = ShortChatSerializer(read_only=True)
+    chat = ChatSerializer(read_only=True)
 
     class Meta:
         fields = (
