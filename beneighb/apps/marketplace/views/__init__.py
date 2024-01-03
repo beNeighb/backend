@@ -5,4 +5,4 @@ from .task import (  # noqa: F401
     TaskRetrieveView,
     TaskWithMyOfferListView,
 )
-from .offer import OfferCreateView, OfferMineListView  # noqa
+from .offer import OfferAcceptView, OfferCreateView, OfferMineListView  # noqa

@@ -252,8 +252,8 @@ class BeneighbPasswordResetConfirmViewTestCase(TestCase):
             'token': [TOKEN],
         }
 
-        mockec_called_request_data = mocked_post.call_args[0][0].data
-        self.assertEquals(mockec_called_request_data, expected_args)
+        mocked_called_request_data = mocked_post.call_args[0][0].data
+        self.assertEqual(mocked_called_request_data, expected_args)
 
 
 class ResetEmailSendsCorrectEmailTestCase(TestCase):

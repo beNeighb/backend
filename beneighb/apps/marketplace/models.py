@@ -70,3 +70,33 @@ class Offer(models.Model):
 
     def __str__(self):
         return f'Offer-{self.id}|Task-{self.task.id}'
+
+
+class Assignment(models.Model):
+    class StatusTypes(models.TextChoices):
+        PENDING = ('pending', 'Pending')
+        ACCEPTED = ('accepted', 'Accepted')
+        COMPLETED = ('completed', 'Completed')
+        CANCELED = ('canceled', 'Canceled')
+
+    offer = models.OneToOneField('marketplace.Offer', on_delete=models.CASCADE)
+    status = models.CharField(
+        choices=StatusTypes.choices,
+        default=StatusTypes.PENDING,
+        max_length=9,
+    )
+    created_at = models.DateTimeField(auto_now_add=True, editable=False)
+
+    def __str__(self):
+        return f'Assignment-{self.id}|Offer-{self.offer.id}'
+
+
+class Chat(models.Model):
+    assignment = models.OneToOneField(
+        'marketplace.Assignment',
+        on_delete=models.CASCADE,
+    )
+    created_at = models.DateTimeField(auto_now_add=True, editable=False)
+
+    def __str__(self):
+        return f'Chat-{self.id}|Assignment-{self.assignment.id}'
