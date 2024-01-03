@@ -103,3 +103,15 @@ class ChatListTestCase(TestCase):
         response = client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 0)
+
+    def test_get_chats_respects_query_param_limit(self):
+        user = UserWithProfileFactory()
+        client = get_client_with_valid_token(user)
+
+        ChatFactory(assignment__offer__helper=user.profile)
+        ChatFactory(assignment__offer__helper=user.profile)
+
+        url = self.url + '?limit=1'
+        response = client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
