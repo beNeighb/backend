@@ -27,7 +27,7 @@ class AcceptOfferTestCase(TestCase):
         user = UserWithProfileFactory()
         client = get_client_with_valid_token(user)
 
-        offer = OfferFactory(helper=user.profile)
+        offer = OfferFactory(task__owner=user.profile)
 
         self.assertEqual(Assignment.objects.count(), 0)
         self.assertEqual(Chat.objects.count(), 0)
@@ -64,7 +64,7 @@ class AcceptOfferTestCase(TestCase):
                     'created_at': mock.ANY,
                     'offer': offer.id,
                     'service': offer.task.service.id,
-                    'profile_name': offer.task.owner.name,
+                    'profile_name': offer.helper.name,
                 }
             ),
         }
@@ -86,7 +86,7 @@ class AcceptOfferTestCase(TestCase):
             {
                 'non_field_errors': [
                     ErrorDetail(
-                        string="You cannot accept another users's offer",
+                        string="You cannot accept another offer for another user's task.",  # noqa
                         code='invalid',
                     )
                 ]
@@ -100,7 +100,7 @@ class AcceptOfferTestCase(TestCase):
         user = UserWithProfileFactory()
         client = get_client_with_valid_token(user)
 
-        offer = OfferFactory(helper=user.profile)
+        offer = OfferFactory(task__owner=user.profile)
 
         url = self.url_template.format(offer.id)
 
@@ -127,7 +127,7 @@ class AcceptOfferTestCase(TestCase):
                 'created_at': mock.ANY,
                 'offer': offer.id,
                 'service': offer.task.service.id,
-                'profile_name': offer.task.owner.name,
+                'profile_name': offer.helper.name,
             }
         )
         self.assertEqual(response.data['offer'], expected_offer)

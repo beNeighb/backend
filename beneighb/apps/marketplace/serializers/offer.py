@@ -111,12 +111,12 @@ class OfferAcceptSerializer(serializers.ModelSerializer):
     def __init__(self, instance, data, **kwargs):
         super().__init__(instance, data, **kwargs)
 
-        self.helper = self.context['request'].user.profile
+        self.owner = self.context['request'].user.profile
         self.task = instance.task
 
     def validate(self, data):
         self._validate_status(data)
-        self._validate_helper_owns_offer()
+        self._validate_helper_owns_task()
         return super().validate(data)
 
     def _validate_status(self, data):
@@ -131,10 +131,10 @@ class OfferAcceptSerializer(serializers.ModelSerializer):
                 }
             )
 
-    def _validate_helper_owns_offer(self):
-        if self.instance.helper.id != self.helper.id:
+    def _validate_helper_owns_task(self):
+        if self.instance.task.owner.id != self.owner.id:
             raise serializers.ValidationError(
-                "You cannot accept another users's offer"
+                "You cannot accept another offer for another user's task."
             )
 
 
