@@ -36,21 +36,25 @@ class OfferAcceptView(generics.UpdateAPIView):
 
     def update(self, request, *args, **kwargs):
         offer_instance = self.get_object()
-        data = {'status': Offer.StatusTypes.ACCEPTED}
 
-        serializer = self.get_serializer(
-            offer_instance, data=data, partial=True
-        )
-        serializer.is_valid(raise_exception=True)
+        if offer_instance.status == Offer.StatusTypes.PENDING:
+            data = {'status': Offer.StatusTypes.ACCEPTED}
 
-        self.perform_update(serializer)
+            serializer = self.get_serializer(
+                offer_instance, data=data, partial=True
+            )
+            serializer.is_valid(raise_exception=True)
 
-        assignment = Assignment.objects.create(offer=offer_instance)
-        chat_instance = Chat.objects.create(assignment=assignment)
+            self.perform_update(serializer)
+
+            assignment = Assignment.objects.create(offer=offer_instance)
+            chat_instance = Chat.objects.create(assignment=assignment)
+        else:
+            chat_instance = offer_instance.assignment.chat
 
         serializer = OfferWithChatSerializer(
             {'offer': offer_instance, 'chat': chat_instance}, data={}
         )
-        serializer.is_valid(raise_exception=True)
+        serializer.is_valid()
 
         return Response(serializer.data)

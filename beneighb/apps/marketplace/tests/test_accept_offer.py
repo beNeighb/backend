@@ -100,11 +100,15 @@ class AcceptOfferTestCase(TestCase):
         user = UserWithProfileFactory()
         client = get_client_with_valid_token(user)
 
-        offer = OfferFactory(
-            helper=user.profile, status=Offer.StatusTypes.ACCEPTED
-        )
+        offer = OfferFactory(helper=user.profile)
 
         url = self.url_template.format(offer.id)
+
+        # Accept the offer for the first time
+        response = client.put(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        # Accept the offer for the second time
         response = client.put(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
