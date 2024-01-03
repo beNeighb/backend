@@ -1,7 +1,14 @@
 from factory import SubFactory
 from factory.django import DjangoModelFactory
 
-from apps.marketplace.models import Offer, ServiceCategory, Service, Task
+from apps.marketplace.models import (
+    Assignment,
+    Chat,
+    Offer,
+    ServiceCategory,
+    Service,
+    Task,
+)
 from apps.users.factories import ProfileFactory
 
 
@@ -35,3 +42,17 @@ class OfferFactory(DjangoModelFactory):
     task = SubFactory(TaskFactory)
     helper = SubFactory(ProfileFactory)
     status = 'pending'
+
+
+class AssignmentFactory(DjangoModelFactory):
+    class Meta:
+        model = Assignment
+
+    offer = SubFactory(OfferFactory)
+
+
+class ChatFactory(DjangoModelFactory):
+    class Meta:
+        model = Chat
+
+    assignment = SubFactory(AssignmentFactory)

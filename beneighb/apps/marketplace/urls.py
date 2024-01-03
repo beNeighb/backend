@@ -1,6 +1,7 @@
 from django.urls import path
 
 from apps.marketplace.views import (
+    ChatMineListView,
     OfferCreateView,
     OfferAcceptView,
     OfferMineListView,
@@ -12,6 +13,7 @@ from apps.marketplace.views import (
 )
 
 
+# TODO: Split urls into separate files
 urlpatterns = [
     path(
         'tasks/',
@@ -52,5 +54,10 @@ urlpatterns = [
         'offers/mine/',
         OfferMineListView.as_view(),
         name='offers-mine',
+    ),
+    path(
+        'chats/',
+        ChatMineListView.as_view(),
+        name='chats-mine',
     ),
 ]

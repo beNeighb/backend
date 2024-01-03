@@ -53,7 +53,9 @@ class OfferAcceptView(generics.UpdateAPIView):
             chat_instance = offer_instance.assignment.chat
 
         serializer = OfferWithChatSerializer(
-            {'offer': offer_instance, 'chat': chat_instance}, data={}
+            {'offer': offer_instance, 'chat': chat_instance},
+            data={},
+            context={'request': request},
         )
         serializer.is_valid()
 
