@@ -2,6 +2,7 @@ from django.urls import path
 
 from apps.marketplace.views import (
     OfferCreateView,
+    OfferAcceptView,
     OfferMineListView,
     TaskCreateView,
     TaskForMeListView,
@@ -41,6 +42,11 @@ urlpatterns = [
         'offers/',
         OfferCreateView.as_view(),
         name='create-offer',
+    ),
+    path(
+        'offers/<int:pk>/accept/',
+        OfferAcceptView.as_view(),
+        name='accept-offer',
     ),
     path(
         'offers/mine/',

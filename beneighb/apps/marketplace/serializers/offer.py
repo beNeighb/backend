@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from apps.marketplace.models import Offer
+from apps.marketplace.models import Chat, Offer
 from apps.users.serializers import ShortProfileSerializer
 
 
@@ -49,7 +49,7 @@ class OfferSerializer(serializers.ModelSerializer):
         if self.instance is None:
             raise serializers.ValidationError(
                 {
-                    'is_accepted': 'You cannot create offer with status=accepted',  # noqa
+                    'status': 'You cannot create offer with status=accepted',  # noqa
                 }
             )
 
@@ -60,7 +60,7 @@ class OfferSerializer(serializers.ModelSerializer):
         if accepted_offers.exists():
             raise serializers.ValidationError(
                 {
-                    'is_accepted': 'You cannot set status=accepted because there is already accepted offer for this task.'  # noqa
+                    'status': 'You cannot set status=accepted because there is already accepted offer for this task.'  # noqa
                 }
             )
 
@@ -92,3 +92,85 @@ class OfferSerializer(serializers.ModelSerializer):
                     'You cannot create offer because you do not have a matching service.'  # noqa
                 ]
             )
+
+
+class OfferAcceptSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Offer
+        fields = (
+            'id',
+            'task',
+            'helper',
+            'status',
+            'created_at',
+        )
+
+    def __init__(self, instance, data, **kwargs):
+        super().__init__(instance, data, **kwargs)
+
+        self.helper = self.context['request'].user.profile
+        self.task = instance.task
+
+    def validate(self, data):
+        self._validate_status(data)
+        self._validate_helper_owns_offer()
+        return super().validate(data)
+
+    def _validate_status(self, data):
+        accepted_offers = self.instance.task.offer_set.filter(
+            status=Offer.StatusTypes.ACCEPTED
+        ).exclude(id=self.instance.id)
+
+        if accepted_offers.exists():
+            raise serializers.ValidationError(
+                {
+                    'status': 'You cannot set status=accepted because there is already accepted offer for this task.'  # noqa
+                }
+            )
+
+    def _validate_helper_owns_offer(self):
+        if self.instance.helper.id != self.helper.id:
+            raise serializers.ValidationError(
+                "You cannot accept another users's offer"
+            )
+
+
+class OfferSimpleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Offer
+        fields = (
+            'id',
+            'task',
+            'helper',
+            'status',
+            'created_at',
+        )
+
+
+class ShortChatSerializer(serializers.ModelSerializer):
+    service = serializers.IntegerField(
+        source='assignment.offer.task.service.id'
+    )
+    profile_name = serializers.CharField(source='assignment.offer.helper.name')
+    offer = serializers.IntegerField(source='assignment.offer.id')
+
+    class Meta:
+        model = Chat
+        fields = (
+            'id',
+            'created_at',
+            'offer',
+            'service',
+            'profile_name',
+        )
+
+
+class OfferWithChatSerializer(serializers.Serializer):
+    offer = OfferSimpleSerializer(read_only=True)
+    chat = ShortChatSerializer(read_only=True)
+
+    class Meta:
+        fields = (
+            'offer',
+            'chat',
+        )
