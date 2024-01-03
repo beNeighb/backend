@@ -64,7 +64,7 @@ class AcceptOfferTestCase(TestCase):
                     'created_at': mock.ANY,
                     'offer': offer.id,
                     'service': offer.task.service.id,
-                    'profile_name': user.profile.name,
+                    'profile_name': offer.task.owner.name,
                 }
             ),
         }
@@ -127,7 +127,7 @@ class AcceptOfferTestCase(TestCase):
                 'created_at': mock.ANY,
                 'offer': offer.id,
                 'service': offer.task.service.id,
-                'profile_name': user.profile.name,
+                'profile_name': offer.task.owner.name,
             }
         )
         self.assertEqual(response.data['offer'], expected_offer)

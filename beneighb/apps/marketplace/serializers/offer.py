@@ -1,6 +1,9 @@
 from rest_framework import serializers
-from apps.marketplace.models import Chat, Offer
+
+from .chat import ShortChatSerializer
+
 from apps.users.serializers import ShortProfileSerializer
+from apps.marketplace.models import Offer
 
 
 class OfferWithHelperSerializer(serializers.ModelSerializer):
@@ -144,24 +147,6 @@ class OfferSimpleSerializer(serializers.ModelSerializer):
             'helper',
             'status',
             'created_at',
-        )
-
-
-class ShortChatSerializer(serializers.ModelSerializer):
-    service = serializers.IntegerField(
-        source='assignment.offer.task.service.id'
-    )
-    profile_name = serializers.CharField(source='assignment.offer.helper.name')
-    offer = serializers.IntegerField(source='assignment.offer.id')
-
-    class Meta:
-        model = Chat
-        fields = (
-            'id',
-            'created_at',
-            'offer',
-            'service',
-            'profile_name',
         )
 
 
