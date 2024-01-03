@@ -10,7 +10,6 @@ class ChatSerializer(serializers.ModelSerializer):
     offer = serializers.IntegerField(source='assignment.offer.id')
 
     last_message_sent_at = serializers.DateTimeField(default='2024-01-03')
-    # last_message_sent_at = serializers.DateTimeField(source='created_at')
     unread_messages_count = serializers.IntegerField(default=42)
 
     def get_profile_name(self, obj):
