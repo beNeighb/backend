@@ -8,12 +8,12 @@ from rest_framework.test import APIClient
 
 from apps.users.factories import UserWithProfileFactory
 
-from apps.marketplace.factories import ChatFactory
+from apps.chat.factories import ChatFactory
 from apps.marketplace.tests.utils import get_client_with_valid_token
 
 
 class ChatListTestCase(TestCase):
-    url = '/marketplace/chats/'
+    url = '/chats/'
 
     def test_returns_401_without_token(self):
         client = APIClient()

@@ -7,8 +7,9 @@ from rest_framework import status
 from rest_framework.test import APIClient
 from rest_framework.exceptions import ErrorDetail
 
+from apps.chat.models import Chat
 from apps.users.factories import UserWithProfileFactory
-from apps.marketplace.models import Assignment, Chat, Offer
+from apps.marketplace.models import Assignment, Offer
 from apps.marketplace.factories import OfferFactory, TaskFactory
 from apps.marketplace.tests.utils import get_client_with_valid_token
 

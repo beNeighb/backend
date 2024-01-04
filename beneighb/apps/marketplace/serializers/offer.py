@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .chat import ChatSerializer
+from apps.chat.serializers import ChatSerializer
 
 from apps.users.serializers import ShortProfileSerializer
 from apps.marketplace.models import Offer

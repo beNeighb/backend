@@ -6,4 +6,3 @@ from .task import (  # noqa: F401
     TaskWithMyOfferListView,
 )
 from .offer import OfferAcceptView, OfferCreateView, OfferMineListView  # noqa
-from .chat import ChatMineListView  # noqa

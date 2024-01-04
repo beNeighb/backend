@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     'apps.upload',
     'apps.users',
     'apps.marketplace',
+    'apps.chat',
 ]
 
 if DEBUG:
