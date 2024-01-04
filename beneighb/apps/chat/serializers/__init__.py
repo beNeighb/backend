@@ -1,1 +1,5 @@
-from .chat import ChatWithMessageDataSerializer, ChatSerializer  # noqa
+from .chat import (  # noqa
+    ChatWithMessageDataSerializer,
+    ChatSerializer,
+    MessageSerializer,
+)

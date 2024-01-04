@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from apps.chat.models import Chat
+from apps.chat.models import Chat, Message
 
 
 class BaseChatSerializer(serializers.ModelSerializer):
@@ -43,3 +43,48 @@ class ChatWithMessageDataSerializer(BaseChatSerializer):
             'last_message_sent_at',
             'unread_messages_count',
         )
+
+
+class MessageSerializer(serializers.ModelSerializer):
+    is_mine = serializers.SerializerMethodField()
+    author = serializers.IntegerField(source='author_id', write_only=True)
+
+    class Meta:
+        model = Message
+        fields = (
+            'id',
+            'chat',
+            'sent_at',
+            'read_at',
+            'is_mine',
+            'author',
+            'text',
+        )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        if hasattr(self.initial_data, '_mutable'):
+            self.initial_data._mutable = True
+
+        self.initial_data['author'] = self.context['request'].user.profile.id
+        self.initial_data['chat'] = self.context['view'].kwargs['chat_id']
+
+    def get_is_mine(self, obj):
+        return self.context['request'].user.profile == obj.author
+
+    # def is_valid(self, *args, **kwargs):
+    #     if hasattr(self.initial_data, '_mutable'):
+    #         self.initial_data._mutable = True
+
+    #     self.initial_data['helper'] = self.helper.id
+    #     self.initial_data['status'] = Offer.StatusTypes.PENDING
+    #     return super().is_valid(*args, **kwargs)
+
+    # def validate(self, data):
+    #     task = data['task']
+    #     profile_id = self.helper.id
+
+    #     self._validate_status(data)
+    #     self._validate_helper(task, profile_id)
+    #     return super().validate(data)
