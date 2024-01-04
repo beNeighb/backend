@@ -13,7 +13,7 @@ class ChatAdmin(admin.ModelAdmin):
 
     def get_offer_helper(self, obj):
         if obj.assignment:
-            return obj.assignment.offer.task.owner
+            return obj.assignment.offer.helper
 
     get_task_owner.short_description = 'Task owner'
     get_offer_helper.short_description = 'Offer helper'
