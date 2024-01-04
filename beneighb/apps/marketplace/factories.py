@@ -3,7 +3,6 @@ from factory.django import DjangoModelFactory
 
 from apps.marketplace.models import (
     Assignment,
-    Chat,
     Offer,
     ServiceCategory,
     Service,
@@ -49,10 +48,3 @@ class AssignmentFactory(DjangoModelFactory):
         model = Assignment
 
     offer = SubFactory(OfferFactory)
-
-
-class ChatFactory(DjangoModelFactory):
-    class Meta:
-        model = Chat
-
-    assignment = SubFactory(AssignmentFactory)

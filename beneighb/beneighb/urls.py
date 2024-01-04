@@ -27,6 +27,7 @@ urlpatterns = [
     path('auth/', include('apps.auth0.urls')),
     path('users/', include('apps.users.urls')),
     path('marketplace/', include('apps.marketplace.urls')),
+    path('chats/', include('apps.chat.urls')),
 ]
 
 if bool(settings.DEBUG):

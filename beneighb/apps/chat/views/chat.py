@@ -5,8 +5,8 @@ from django.db.models import Q
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
 
-from apps.marketplace.models import Chat
-from apps.marketplace.serializers import ChatWithMessageDataSerializer
+from apps.chat.models import Chat
+from apps.chat.serializers import ChatWithMessageDataSerializer
 
 logger = logging.getLogger(__name__)
 

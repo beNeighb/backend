@@ -4,4 +4,3 @@ from .offer import (  # noqa
     OfferSerializer,
     OfferWithChatSerializer,
 )
-from .chat import ChatWithMessageDataSerializer, ChatSerializer  # noqa
