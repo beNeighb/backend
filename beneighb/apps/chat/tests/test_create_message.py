@@ -1,6 +1,5 @@
 from datetime import datetime, timedelta, timezone
 from unittest import mock
-from collections import OrderedDict
 
 from django.test import TestCase
 
@@ -104,7 +103,7 @@ class CreateMessageTestCase(TestCase):
             response.data,
             {
                 'detail': ErrorDetail(
-                    string='You do not have permission to perform this action.',
+                    string='You do not have permission to perform this action.',  # noqa
                     code='permission_denied',
                 )
             },
@@ -173,7 +172,7 @@ class CreateMessageTestCase(TestCase):
             {
                 'text': [
                     ErrorDetail(
-                        string='Ensure this field has no more than 300 characters.',
+                        string='Ensure this field has no more than 300 characters.',  # noqa
                         code='max_length',
                     )
                 ]
