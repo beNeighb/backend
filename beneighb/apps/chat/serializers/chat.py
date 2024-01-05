@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from apps.chat.models import Chat, Message
+from apps.chat.models import Chat
 
 
 class BaseChatSerializer(serializers.ModelSerializer):
@@ -43,32 +43,3 @@ class ChatWithMessageDataSerializer(BaseChatSerializer):
             'last_message_sent_at',
             'unread_messages_count',
         )
-
-
-class MessageSerializer(serializers.ModelSerializer):
-    is_mine = serializers.SerializerMethodField()
-    author = serializers.IntegerField(source='author_id', write_only=True)
-
-    class Meta:
-        model = Message
-        fields = (
-            'id',
-            'chat',
-            'sent_at',
-            'read_at',
-            'is_mine',
-            'author',
-            'text',
-        )
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        if hasattr(self.initial_data, '_mutable'):
-            self.initial_data._mutable = True
-
-        self.initial_data['author'] = self.context['request'].user.profile.id
-        self.initial_data['chat'] = self.context['view'].kwargs['chat_id']
-
-    def get_is_mine(self, obj):
-        return self.context['request'].user.profile == obj.author
