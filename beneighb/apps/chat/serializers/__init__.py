@@ -4,6 +4,7 @@ from .chat import (  # noqa
 )
 
 from .message import (  # noqa
-    MessageSerializer,
+    MessageCreateSerializer,
     MessageMarkAsReadSerializer,
+    MessageSerializer,
 )
