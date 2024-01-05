@@ -4,6 +4,24 @@ from apps.chat.models import Message
 
 class MessageSerializer(serializers.ModelSerializer):
     is_mine = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Message
+        fields = (
+            'id',
+            'chat',
+            'sent_at',
+            'read_at',
+            'is_mine',
+            'text',
+        )
+
+    def get_is_mine(self, obj):
+        return self.context['request'].user.profile == obj.author
+
+
+class MessageCreateSerializer(serializers.ModelSerializer):
+    is_mine = serializers.SerializerMethodField()
     author = serializers.IntegerField(source='author_id', write_only=True)
 
     class Meta:
