@@ -19,21 +19,6 @@ from apps.chat.serializers import (
 logger = logging.getLogger(__name__)
 
 
-class MessageCreateView(generics.CreateAPIView):
-    permission_classes = (IsAuthenticated, ChatAccessPermissionClass)
-    serializer_class = MessageCreateSerializer
-    queryset = Message.objects.all()
-
-
-class MessageListView(generics.ListAPIView):
-    permission_classes = (IsAuthenticated, ChatAccessPermissionClass)
-    serializer_class = MessageSerializer
-
-    def get_queryset(self):
-        chat_id = self.kwargs['chat_id']
-        return Message.objects.filter(chat_id=chat_id)
-
-
 class MessageMarkAsReadView(generics.UpdateAPIView):
     permission_classes = (IsAuthenticated, MessageAccessPermissionClass)
     serializer_class = MessageMarkAsReadSerializer
