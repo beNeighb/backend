@@ -5,6 +5,7 @@ from apps.chat.views import (
     ChatMineListView,
     MessageMarkAsReadView,
     MessageForChatViewSet,
+    UnreadMessageList,
 )
 
 router = DefaultRouter()
@@ -21,5 +22,10 @@ urlpatterns = [
         'messages/<int:message_id>/mark-as-read/',
         MessageMarkAsReadView.as_view(),
         name='message-read',
+    ),
+    path(
+        'messages/',
+        UnreadMessageList.as_view(),
+        name='unread-messages',
     ),
 ]

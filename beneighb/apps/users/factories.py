@@ -14,6 +14,14 @@ class EmailFactory(DjangoModelFactory):
     verified = False
 
 
+class UserFactory(DjangoModelFactory):
+    class Meta:
+        model = User
+
+    username = Sequence(lambda n: 'test_user{}'.format(n))
+    email = Faker('email')
+
+
 class ProfileFactory(DjangoModelFactory):
     class Meta:
         model = Profile
@@ -25,13 +33,7 @@ class ProfileFactory(DjangoModelFactory):
     gender = 'female'
     speaking_languages = ['eo', 'uk']
 
-
-class UserFactory(DjangoModelFactory):
-    class Meta:
-        model = User
-
-    username = Sequence(lambda n: 'test_user{}'.format(n))
-    email = Faker('email')
+    user = SubFactory(UserFactory)
 
 
 class UserWithUnVerifiedEmailFactory(DjangoModelFactory):

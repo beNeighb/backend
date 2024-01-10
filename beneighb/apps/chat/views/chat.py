@@ -11,7 +11,7 @@ from apps.chat.serializers import ChatWithMessageDataSerializer
 logger = logging.getLogger(__name__)
 
 
-class ChatMineListView(generics.ListCreateAPIView):
+class ChatMineListView(generics.ListAPIView):
     permission_classes = (IsAuthenticated,)
     serializer_class = ChatWithMessageDataSerializer
 
