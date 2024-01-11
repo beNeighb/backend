@@ -35,11 +35,5 @@ class ChatSerializer(BaseChatSerializer):
 
 
 class ChatWithMessageDataSerializer(BaseChatSerializer):
-    last_message_sent_at = serializers.DateTimeField(default='2024-01-03')
-    unread_messages_count = serializers.IntegerField(default=42)
-
     class Meta(BaseChatSerializer.Meta):
-        fields = BaseChatSerializer.Meta.fields + (
-            'last_message_sent_at',
-            'unread_messages_count',
-        )
+        fields = BaseChatSerializer.Meta.fields

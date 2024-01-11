@@ -62,8 +62,6 @@ class ChatListTestCase(TestCase):
                 'offer': chat.assignment.offer.id,
                 'service': chat.assignment.offer.task.service.id,
                 'profile_name': chat.assignment.offer.task.owner.name,
-                'last_message_sent_at': mock.ANY,
-                'unread_messages_count': mock.ANY,
             }
         )
 
@@ -86,8 +84,6 @@ class ChatListTestCase(TestCase):
                 'offer': chat.assignment.offer.id,
                 'service': chat.assignment.offer.task.service.id,
                 'profile_name': chat.assignment.offer.helper.name,
-                'last_message_sent_at': mock.ANY,
-                'unread_messages_count': mock.ANY,
             }
         )
 
