@@ -2,6 +2,7 @@ from rest_framework.test import APIClient
 from rest_framework_simplejwt.tokens import RefreshToken
 
 
+# TODO: Move to upper utils
 def update_client_with_correct_token(user, client):
     AUTHORIZATION_HEADER_TEMPLATE = 'Bearer {token}'
     refresh_token = RefreshToken.for_user(user)
