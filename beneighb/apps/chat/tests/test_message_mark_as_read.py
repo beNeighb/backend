@@ -73,6 +73,35 @@ class MessageMarkAsReadTestCase(TestCase):
             {'id': message.id, 'read_at': mock.ANY},
         )
 
+    def test_marks_all_messages_before_given_as_read(self):
+        task_owner = UserWithProfileFactory().profile
+        chat = ChatFactory(assignment__offer__task__owner=task_owner)
+
+        offer_helper = chat.assignment.offer.helper
+        # Hack: offer_helper.user for some reason loses its profile
+        offer_helper.user.save()
+
+        message_1 = MessageFactory(chat=chat, author=task_owner)
+        message_2 = MessageFactory(chat=chat, author=task_owner)
+        message_3 = MessageFactory(chat=chat, author=task_owner)
+
+        url = self.url_template.format(message_2.id)
+
+        data = self._get_correct_data()
+        client = get_client_with_valid_token(offer_helper.user)
+
+        response = client.put(url, data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        message_1.refresh_from_db()
+        self.assertIsNotNone(message_1.read_at)
+
+        message_2.refresh_from_db()
+        self.assertIsNotNone(message_2.read_at)
+
+        message_3.refresh_from_db()
+        self.assertIsNone(message_3.read_at)
+
     def test_returns_404_for_non_existing_message(self):
         data = self._get_correct_data()
         client = get_client_with_valid_token(self.USER)

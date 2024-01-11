@@ -1,3 +1,4 @@
+from django.db import transaction
 from rest_framework import serializers
 from apps.chat.models import Message
 
@@ -64,12 +65,17 @@ class MessageMarkAsReadSerializer(serializers.ModelSerializer):
         return data
 
     def update(self, instance, validated_data):
-        """
-        If message is already read,
-        serilizer will return read_at value without updating it.
-        """
-        if instance.read_at is None:
-            instance.read_at = validated_data.get('read_at', instance.read_at)
-            instance.save()
+        my_profile = self.context['request'].user.profile
+        chat_messages = instance.chat.messages.all()
+
+        unread_msgs = chat_messages.exclude(author=my_profile).filter(
+            read_at=None,
+            sent_at__lte=instance.sent_at,
+        )
+
+        if unread_msgs.exists():
+            with transaction.atomic():
+                unread_msgs.update(read_at=validated_data.get('read_at'))
+                instance.refresh_from_db()
 
         return instance

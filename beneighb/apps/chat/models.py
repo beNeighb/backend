@@ -13,6 +13,7 @@ class Chat(models.Model):
 
 
 class Message(models.Model):
+    # TODO: Do we need this field?
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
     author = models.ForeignKey(
         'users.Profile',
