@@ -17,6 +17,6 @@ urlpatterns = [
     path(
         'profiles/<int:pk>/',
         ProfileView.as_view(),
-        name='get-profile',
+        name='profile-detail',
     ),
 ]

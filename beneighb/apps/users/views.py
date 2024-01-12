@@ -12,7 +12,7 @@ class UserProfileExistException(APIException):
     status_code = status.HTTP_409_CONFLICT
 
 
-class ProfileView(generics.RetrieveAPIView):
+class ProfileView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = (IsAuthenticated,)
     serializer_class = ShortProfileSerializer
     queryset = Profile.objects.all()
