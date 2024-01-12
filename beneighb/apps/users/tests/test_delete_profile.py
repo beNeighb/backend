@@ -103,3 +103,17 @@ class DeleteProfileTestCase(TestCase):
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
         self.assertEqual(Profile.objects.filter(id=profile.id).count(), 1)
+
+    def test_cannot_delete_another_user_profile(self):
+        user = UserWithProfileFactory()
+        profile = user.profile
+
+        url = self.url_template.format(profile.id)
+
+        another_user = UserWithProfileFactory()
+        client = get_client_with_valid_token(another_user)
+
+        response = client.delete(url)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        self.assertEqual(Profile.objects.filter(id=profile.id).count(), 1)

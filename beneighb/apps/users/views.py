@@ -17,6 +17,18 @@ class ProfileView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = ShortProfileSerializer
     queryset = Profile.objects.all()
 
+    def delete(self, request, *args, **kwargs):
+        profile = self.get_object()
+
+        if profile.user != request.user:
+            from django.http import HttpResponseBadRequest
+
+            return HttpResponseBadRequest(
+                "You can't delete other user's profile"
+            )
+
+        return super().delete(request, *args, **kwargs)
+
 
 class MyProfileView(generics.RetrieveAPIView):
     permission_classes = (IsAuthenticated,)
