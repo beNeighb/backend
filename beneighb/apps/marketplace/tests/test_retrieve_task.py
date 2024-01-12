@@ -6,7 +6,7 @@ from rest_framework.test import APIClient
 from apps.users.factories import UserWithProfileFactory
 from apps.marketplace.models import Offer, Task
 from apps.marketplace.factories import OfferFactory, TaskFactory
-from apps.marketplace.tests.utils import get_client_with_valid_token
+from apps.users.tests.utils import get_client_with_valid_token
 
 
 class RetrieveTaskTestCase(TestCase):

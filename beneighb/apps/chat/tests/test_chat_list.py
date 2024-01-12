@@ -9,7 +9,7 @@ from rest_framework.test import APIClient
 from apps.users.factories import UserWithProfileFactory
 
 from apps.chat.factories import ChatFactory
-from apps.marketplace.tests.utils import get_client_with_valid_token
+from apps.users.tests.utils import get_client_with_valid_token
 
 
 class ChatListTestCase(TestCase):

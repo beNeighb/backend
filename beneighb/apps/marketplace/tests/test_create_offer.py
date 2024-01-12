@@ -8,7 +8,7 @@ from rest_framework.exceptions import ErrorDetail
 from apps.users.factories import UserWithProfileFactory
 from apps.marketplace.models import Offer, Task
 from apps.marketplace.factories import TaskFactory
-from apps.marketplace.tests.utils import get_client_with_valid_token
+from apps.users.tests.utils import get_client_with_valid_token
 
 
 class CreateOfferTestCase(TestCase):

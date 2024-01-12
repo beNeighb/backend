@@ -11,7 +11,7 @@ from apps.chat.models import Chat
 from apps.users.factories import UserWithProfileFactory
 from apps.marketplace.models import Assignment, Offer
 from apps.marketplace.factories import OfferFactory, TaskFactory
-from apps.marketplace.tests.utils import get_client_with_valid_token
+from apps.users.tests.utils import get_client_with_valid_token
 
 
 class AcceptOfferTestCase(TestCase):

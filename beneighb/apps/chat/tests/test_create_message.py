@@ -10,7 +10,7 @@ from rest_framework.exceptions import ErrorDetail
 from apps.chat.models import Chat, Message
 from apps.chat.factories import ChatFactory
 from apps.users.factories import UserWithProfileFactory
-from apps.marketplace.tests.utils import get_client_with_valid_token
+from apps.users.tests.utils import get_client_with_valid_token
 
 
 class CreateMessageTestCase(TestCase):

@@ -10,7 +10,7 @@ from rest_framework.test import APIClient
 
 from apps.chat.factories import ChatFactory, MessageFactory
 from apps.users.factories import UserWithProfileFactory
-from apps.marketplace.tests.utils import get_client_with_valid_token
+from apps.users.tests.utils import get_client_with_valid_token
 
 
 class UnreadMessageListTestCase(TestCase):

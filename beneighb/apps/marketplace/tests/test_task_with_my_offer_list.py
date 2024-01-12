@@ -11,7 +11,7 @@ from apps.marketplace.factories import (
     ServiceFactory,
     TaskFactory,
 )
-from apps.marketplace.tests.utils import get_client_with_valid_token
+from apps.users.tests.utils import get_client_with_valid_token
 
 
 class TaskWithMyOfferListTestsCase(TestCase):
