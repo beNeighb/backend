@@ -81,6 +81,7 @@ class Profile(models.Model):
             blank=False,
         )
     )
+    fcm_token = models.CharField(max_length=255, blank=True)
     services = models.ManyToManyField('marketplace.Service', blank=True)
 
     def __str__(self):
@@ -112,16 +113,6 @@ class User(AbstractUser):
 
     def __str__(self):
         return self.email
-
-
-"""receivers to add a Profile for newly created users"""
-
-
-# TODO: Move to save or _create_user
-# @receiver(post_save, sender=User)
-# def create_user_profile(sender, instance, created, **kwargs):
-#     if created:
-#         Profile.objects.create(user=instance)
 
 
 @receiver(post_save, sender=User)
