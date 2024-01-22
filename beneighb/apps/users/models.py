@@ -81,6 +81,7 @@ class Profile(models.Model):
             blank=False,
         )
     )
+    fcm_token = models.CharField(max_length=255, blank=True)
     services = models.ManyToManyField('marketplace.Service', blank=True)
 
     def __str__(self):

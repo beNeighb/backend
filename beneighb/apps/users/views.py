@@ -4,7 +4,11 @@ from rest_framework import generics, status
 from rest_framework.exceptions import APIException
 
 from apps.users.models import Profile
-from apps.users.serializers import ProfileSerializer, ShortProfileSerializer
+from apps.users.serializers import (
+    ProfileSerializer,
+    ShortProfileSerializer,
+    ProfileWithFcmTokenSerializer,
+)
 
 
 # TODO: Move to exceptions.py when we have more
@@ -30,9 +34,13 @@ class ProfileView(generics.RetrieveUpdateDestroyAPIView):
         return super().delete(request, *args, **kwargs)
 
 
-class MyProfileView(generics.RetrieveAPIView):
+class MyProfileView(generics.RetrieveUpdateAPIView):
     permission_classes = (IsAuthenticated,)
-    serializer_class = ProfileSerializer
+
+    def get_serializer_class(self):
+        if self.request.method in ['PATCH']:
+            return ProfileWithFcmTokenSerializer
+        return ProfileSerializer
 
     def get_object(self):
         user = self.request.user

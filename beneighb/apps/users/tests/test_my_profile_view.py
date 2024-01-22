@@ -11,7 +11,7 @@ from apps.marketplace.factories import ServiceFactory
 from apps.users.tests.utils import get_client_with_valid_token
 
 
-class MyProfileViewTestCase(TestCase):
+class MyProfileViewRetrieveTestCase(TestCase):
     url = '/users/profile/'
 
     def test_returns_401_without_token(self):
@@ -58,3 +58,76 @@ class MyProfileViewTestCase(TestCase):
         response = client.get(self.url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data, EXPECTED_DATA)
+
+
+class MyProfileViewUpdateTestCase(TestCase):
+    url = '/users/profile/'
+
+    def test_returns_401_without_token(self):
+        client = APIClient()
+
+        data = {'fcm_token': 'test_token'}
+        response = client.patch(self.url, data)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_profile_not_exist(self):
+        user_without_profile = UserWithVerifiedEmailFactory()
+
+        client = get_client_with_valid_token(user_without_profile)
+
+        data = {'fcm_token': 'test_token'}
+        response = client.patch(self.url, data)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_update_profile_successful(self):
+        user = UserWithProfileFactory()
+
+        client = get_client_with_valid_token(user)
+
+        data = {'fcm_token': 'test_token'}
+        response = client.patch(self.url, data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['fcm_token'], data['fcm_token'])
+
+        user.refresh_from_db()
+        self.assertEqual(user.profile.fcm_token, data['fcm_token'])
+
+    def test_update_profile_with_invalid_data(self):
+        user = UserWithProfileFactory()
+
+        client = get_client_with_valid_token(user)
+
+        data = {'fcm_token': ''}
+        response = client.patch(self.url, data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        user.refresh_from_db()
+        self.assertEqual(user.profile.fcm_token, '')
+
+    def test_update_profile_with_none_fcm_token(self):
+        user = UserWithProfileFactory()
+        user.profile.fcm_token = 'test_token'
+        user.profile.save()
+
+        client = get_client_with_valid_token(user)
+
+        data = {'invalid_field': None}
+        response = client.patch(self.url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        user.refresh_from_db()
+        self.assertEqual(user.profile.fcm_token, 'test_token')
+
+    def test_doesnt_update_token_for_another_user(self):
+        user = UserWithProfileFactory()
+        another_user = UserWithProfileFactory()
+
+        client = get_client_with_valid_token(user)
+
+        data = {'fcm_token': 'test_token'}
+        response = client.patch(self.url, data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['fcm_token'], data['fcm_token'])
+
+        another_user.refresh_from_db()
+        self.assertEqual(another_user.profile.fcm_token, '')
