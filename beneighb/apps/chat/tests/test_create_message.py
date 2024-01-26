@@ -66,6 +66,9 @@ class CreateMessageTestCase(TestCase):
         }
         self.assertEqual(response.data, expected_data)
 
+        self.assertEqual(message.sender, user.profile)
+        self.assertEqual(message.recipient, chat.assignment.offer.task.owner)
+
     def test_success_for_owner(self):
         data = self._get_correct_data()
 
@@ -90,6 +93,9 @@ class CreateMessageTestCase(TestCase):
             'text': data['text'],
         }
         self.assertEqual(response.data, expected_data)
+
+        self.assertEqual(message.sender, user.profile)
+        self.assertEqual(message.recipient, chat.assignment.offer.helper)
 
     def test_user_without_permissions(self):
         data = self._get_correct_data()

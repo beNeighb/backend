@@ -25,7 +25,7 @@ class UnreadMessageListTestCase(TestCase):
         # Hack: for some reason FatcoryBoy doesn't save profile for user
         cls.TASK_OWNER.user.save()
 
-        cls.MESSAGE = MessageFactory(chat=cls.CHAT, author=cls.TASK_OWNER)
+        cls.MESSAGE = MessageFactory(chat=cls.CHAT, sender=cls.TASK_OWNER)
 
     def test_returns_401_without_token(self):
         client = APIClient()
@@ -48,7 +48,7 @@ class UnreadMessageListTestCase(TestCase):
 
         expected_msg_ids = set()
         for i in range(3):
-            msg = MessageFactory(chat=self.CHAT, author=offer_helper)
+            msg = MessageFactory(chat=self.CHAT, sender=offer_helper)
             expected_msg_ids.add(msg.id)
 
         client = get_client_with_valid_token(self.TASK_OWNER.user)
@@ -79,7 +79,7 @@ class UnreadMessageListTestCase(TestCase):
         for i in range(3):
             chat = ChatFactory(assignment__offer__helper=self.USER.profile)
             msg = MessageFactory(
-                chat=chat, author=chat.assignment.offer.task.owner
+                chat=chat, sender=chat.assignment.offer.task.owner
             )
             expected_msg_ids.add(msg.id)
 
@@ -98,13 +98,13 @@ class UnreadMessageListTestCase(TestCase):
         chat = ChatFactory(assignment__offer__helper=user.profile)
         task_owner = chat.assignment.offer.task.owner
 
-        read_msg = MessageFactory(chat=chat, author=task_owner)
+        read_msg = MessageFactory(chat=chat, sender=task_owner)
 
         read_msg.read_at = datetime.now(tz=timezone.utc)
         read_msg.save()
 
         for i in range(3):
-            MessageFactory(chat=chat, author=task_owner)
+            MessageFactory(chat=chat, sender=task_owner)
 
         client = get_client_with_valid_token(user)
 

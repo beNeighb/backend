@@ -48,7 +48,7 @@ class UnreadMessageList(generics.ListAPIView):
         return Message.objects.filter(
             chat__in=my_chats,
             read_at__isnull=True,
-        ).exclude(author=my_profile)
+        ).exclude(sender=my_profile)
 
 
 class MessageMarkAsReadView(generics.UpdateAPIView):

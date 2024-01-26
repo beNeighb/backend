@@ -23,7 +23,8 @@ admin.site.register(
     Message,
     list_display=[
         'id',
-        'author',
+        'sender',
+        'recipient',
         'chat',
         'sent_at',
         'read_at',

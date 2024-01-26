@@ -62,3 +62,5 @@ google-api-python-client==2.99.0
 # Redis
 redis==5.0.1
 redis-cli==1.0.1
+celery==5.3.6
+firebase-admin==6.4.0
