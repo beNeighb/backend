@@ -41,11 +41,13 @@ class CreateMessageTestCase(TestCase):
 
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
-    def test_success_for_helper(self):
+    @mock.patch('apps.users.notifications.send_push_notification')
+    def test_success_for_helper(self, mocked_send_push_notification):
         data = self._get_correct_data()
 
         user = UserWithProfileFactory()
         chat = ChatFactory(assignment__offer__helper=user.profile)
+        task_owner = chat.assignment.offer.task.owner
         url = self.url_template.format(chat.id)
 
         client = get_client_with_valid_token(user)
@@ -67,13 +69,21 @@ class CreateMessageTestCase(TestCase):
         self.assertEqual(response.data, expected_data)
 
         self.assertEqual(message.sender, user.profile)
-        self.assertEqual(message.recipient, chat.assignment.offer.task.owner)
+        self.assertEqual(message.recipient, task_owner)
 
-    def test_success_for_owner(self):
+        self.assertEqual(mocked_send_push_notification.call_count, 1)
+        self.assertEqual(
+            mocked_send_push_notification.call_args[0][0],
+            task_owner,
+        )
+
+    @mock.patch('apps.users.notifications.send_push_notification')
+    def test_success_for_owner(self, mocked_send_push_notification):
         data = self._get_correct_data()
 
         user = UserWithProfileFactory()
         chat = ChatFactory(assignment__offer__task__owner=user.profile)
+        offer_helper = chat.assignment.offer.helper
 
         client = get_client_with_valid_token(user)
 
@@ -95,9 +105,15 @@ class CreateMessageTestCase(TestCase):
         self.assertEqual(response.data, expected_data)
 
         self.assertEqual(message.sender, user.profile)
-        self.assertEqual(message.recipient, chat.assignment.offer.helper)
+        self.assertEqual(message.recipient, offer_helper)
 
-    def test_user_without_permissions(self):
+        self.assertEqual(mocked_send_push_notification.call_count, 1)
+        self.assertEqual(
+            mocked_send_push_notification.call_args[0][0], offer_helper
+        )
+
+    @mock.patch('apps.users.notifications.send_push_notification')
+    def test_user_without_permissions(self, mocked_send_push_notification):
         data = self._get_correct_data()
 
         user = UserWithProfileFactory()
@@ -116,8 +132,10 @@ class CreateMessageTestCase(TestCase):
         )
 
         self.assertEqual(Message.objects.count(), 0)
+        self.assertEqual(mocked_send_push_notification.call_count, 0)
 
-    def test_incorrect_chat_id(self):
+    @mock.patch('apps.users.notifications.send_push_notification')
+    def test_incorrect_chat_id(self, mocked_send_push_notification):
         data = self._get_correct_data()
 
         user = UserWithProfileFactory()
@@ -131,6 +149,7 @@ class CreateMessageTestCase(TestCase):
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
         self.assertEqual(Message.objects.count(), 0)
+        self.assertEqual(mocked_send_push_notification.call_count, 0)
 
     def test_requires_correct_sent_at(self):
         data = self._get_correct_data()

@@ -90,3 +90,10 @@ class MessageForChatViewSet(viewsets.ModelViewSet):
             queryset, many=True, context={'request': request}
         )
         return Response(serializer.data)
+
+    def perform_create(self, serializer):
+        message = serializer.save()
+        from apps.users.notifications import send_push_notification
+
+        # TODO: Use celery instead
+        send_push_notification(message.recipient, message.text)
