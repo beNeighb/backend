@@ -275,3 +275,8 @@ if not EMAIL_HOST_PASSWORD:
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 DEFAULT_FROM_EMAIL = '<beneighb@gmail.com>'
+
+# Firebase messaging settings
+
+import firebase_admin
+firebase_admin.initialize_app()
