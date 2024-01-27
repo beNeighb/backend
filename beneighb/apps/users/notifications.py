@@ -1,5 +1,3 @@
-import os
-import firebase_admin
 import logging
 
 from firebase_admin import messaging

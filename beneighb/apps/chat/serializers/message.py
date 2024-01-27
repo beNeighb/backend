@@ -24,7 +24,9 @@ class MessageSerializer(serializers.ModelSerializer):
 class MessageCreateSerializer(serializers.ModelSerializer):
     is_mine = serializers.SerializerMethodField()
     sender = serializers.IntegerField(source='sender_id', write_only=True)
-    recipient = serializers.IntegerField(source='recipient_id', write_only=True)
+    recipient = serializers.IntegerField(
+        source='recipient_id', write_only=True
+    )
 
     class Meta:
         model = Message
@@ -49,7 +51,9 @@ class MessageCreateSerializer(serializers.ModelSerializer):
         current_profile = self.context['request'].user.profile
 
         self.initial_data['sender'] = current_profile.id
-        self.initial_data['recipient'] = self.get_receipient(current_profile).id
+        self.initial_data['recipient'] = self.get_receipient(
+            current_profile
+        ).id
         self.initial_data['chat'] = self.context['view'].kwargs['chat_id']
 
     def get_receipient(self, sender):

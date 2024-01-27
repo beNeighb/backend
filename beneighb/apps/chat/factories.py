@@ -1,7 +1,7 @@
 import factory
 from django.utils import timezone
 
-from factory import LazyAttribute, LazyFunction, SubFactory
+from factory import LazyFunction, SubFactory
 from factory.django import DjangoModelFactory
 
 from apps.chat.models import Chat, Message

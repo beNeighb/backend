@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 import os
+import firebase_admin
 
 from datetime import timedelta
 from pathlib import Path
@@ -277,5 +278,4 @@ DEFAULT_FROM_EMAIL = '<beneighb@gmail.com>'
 
 # Firebase messaging settings
 
-import firebase_admin
 firebase_admin.initialize_app()
