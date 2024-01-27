@@ -1,6 +1,6 @@
 from django.db import transaction
 from rest_framework import serializers
-from apps.chat.models import Message
+from apps.chat.models import Chat, Message
 
 
 class MessageSerializer(serializers.ModelSerializer):
@@ -18,12 +18,15 @@ class MessageSerializer(serializers.ModelSerializer):
         )
 
     def get_is_mine(self, obj):
-        return self.context['request'].user.profile == obj.author
+        return self.context['request'].user.profile == obj.sender
 
 
 class MessageCreateSerializer(serializers.ModelSerializer):
     is_mine = serializers.SerializerMethodField()
-    author = serializers.IntegerField(source='author_id', write_only=True)
+    sender = serializers.IntegerField(source='sender_id', write_only=True)
+    recipient = serializers.IntegerField(
+        source='recipient_id', write_only=True
+    )
 
     class Meta:
         model = Message
@@ -33,21 +36,43 @@ class MessageCreateSerializer(serializers.ModelSerializer):
             'sent_at',
             'read_at',
             'is_mine',
-            'author',
+            'sender',
+            'recipient',
             'text',
         )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        # For testing only
         if hasattr(self.initial_data, '_mutable'):
             self.initial_data._mutable = True
 
-        self.initial_data['author'] = self.context['request'].user.profile.id
+        current_profile = self.context['request'].user.profile
+
+        self.initial_data['sender'] = current_profile.id
+        self.initial_data['recipient'] = self.get_receipient(
+            current_profile
+        ).id
         self.initial_data['chat'] = self.context['view'].kwargs['chat_id']
 
+    def get_receipient(self, sender):
+        chat_id = self.context['view'].kwargs['chat_id']
+        chat = Chat.objects.get(id=chat_id)
+        task_owner = chat.assignment.offer.task.owner
+        helper = chat.assignment.offer.helper
+
+        if sender == task_owner:
+            return helper
+        elif sender == helper:
+            return task_owner
+        else:
+            raise serializers.ValidationError(
+                {'sender': 'You are not a member of this chat.'},
+            )
+
     def get_is_mine(self, obj):
-        return self.context['request'].user.profile == obj.author
+        return self.context['request'].user.profile == obj.sender
 
 
 class MessageMarkAsReadSerializer(serializers.ModelSerializer):
@@ -68,7 +93,7 @@ class MessageMarkAsReadSerializer(serializers.ModelSerializer):
         my_profile = self.context['request'].user.profile
         chat_messages = instance.chat.messages.all()
 
-        unread_msgs = chat_messages.exclude(author=my_profile).filter(
+        unread_msgs = chat_messages.exclude(sender=my_profile).filter(
             read_at=None,
             sent_at__lte=instance.sent_at,
         )

@@ -19,11 +19,8 @@ from django.urls import include, path
 from django.conf import settings
 from django.conf.urls.static import static
 
-from apps.upload.views import image_upload
-
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('upload/', image_upload, name='upload'),
     path('auth/', include('apps.auth0.urls')),
     path('users/', include('apps.users.urls')),
     path('marketplace/', include('apps.marketplace.urls')),

@@ -81,9 +81,9 @@ class MessageMarkAsReadTestCase(TestCase):
         # Hack: offer_helper.user for some reason loses its profile
         offer_helper.user.save()
 
-        message_1 = MessageFactory(chat=chat, author=task_owner)
-        message_2 = MessageFactory(chat=chat, author=task_owner)
-        message_3 = MessageFactory(chat=chat, author=task_owner)
+        message_1 = MessageFactory(chat=chat, sender=task_owner)
+        message_2 = MessageFactory(chat=chat, sender=task_owner)
+        message_3 = MessageFactory(chat=chat, sender=task_owner)
 
         url = self.url_template.format(message_2.id)
 

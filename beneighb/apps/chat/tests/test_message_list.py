@@ -19,7 +19,7 @@ class MessageListTestCase(TestCase):
     def setUpTestData(cls):
         cls.USER = UserWithProfileFactory()
         cls.CHAT = ChatFactory(assignment__offer__helper=cls.USER.profile)
-        cls.MESSAGE = MessageFactory(chat=cls.CHAT, author=cls.USER.profile)
+        cls.MESSAGE = MessageFactory(chat=cls.CHAT, sender=cls.USER.profile)
         cls.URL = cls.url_template.format(cls.CHAT.id)
 
     def test_returns_401_without_token(self):
@@ -33,7 +33,7 @@ class MessageListTestCase(TestCase):
         client = get_client_with_valid_token(self.USER)
 
         message_2 = MessageFactory(  # noqa
-            chat=self.CHAT, author=self.USER.profile
+            chat=self.CHAT, sender=self.USER.profile
         )
 
         response = client.get(self.URL)
@@ -44,7 +44,7 @@ class MessageListTestCase(TestCase):
         user = UserWithProfileFactory()
         chat = ChatFactory(assignment__offer__task__owner=user.profile)
         for i in range(5):
-            MessageFactory(chat=chat, author=user.profile)
+            MessageFactory(chat=chat, sender=user.profile)
 
         url = self.url_template.format(chat.id)
 
@@ -58,7 +58,7 @@ class MessageListTestCase(TestCase):
         user = UserWithProfileFactory()
         chat = ChatFactory(assignment__offer__task__owner=user.profile)
         for i in range(5):
-            MessageFactory(chat=chat, author=user.profile)
+            MessageFactory(chat=chat, sender=user.profile)
 
         url = self.url_template.format(chat.id) + '?limit=3'
 
@@ -72,7 +72,7 @@ class MessageListTestCase(TestCase):
         user = UserWithProfileFactory()
         chat = ChatFactory(assignment__offer__task__owner=user.profile)
         for i in range(5):
-            MessageFactory(chat=chat, author=user.profile)
+            MessageFactory(chat=chat, sender=user.profile)
 
         client = get_client_with_valid_token(user)
 

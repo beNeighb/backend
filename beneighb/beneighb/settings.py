@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 import os
+import firebase_admin
 
 from datetime import timedelta
 from pathlib import Path
@@ -52,7 +53,6 @@ INSTALLED_APPS = [
     'dj_rest_auth',
     'dj_rest_auth.registration',
     'apps.auth0',
-    'apps.upload',
     'apps.users',
     'apps.marketplace',
     'apps.chat',
@@ -275,3 +275,7 @@ if not EMAIL_HOST_PASSWORD:
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 DEFAULT_FROM_EMAIL = '<beneighb@gmail.com>'
+
+# Firebase messaging settings
+
+firebase_admin.initialize_app()

@@ -1,3 +1,4 @@
+import factory
 from django.utils import timezone
 
 from factory import LazyFunction, SubFactory
@@ -20,5 +21,19 @@ class MessageFactory(DjangoModelFactory):
         model = Message
 
     chat = SubFactory(ChatFactory)
-    author = SubFactory(ProfileFactory)
+    sender = SubFactory(ProfileFactory)
+    recipient = SubFactory(ProfileFactory)
     sent_at = LazyFunction(timezone.now)
+
+    @factory.post_generation
+    def set_recipient(self, create, extracted, **kwargs):
+        offer_helper = self.chat.assignment.offer.helper
+        task_owner = self.chat.assignment.offer.task.owner
+
+        if self.recipient not in (offer_helper, task_owner):
+            self.recipient = (
+                offer_helper if self.sender == task_owner else task_owner
+            )
+
+            if create:
+                self.save()

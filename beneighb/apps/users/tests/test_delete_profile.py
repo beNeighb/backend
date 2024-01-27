@@ -30,9 +30,9 @@ class DeleteProfileTestCase(TestCase):
         profile = user.profile
 
         chat = ChatFactory(assignment__offer__helper=profile)
-        message = MessageFactory(chat=chat, author=profile)
+        MessageFactory(chat=chat, sender=profile)
         message = MessageFactory(
-            chat=chat, author=chat.assignment.offer.task.owner
+            chat=chat, sender=chat.assignment.offer.task.owner
         )
         assignment = chat.assignment
         offer = assignment.offer
@@ -61,9 +61,9 @@ class DeleteProfileTestCase(TestCase):
         profile = user.profile
 
         chat = ChatFactory(assignment__offer__task__owner=profile)
-        message = MessageFactory(chat=chat, author=profile)
+        message = MessageFactory(chat=chat, sender=profile)
         message = MessageFactory(
-            chat=chat, author=chat.assignment.offer.helper
+            chat=chat, sender=chat.assignment.offer.helper
         )
         assignment = chat.assignment
         offer = assignment.offer
