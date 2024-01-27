@@ -31,14 +31,9 @@ class MessageFactory(DjangoModelFactory):
         task_owner = self.chat.assignment.offer.task.owner
 
         if self.recipient not in (offer_helper, task_owner):
-            assignment = self.chat.assignment
-            task_owner = assignment.offer.task.owner
-            helper = assignment.offer.helper
-
-            if self.sender == task_owner:
-                self.recipient = helper
-            elif self.sender == helper:
-                self.recipient = task_owner
+            self.recipient = (
+                offer_helper if self.sender == task_owner else task_owner
+            )
 
             if create:
                 self.save()
