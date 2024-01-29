@@ -76,6 +76,13 @@ class CreateMessageTestCase(TestCase):
             mocked_send_push_notification.call_args[0][0],
             task_owner,
         )
+        self.assertEqual(
+            mocked_send_push_notification.call_args[1]['data'],
+            {
+                'type': 'new_message',
+                'chat_id': str(chat.id),
+            },
+        )
 
     @mock.patch('apps.users.notifications.send_push_notification')
     def test_success_for_owner(self, mocked_send_push_notification):
@@ -110,6 +117,13 @@ class CreateMessageTestCase(TestCase):
         self.assertEqual(mocked_send_push_notification.call_count, 1)
         self.assertEqual(
             mocked_send_push_notification.call_args[0][0], offer_helper
+        )
+        self.assertEqual(
+            mocked_send_push_notification.call_args[1]['data'],
+            {
+                'type': 'new_message',
+                'chat_id': str(chat.id),
+            },
         )
 
     @mock.patch('apps.users.notifications.send_push_notification')

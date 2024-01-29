@@ -95,5 +95,9 @@ class MessageForChatViewSet(viewsets.ModelViewSet):
         message = serializer.save()
         from apps.users.notifications import send_push_notification
 
+        data = {
+            'type': 'new_message',
+            'chat_id': str(message.chat.id),
+        }
         # TODO: Use celery instead
-        send_push_notification(message.recipient, message.text)
+        send_push_notification(message.recipient, message.text, data=data)
