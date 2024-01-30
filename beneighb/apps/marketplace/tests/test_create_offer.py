@@ -1,3 +1,5 @@
+from unittest import mock
+
 from django.test import TestCase
 
 from rest_framework import status
@@ -27,6 +29,7 @@ class CreateOfferTestCase(TestCase):
         response = client.post(self.url, self.correct_data)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
+    @mock.patch('apps.marketplace.views.offer.send_push_notification')
     def test_create_offer_successful(self):
         user = UserWithProfileFactory()
         user.profile.services.add(self.TASK.service)
@@ -55,6 +58,30 @@ class CreateOfferTestCase(TestCase):
 
         for key, val in expected_data_without_created_at.items():
             self.assertEqual(response.data[key], val)
+
+    @mock.patch('apps.marketplace.views.offer.send_push_notification')
+    def test_create_offer_notification(self, mocked_send_push_notification):
+        user = UserWithProfileFactory()
+        user.profile.services.add(self.TASK.service)
+        client = get_client_with_valid_token(user)
+
+        response = client.post(self.url, self.correct_data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        offer = Offer.objects.first()
+
+        self.assertEqual(mocked_send_push_notification.call_count, 1)
+        self.assertEqual(
+            mocked_send_push_notification.call_args[0][0],
+            offer.task.owner,
+        )
+        self.assertEqual(
+            mocked_send_push_notification.call_args[1]['data'],
+            {
+                'type': 'new_offer',
+                'task_id': str(offer.task.id),
+            },
+        )
 
     def test_create_offer_with_incorrect_task_id(self):
         user = UserWithProfileFactory()

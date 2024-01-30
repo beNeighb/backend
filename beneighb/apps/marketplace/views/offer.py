@@ -11,6 +11,7 @@ from apps.marketplace.serializers import (
     OfferSerializer,
     OfferWithChatSerializer,
 )
+from apps.users.notifications import send_push_notification
 
 logger = logging.getLogger(__name__)
 
@@ -20,6 +21,16 @@ class OfferCreateView(generics.CreateAPIView):
     serializer_class = OfferSerializer
     queryset = Offer.objects.all()
 
+    def perform_create(self, serializer):
+        offer = serializer.save()
+        send_push_notification(
+            offer.task.owner,
+            'You have a new offer!',
+            data={
+                'type': 'new_offer',
+                'task_id': str(offer.task.id),
+            },
+        )
 
 class OfferMineListView(generics.ListCreateAPIView):
     permission_classes = (IsAuthenticated,)
