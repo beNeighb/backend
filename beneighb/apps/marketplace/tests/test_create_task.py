@@ -1,6 +1,8 @@
 from copy import deepcopy
 from datetime import datetime, timedelta, timezone
 
+from unittest import mock
+
 from django.test import TestCase
 from django.core.cache import cache
 
@@ -39,7 +41,8 @@ class CreateTaskTestCase(TestCase):
         response = client.post(self.url, self.correct_data)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
-    def test_create_task_successful(self):
+    @mock.patch('apps.users.notifications.send_push_notification')
+    def test_create_task_successful(self, mocked_send_push_notification):
         user = UserWithProfileFactory()
 
         client = get_client_with_valid_token(user)
@@ -63,7 +66,46 @@ class CreateTaskTestCase(TestCase):
         self.assertEqual(task.address, self.correct_data['address'])
         self.assertEqual(task.price_offer, self.correct_data['price_offer'])
 
-    def test_create_task_idempotent(self):
+    @mock.patch('apps.marketplace.views.task.send_push_notification')
+    def test_create_task_notification(self, mocked_send_push_notification):
+        user = UserWithProfileFactory()
+
+        client = get_client_with_valid_token(user)
+
+        datetime_option = datetime.now(tz=timezone.utc) + timedelta(days=1)
+        correct_data = deepcopy(self.correct_data)
+        correct_data['datetime_options'] = [datetime_option]
+
+        recipients = []
+        for i in range(3):
+            recipient = UserWithProfileFactory().profile
+            recipient.services.add(self.SERVICE)
+            recipient.save()
+            recipients.append(recipient)
+
+        response = client.post(self.url, correct_data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        self.assertEqual(
+            mocked_send_push_notification.call_count, len(recipients)
+        )
+
+        task = Task.objects.get()
+        calls = mocked_send_push_notification.call_args_list
+        sent_to = set([call.args[0] for call in calls])
+
+        self.assertNotIn(user.profile, sent_to)
+        self.assertEqual(sent_to, set(recipients))
+        self.assertEqual(
+            mocked_send_push_notification.call_args[1]['data'],
+            {
+                'type': 'new_task',
+                'task_id': str(task.id),
+            },
+        )
+
+    @mock.patch('apps.users.notifications.send_push_notification')
+    def test_create_task_idempotent(self, mocked_send_push_notification):
         user = UserWithProfileFactory()
 
         idempotency_key = 'Some-idempotency-key'
@@ -87,7 +129,10 @@ class CreateTaskTestCase(TestCase):
 
         self.assertEqual(Task.objects.count(), 1)
 
-    def test_create_task_without_service_id(self):
+    @mock.patch('apps.users.notifications.send_push_notification')
+    def test_create_task_without_service_id(
+        self, mocked_send_push_notification
+    ):
         user = UserWithProfileFactory()
 
         client = get_client_with_valid_token(user)
@@ -110,7 +155,10 @@ class CreateTaskTestCase(TestCase):
             },
         )
 
-    def test_create_task_with_incorrect_service_id(self):
+    @mock.patch('apps.users.notifications.send_push_notification')
+    def test_create_task_with_incorrect_service_id(
+        self, mocked_send_push_notification
+    ):
         user = UserWithProfileFactory()
 
         client = get_client_with_valid_token(user)

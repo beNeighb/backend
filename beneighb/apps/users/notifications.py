@@ -7,6 +7,7 @@ logger = logging.getLogger(__name__)
 
 
 def send_push_notification(recipient, body, title='', data=None):
+    __import__('ipdb').set_trace()
     msg_data = {
         'notification': messaging.Notification(
             title=title,

@@ -17,6 +17,7 @@ from apps.chat.serializers import (
     MessageMarkAsReadSerializer,
     MessageSerializer,
 )
+from apps.users.notifications import send_push_notification
 
 
 logger = logging.getLogger(__name__)
@@ -93,7 +94,6 @@ class MessageForChatViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         message = serializer.save()
-        from apps.users.notifications import send_push_notification
 
         data = {
             'type': 'new_message',

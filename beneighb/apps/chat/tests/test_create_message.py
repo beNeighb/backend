@@ -41,7 +41,7 @@ class CreateMessageTestCase(TestCase):
 
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
-    @mock.patch('apps.users.notifications.send_push_notification')
+    @mock.patch('apps.chat.views.message.send_push_notification')
     def test_success_for_helper(self, mocked_send_push_notification):
         data = self._get_correct_data()
 
@@ -84,7 +84,7 @@ class CreateMessageTestCase(TestCase):
             },
         )
 
-    @mock.patch('apps.users.notifications.send_push_notification')
+    @mock.patch('apps.chat.views.message.send_push_notification')
     def test_success_for_owner(self, mocked_send_push_notification):
         data = self._get_correct_data()
 
@@ -126,7 +126,7 @@ class CreateMessageTestCase(TestCase):
             },
         )
 
-    @mock.patch('apps.users.notifications.send_push_notification')
+    @mock.patch('apps.chat.views.message.send_push_notification')
     def test_user_without_permissions(self, mocked_send_push_notification):
         data = self._get_correct_data()
 
@@ -148,7 +148,7 @@ class CreateMessageTestCase(TestCase):
         self.assertEqual(Message.objects.count(), 0)
         self.assertEqual(mocked_send_push_notification.call_count, 0)
 
-    @mock.patch('apps.users.notifications.send_push_notification')
+    @mock.patch('apps.chat.views.message.send_push_notification')
     def test_incorrect_chat_id(self, mocked_send_push_notification):
         data = self._get_correct_data()
 

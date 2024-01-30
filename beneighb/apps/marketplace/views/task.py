@@ -9,6 +9,8 @@ from apps.marketplace.serializers import (
     TaskCreateSerializer,
     TaskWithOffersSerializer,
 )
+from apps.users.models import Profile
+from apps.users.notifications import send_push_notification
 
 logger = logging.getLogger(__name__)
 
@@ -17,6 +19,24 @@ class TaskCreateView(generics.CreateAPIView):
     permission_classes = (IsAuthenticated, IsIdempotent)
     serializer_class = TaskCreateSerializer
     queryset = Task.objects.all()
+
+    def perform_create(self, serializer):
+        task = serializer.save()
+        text = f'New task has been created: {task.service.name}'
+        data = {
+            'type': 'new_task',
+            'task_id': str(task.id),
+        }
+
+        task_service = task.service
+        recipients = Profile.objects.filter(services=task_service).exclude(
+            id=task.owner.id
+        )
+
+        for recipient in recipients:
+            # PERFORMANCE: This is not optimal
+            # TODO: Use celery and topics instead
+            send_push_notification(recipient, text, data=data)
 
 
 class TaskMineListView(generics.ListCreateAPIView):
