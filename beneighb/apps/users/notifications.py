@@ -27,4 +27,6 @@ def send_push_notification(recipient, body, title='', data=None):
         response = messaging.send(message)
         logger.info('Successfully sent message:', response)
     except InvalidArgumentError:
-        logger.exception('Invalid FCM token: %s', recipient.fcm_token)
+        logger.exception(f'Invalid FCM token: {recipient.fcm_token}')
+    except Exception as e:
+        logger.exception(e)
