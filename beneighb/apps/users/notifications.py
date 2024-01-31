@@ -1,6 +1,7 @@
 import logging
 
 from firebase_admin import messaging
+from firebase_admin.exceptions import InvalidArgumentError
 
 
 logger = logging.getLogger(__name__)
@@ -21,6 +22,9 @@ def send_push_notification(recipient, body, title='', data=None):
     if data:
         msg_data['data'] = data
 
-    message = messaging.Message(**msg_data)
-    response = messaging.send(message)
-    logger.info('Successfully sent message:', response)
+    try:
+        message = messaging.Message(**msg_data)
+        response = messaging.send(message)
+        logger.info('Successfully sent message:', response)
+    except InvalidArgumentError:
+        logger.exception('Invalid FCM token: %s', recipient.fcm_token)
