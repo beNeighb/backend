@@ -7,6 +7,9 @@ logger = logging.getLogger(__name__)
 
 
 def send_push_notification(recipient, body, title='', data=None):
+    if not recipient.fcm_token:
+        return
+
     msg_data = {
         'notification': messaging.Notification(
             title=title,

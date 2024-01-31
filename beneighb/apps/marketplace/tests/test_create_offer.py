@@ -103,7 +103,9 @@ class CreateOfferTestCase(TestCase):
         self.assertEqual(Offer.objects.count(), 0)
 
     @mock.patch('apps.marketplace.views.offer.send_push_notification')
-    def test_cannot_create_second_offer_for_task(self, _mocked_send_push_notification):
+    def test_cannot_create_second_offer_for_task(
+        self, _mocked_send_push_notification
+    ):
         user = UserWithProfileFactory()
         user.profile.services.add(self.TASK.service)
         client = get_client_with_valid_token(user)

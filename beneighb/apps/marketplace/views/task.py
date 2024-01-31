@@ -30,7 +30,9 @@ class TaskCreateView(generics.CreateAPIView):
 
         task_service = task.service
         recipients = Profile.objects.filter(services=task_service).exclude(
-            id=task.owner.id
+            id=task.owner.id,
+            fcm_token='',
+            fcm_token__isnull=True,
         )
 
         for recipient in recipients:
