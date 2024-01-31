@@ -32,6 +32,7 @@ class OfferCreateView(generics.CreateAPIView):
             },
         )
 
+
 class OfferMineListView(generics.ListCreateAPIView):
     permission_classes = (IsAuthenticated,)
     serializer_class = OfferSerializer
@@ -70,5 +71,14 @@ class OfferAcceptView(generics.UpdateAPIView):
             context={'request': request},
         )
         serializer.is_valid()
+
+        send_push_notification(
+            offer_instance.helper,
+            'Your offer has been accepted!',
+            data={
+                'type': 'offer_accepted',
+                'chat_id': str(chat_instance.id),
+            },
+        )
 
         return Response(serializer.data)

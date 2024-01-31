@@ -30,7 +30,7 @@ class CreateOfferTestCase(TestCase):
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     @mock.patch('apps.marketplace.views.offer.send_push_notification')
-    def test_create_offer_successful(self):
+    def test_create_offer_successful(self, mocked_send_push_notification):
         user = UserWithProfileFactory()
         user.profile.services.add(self.TASK.service)
         client = get_client_with_valid_token(user)
@@ -102,7 +102,8 @@ class CreateOfferTestCase(TestCase):
 
         self.assertEqual(Offer.objects.count(), 0)
 
-    def test_cannot_create_second_offer_for_task(self):
+    @mock.patch('apps.marketplace.views.offer.send_push_notification')
+    def test_cannot_create_second_offer_for_task(self, _mocked_send_push_notification):
         user = UserWithProfileFactory()
         user.profile.services.add(self.TASK.service)
         client = get_client_with_valid_token(user)

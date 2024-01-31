@@ -14,17 +14,18 @@ from apps.marketplace.factories import OfferFactory, TaskFactory
 from apps.users.tests.utils import get_client_with_valid_token
 
 
+@mock.patch('apps.marketplace.views.offer.send_push_notification')
 class AcceptOfferTestCase(TestCase):
     url_template = '/marketplace/offers/{}/accept/'
 
-    def test_returns_401_without_token(self):
+    def test_returns_401_without_token(self, _mocked_send_push_notification):
         client = APIClient()
 
         url = self.url_template.format(1)
         response = client.post(url)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
-    def test_accept_offer_successful(self):
+    def test_accept_offer_successful(self, mocked_send_push_notification):
         user = UserWithProfileFactory()
         client = get_client_with_valid_token(user)
 
@@ -72,7 +73,35 @@ class AcceptOfferTestCase(TestCase):
         self.assertEqual(response.data['offer'], expected_data['offer'])
         self.assertEqual(response.data['chat'], expected_data['chat'])
 
-    def test_cannot_accept_offer_of_another_user(self):
+    def test_accept_offer_notification(self, mocked_send_push_notification):
+        user = UserWithProfileFactory()
+        client = get_client_with_valid_token(user)
+
+        offer = OfferFactory(task__owner=user.profile)
+
+        url = self.url_template.format(offer.id)
+        response = client.put(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        chat = Chat.objects.first()
+
+        # Your offer has been accepted!
+        self.assertEqual(mocked_send_push_notification.call_count, 1)
+        self.assertEqual(
+            mocked_send_push_notification.call_args[0][0],
+            offer.helper,
+        )
+        self.assertEqual(
+            mocked_send_push_notification.call_args[1]['data'],
+            {
+                'type': 'offer_accepted',
+                'chat_id': str(chat.id),
+            },
+        )
+
+    def test_cannot_accept_offer_of_another_user(
+        self, mocked_send_push_notification
+    ):
         user = UserWithProfileFactory()
         client = get_client_with_valid_token(user)
 
@@ -97,7 +126,9 @@ class AcceptOfferTestCase(TestCase):
         self.assertEqual(Assignment.objects.count(), 0)
         self.assertEqual(Chat.objects.count(), 0)
 
-    def test_accept_already_accepted_offer(self):
+    def test_accept_already_accepted_offer(
+        self, mocked_send_push_notification
+    ):
         user = UserWithProfileFactory()
         client = get_client_with_valid_token(user)
 
@@ -134,7 +165,7 @@ class AcceptOfferTestCase(TestCase):
         self.assertEqual(response.data['offer'], expected_offer)
         self.assertEqual(response.data['chat'], expected_chat)
 
-    def test_accept_non_existing_offer(self):
+    def test_accept_non_existing_offer(self, mocked_send_push_notification):
         user = UserWithProfileFactory()
         client = get_client_with_valid_token(user)
 
@@ -152,7 +183,9 @@ class AcceptOfferTestCase(TestCase):
             {'detail': ErrorDetail(string='Not found.', code='not_found')},
         )
 
-    def test_cannot_accept_offer_for_task_with_another_accepted_offer(self):
+    def test_cannot_accept_offer_for_task_with_another_accepted_offer(
+        self, mocked_send_push_notification
+    ):
         user = UserWithProfileFactory()
         client = get_client_with_valid_token(user)
 
