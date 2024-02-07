@@ -143,9 +143,9 @@ class TaskCreateSerializer(serializers.ModelSerializer):
 
     @classmethod
     def _validate_price_offer(cls, price_offer):
-        if price_offer <= 0:
+        if price_offer < 0:
             raise serializers.ValidationError(
                 {
-                    'price_offer': 'price_offer should be greater than 0',
+                    'price_offer': 'price_offer cannot be negative',
                 }
             )

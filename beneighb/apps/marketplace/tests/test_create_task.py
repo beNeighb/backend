@@ -200,8 +200,31 @@ class CreateTaskPriceOfferTestCase(TestCase):
         cls.data = {
             'service': cls.SERVICE.id,
             'datetime_known': False,
-            'event_type': 'online',
+            'event_type': 'offline',
+            'address': 'Some test address',
         }
+
+    def test_create_task_with_zero_price_offer(self):
+        user = UserWithProfileFactory()
+
+        client = get_client_with_valid_token(user)
+
+        data = deepcopy(self.data)
+        data['price_offer'] = 0
+
+        response = client.post(self.url, data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        self.assertEqual(Task.objects.count(), 1)
+
+        task = Task.objects.get()
+
+        self.assertIsNotNone(task.created_at)
+        self.assertEqual(task.service, self.SERVICE)
+        self.assertEqual(task.datetime_known, False)
+        self.assertEqual(task.event_type, data['event_type'])
+        self.assertEqual(task.address, data['address'])
+        self.assertEqual(task.price_offer, data['price_offer'])
 
     def test_create_task_without_price_offer(self):
         user = UserWithProfileFactory()
@@ -240,31 +263,7 @@ class CreateTaskPriceOfferTestCase(TestCase):
             {
                 'price_offer': [
                     ErrorDetail(
-                        string='price_offer should be greater than 0',
-                        code='invalid',
-                    )
-                ]
-            },
-        )
-
-    def test_create_task_with_zero_price_offer(self):
-        user = UserWithProfileFactory()
-
-        client = get_client_with_valid_token(user)
-
-        data = deepcopy(self.data)
-        data['price_offer'] = 0
-
-        response = client.post(self.url, data)
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
-        self.assertEqual(Task.objects.count(), 0)
-        self.assertEqual(
-            response.data,
-            {
-                'price_offer': [
-                    ErrorDetail(
-                        string='price_offer should be greater than 0',
+                        string='price_offer cannot be negative',
                         code='invalid',
                     )
                 ]
