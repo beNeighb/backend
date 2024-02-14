@@ -1,5 +1,4 @@
 import logging
-import re
 
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
@@ -30,19 +29,15 @@ class TaskCreateView(generics.CreateAPIView):
         }
 
         task_service = task.service
-        recipients = Profile.objects.filter(services=task_service).exclude(
-            id=task.owner.id,
-            fcm_token='',
-            fcm_token__isnull=True,
+        recipients = (
+            Profile.objects.filter(services=task_service)
+            .exclude(id=task.owner.id)
+            .exclude(fcm_token='')
+            .exclude(fcm_token__isnull=True)
         )
 
         for recipient in recipients:
-            # HACK: This is a temporary fix
-            if recipient == task.owner:
-                continue
-
-            # PERFORMANCE: This is not optimal
-            # TODO: Use celery and topics instead
+            # PERFORMANCE: This is not optimal: Use celery and topics instead
             send_push_notification(recipient, text, data=data)
 
 

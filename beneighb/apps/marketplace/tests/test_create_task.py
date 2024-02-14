@@ -66,44 +66,6 @@ class CreateTaskTestCase(TestCase):
         self.assertEqual(task.address, self.correct_data['address'])
         self.assertEqual(task.price_offer, self.correct_data['price_offer'])
 
-    @mock.patch('apps.marketplace.views.task.send_push_notification')
-    def test_create_task_notification(self, mocked_send_push_notification):
-        user = UserWithProfileFactory()
-
-        client = get_client_with_valid_token(user)
-
-        datetime_option = datetime.now(tz=timezone.utc) + timedelta(days=1)
-        correct_data = deepcopy(self.correct_data)
-        correct_data['datetime_options'] = [datetime_option]
-
-        recipients = []
-        for i in range(3):
-            recipient = UserWithProfileFactory().profile
-            recipient.services.add(self.SERVICE)
-            recipient.save()
-            recipients.append(recipient)
-
-        response = client.post(self.url, correct_data)
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-
-        self.assertEqual(
-            mocked_send_push_notification.call_count, len(recipients)
-        )
-
-        task = Task.objects.get()
-        calls = mocked_send_push_notification.call_args_list
-        sent_to = set([call.args[0] for call in calls])
-
-        self.assertNotIn(user.profile, sent_to)
-        self.assertEqual(sent_to, set(recipients))
-        self.assertEqual(
-            mocked_send_push_notification.call_args[1]['data'],
-            {
-                'type': 'new_task',
-                'task_id': str(task.id),
-            },
-        )
-
     @mock.patch('apps.users.notifications.send_push_notification')
     def test_create_task_idempotent(self, mocked_send_push_notification):
         user = UserWithProfileFactory()
@@ -129,10 +91,7 @@ class CreateTaskTestCase(TestCase):
 
         self.assertEqual(Task.objects.count(), 1)
 
-    @mock.patch('apps.users.notifications.send_push_notification')
-    def test_create_task_without_service_id(
-        self, mocked_send_push_notification
-    ):
+    def test_create_task_without_service_id(self):
         user = UserWithProfileFactory()
 
         client = get_client_with_valid_token(user)
@@ -155,10 +114,7 @@ class CreateTaskTestCase(TestCase):
             },
         )
 
-    @mock.patch('apps.users.notifications.send_push_notification')
-    def test_create_task_with_incorrect_service_id(
-        self, mocked_send_push_notification
-    ):
+    def test_create_task_with_incorrect_service_id(self):
         user = UserWithProfileFactory()
 
         client = get_client_with_valid_token(user)
@@ -204,7 +160,10 @@ class CreateTaskPriceOfferTestCase(TestCase):
             'address': 'Some test address',
         }
 
-    def test_create_task_with_zero_price_offer(self):
+    @mock.patch('apps.users.notifications.send_push_notification')
+    def test_create_task_with_zero_price_offer(
+        self, _mocked_send_push_notification
+    ):
         user = UserWithProfileFactory()
 
         client = get_client_with_valid_token(user)
@@ -463,7 +422,8 @@ class CreateTaskDatetimeKnownTestCase(TestCase):
 
         self.assertEqual(Task.objects.count(), 0)
 
-    def test_create_task_successful(self):
+    @mock.patch('apps.users.notifications.send_push_notification')
+    def test_create_task_successful(self, _mocked_send_push_notification):
         user = UserWithProfileFactory()
 
         client = get_client_with_valid_token(user)
@@ -606,3 +566,106 @@ class CreateTaskDatetimeKnownTestCase(TestCase):
                 ]
             },
         )
+
+
+@mock.patch('apps.marketplace.views.task.send_push_notification')
+class CreateTaskNotificationTestCase(TestCase):
+    url = '/marketplace/tasks/'
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.SERVICE = ServiceFactory()
+        cls.correct_data = {
+            'service': cls.SERVICE.id,
+            'datetime_known': False,
+            'event_type': 'offline',
+            'address': 'Some test address',
+            'price_offer': 25,
+        }
+
+    def tearDown(self):
+        cache.clear()
+        super().tearDown()
+
+    def get_notification_recipient(
+        self, service, fcm_token='some valid token'
+    ):
+        profile = UserWithProfileFactory().profile
+        profile.services.add(service)
+        profile.fcm_token = fcm_token
+        profile.save()
+        return profile
+
+    def test_all_profiles_with_corresponding_service_get_notification(
+        self, mocked_send_push_notification
+    ):
+        user = UserWithProfileFactory()
+        client = get_client_with_valid_token(user)
+
+        recipients = []
+        for i in range(3):
+            recipient = self.get_notification_recipient(self.SERVICE)
+            recipients.append(recipient)
+
+        response = client.post(self.url, self.correct_data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        self.assertEqual(
+            mocked_send_push_notification.call_count, len(recipients)
+        )
+
+        calls = mocked_send_push_notification.call_args_list
+        sent_to = set([call.args[0] for call in calls])
+
+        self.assertNotIn(user.profile, sent_to)
+        self.assertEqual(sent_to, set(recipients))
+
+    def test_notification_sent_with_correct_data(
+        self, mocked_send_push_notification
+    ):
+        user = UserWithProfileFactory()
+        client = get_client_with_valid_token(user)
+
+        recipient = self.get_notification_recipient(self.SERVICE)  # noqa
+
+        response = client.post(self.url, self.correct_data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        self.assertEqual(mocked_send_push_notification.call_count, 1)
+
+        task = Task.objects.get()
+        self.assertEqual(
+            mocked_send_push_notification.call_args[1]['data'],
+            {
+                'type': 'new_task',
+                'task_id': str(task.id),
+            },
+        )
+
+    def test_task_owner_does_not_get_notification(
+        self, mocked_send_push_notification
+    ):
+        user = self.get_notification_recipient(self.SERVICE).user
+        client = get_client_with_valid_token(user)
+
+        response = client.post(self.url, self.correct_data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        self.assertEqual(mocked_send_push_notification.call_count, 0)
+
+    def test_notification_not_sent_to_profiles_without_fcm_token(
+        self, mocked_send_push_notification
+    ):
+        user = UserWithProfileFactory()
+        client = get_client_with_valid_token(user)
+
+        non_recipient = self.get_notification_recipient(  # noqa
+            self.SERVICE, ''
+        )
+        non_recipient_2 = UserWithProfileFactory().profile
+        non_recipient_2.services.add(self.SERVICE)
+
+        response = client.post(self.url, self.correct_data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        self.assertEqual(mocked_send_push_notification.call_count, 0)
