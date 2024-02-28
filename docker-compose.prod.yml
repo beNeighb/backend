@@ -38,7 +38,7 @@ services:
 
   backup:
     image: python:3.9-slim
-    entrypoint: "/bin/sh -c 'trap exit TERM; while :; echo 'HEEEEEEERE'; sleep 24h & wait $${!}; done;'"
+    command: ["/bin/bash"]
     volumes:
       - ./backup_db.sh:/app/backup_db.sh
       - ./data/backups:/backups
