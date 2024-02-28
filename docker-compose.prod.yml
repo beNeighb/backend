@@ -39,7 +39,8 @@ services:
   backup:
     restart: unless-stopped
     image: python:3.12.0b3-alpine3.18
-    command: ["/bin/sh"]
+    command: |
+      sh -c "while :; echo 'HEEEEEELLLLLL YEAAAAAAH'; sleep 60; done"
     # volumes:
       # - ./backup_db.sh:/app/backup_db.sh
       # - ./data/backups:/backups
