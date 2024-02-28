@@ -34,10 +34,12 @@ services:
       - ./.env.prod.db
 
   backup:
-    image: python:3.9-slim
+    restart: unless-stopped
+    image: python:3.12.0b3-alpine3.18
+    command: ["/bin/sh"]
     volumes:
-      - ./backup_db.sh:/app/backup_db.sh
-      - ./data/backups:/backups
+      # - ./backup_db.sh:/app/backup_db.sh
+      # - ./data/backups:/backups
     env_file:
       - ./.env.prod
       - ./.env.prod.db
