@@ -23,6 +23,7 @@ services:
     depends_on:
       - db
       - redis
+
   db:
     image: ghcr.io/beneighb/backend/postgres
     platform: linux/amd64
@@ -31,6 +32,18 @@ services:
       - ./postgres_data:/var/lib/postgresql/data/
     env_file:
       - ./.env.prod.db
+
+  backup:
+    image: python:3.9-slim
+    volumes:
+      - ./backup_db.sh:/app/backup_db.sh
+      - ./data/backups:/backups
+    env_file:
+      - ./.env.prod
+      - ./.env.prod.db
+    depends_on:
+      - db
+
   nginx:
     platform: linux/amd64
     image: ghcr.io/beneighb/backend/nginx
@@ -46,11 +59,13 @@ services:
       - 443:443
     depends_on:
       - web
+
   redis:
       restart: unless-stopped
       image: redis:latest
       expose:
           - 6379
+
   certbot:
     image: certbot/certbot
     entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
