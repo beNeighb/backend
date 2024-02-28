@@ -37,7 +37,7 @@ services:
     restart: unless-stopped
     image: python:3.12.0b3-alpine3.18
     command: ["/bin/sh"]
-    volumes:
+    # volumes:
       # - ./backup_db.sh:/app/backup_db.sh
       # - ./data/backups:/backups
     env_file:
