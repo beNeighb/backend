@@ -37,6 +37,7 @@ services:
       - ./.env.prod.db
 
   backup:
+    restart: unless-stopped
     image: python:3.9-slim
     command: ["/bin/bash"]
     volumes:
