@@ -157,3 +157,6 @@ postgres_data/
 beneighb/staticfiles
 
 tags
+
+.env.prod
+.env.prod.db
