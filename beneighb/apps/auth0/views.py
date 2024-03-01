@@ -1,11 +1,14 @@
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
-from rest_framework.views import APIView
-
+from allauth.account.models import EmailAddress
 from allauth.socialaccount.providers.oauth2.client import OAuth2Client
-from dj_rest_auth.views import PasswordResetConfirmView
+
+from dj_rest_auth.views import PasswordResetConfirmView, PasswordResetView
 from dj_rest_auth.registration.views import SocialLoginView
 from dj_rest_auth.registration.serializers import SocialLoginSerializer
+
+from rest_framework import status
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
 
 from apps.auth0.adapters import GoogleOAuth2AdapterIdToken
 
@@ -16,6 +19,21 @@ class DummyView(APIView):
     def get(self, request, format=None):
         dummy_data = {"message": "This is a dummy response"}
         return Response(dummy_data)
+
+
+class BeneighbPasswordResetView(PasswordResetView):
+    def post(self, request, *args, **kwargs):
+        email = request.data.get('email')
+        email_address = EmailAddress.objects.get(email=email)
+
+        if not email_address.verified:
+            email_address.send_confirmation(request)
+            return Response(
+                {'detail': 'Verification email has been sent'},
+                status=status.HTTP_200_OK,
+            )
+
+        return super().post(request, *args, **kwargs)
 
 
 class BeneighbPasswordResetConfirmView(PasswordResetConfirmView):

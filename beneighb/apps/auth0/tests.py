@@ -275,3 +275,14 @@ class ResetEmailSendsCorrectEmailTestCase(TestCase):
         self.assertIn(expected_link, email.body)
         self.assertIn('Your email is your username for login', email.body)
         self.assertIn('Password Reset E-mail', email.subject)
+
+    def test_email_with_activation_link_is_send_if_user_is_not_activated(self):
+        UserWithUnVerifiedEmailFactory(email=self.TEST_USER_EMAIL)
+
+        client = APIClient()
+        client.post(self.url, self.data)
+
+        email = mail.outbox[0]
+        expected_link = 'https://link.beneighb.com/confirm-email/'
+
+        self.assertIn(expected_link, email.body)
