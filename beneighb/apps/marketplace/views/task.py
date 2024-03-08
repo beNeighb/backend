@@ -58,7 +58,11 @@ class TaskForMeListView(generics.ListCreateAPIView):
         user = self.request.user
         user_services = user.profile.services.all()
         # TODO: Check if can be optimized
-        return Task.objects.filter(service__in=user_services).exclude(
+        # return Task.objects.filter(service__in=user_services).exclude(
+        #     owner=user.profile
+        # )
+        # TODO: Change when we decide to filter tasks
+        return Task.objects.all().exclude(
             owner=user.profile
         )
 

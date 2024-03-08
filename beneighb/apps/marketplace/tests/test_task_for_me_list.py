@@ -1,4 +1,5 @@
 from django.test import TestCase
+from unittest import skip
 
 from rest_framework import status
 from rest_framework.test import APIClient
@@ -41,6 +42,8 @@ class TaskForMeListTestsCase(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data, [])
 
+    # TODO: Remove when we decide to filter tasks
+    @skip
     def test_show_applicable_tasks(self):
         user = UserWithProfileFactory()
         client = get_client_with_valid_token(user)

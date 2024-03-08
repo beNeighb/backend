@@ -6,5 +6,5 @@ export SQL_DATABASE=beneighb
 export SQL_USER=beneighb
 export SQL_PASSWORD=beneighb
 export SQL_HOST=localhost
-export SQL_PORT=5433
+export SQL_PORT=5432
 export LOCAL=1

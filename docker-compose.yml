@@ -30,12 +30,12 @@ services:
     platform: linux/amd64
     restart: always
     ports:
-      - 5433:5432
+      - 5432:5432
     volumes:
       - ./postgres_data:/var/lib/postgresql/data/
     env_file:
       # TODO: Create .env.dev.db
-      - ./.env.prod.db
+      - ./.env.dev.db
   redis:
       restart: unless-stopped
       image: redis:latest
