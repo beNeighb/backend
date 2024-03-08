@@ -3,11 +3,10 @@ from django.test import TestCase
 from rest_framework import status
 from rest_framework.test import APIClient
 
-from apps.users.factories import UserWithProfileFactory, ProfileFactory
+from apps.users.factories import UserWithProfileFactory
 
 from apps.marketplace.factories import (
     OfferFactory,
-    ServiceFactory,
     TaskFactory,
 )
 from apps.users.tests.utils import get_client_with_valid_token

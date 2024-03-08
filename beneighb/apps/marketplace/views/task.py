@@ -56,15 +56,13 @@ class TaskForMeListView(generics.ListCreateAPIView):
 
     def get_queryset(self):
         user = self.request.user
-        user_services = user.profile.services.all()
         # TODO: Check if can be optimized
+        # user_services = user.profile.services.all()
         # return Task.objects.filter(service__in=user_services).exclude(
         #     owner=user.profile
         # )
         # TODO: Change when we decide to filter tasks
-        return Task.objects.all().exclude(
-            owner=user.profile
-        )
+        return Task.objects.all().exclude(owner=user.profile)
 
 
 class TaskWithMyOfferListView(generics.ListCreateAPIView):
