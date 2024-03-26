@@ -1,19 +1,16 @@
 from copy import deepcopy
 from datetime import datetime, timedelta, timezone
+from unittest import mock, skip
 
-from unittest import mock
-
-from django.test import TestCase
-from django.core.cache import cache
-
-from rest_framework import status
-from rest_framework.test import APIClient
-from rest_framework.exceptions import ErrorDetail
-
-from apps.users.factories import UserWithProfileFactory
-from apps.marketplace.models import Service, Task
 from apps.marketplace.factories import ServiceFactory
+from apps.marketplace.models import Service, Task
+from apps.users.factories import UserWithProfileFactory
 from apps.users.tests.utils import get_client_with_valid_token
+from django.core.cache import cache
+from django.test import TestCase
+from rest_framework import status
+from rest_framework.exceptions import ErrorDetail
+from rest_framework.test import APIClient
 
 
 class CreateTaskTestCase(TestCase):
@@ -596,6 +593,7 @@ class CreateTaskNotificationTestCase(TestCase):
         profile.save()
         return profile
 
+    @skip
     def test_all_profiles_with_corresponding_service_get_notification(
         self, mocked_send_push_notification
     ):
@@ -606,6 +604,38 @@ class CreateTaskNotificationTestCase(TestCase):
         for i in range(3):
             recipient = self.get_notification_recipient(self.SERVICE)
             recipients.append(recipient)
+
+        response = client.post(self.url, self.correct_data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        self.assertEqual(
+            mocked_send_push_notification.call_count, len(recipients)
+        )
+
+        calls = mocked_send_push_notification.call_args_list
+        sent_to = set([call.args[0] for call in calls])
+
+        self.assertNotIn(user.profile, sent_to)
+        self.assertEqual(sent_to, set(recipients))
+
+    # TODO: Delete after filtering the tasks
+    # for helpers with corresponding services
+    def test_all_profiles_with_get_notification(
+        self, mocked_send_push_notification
+    ):
+        user = UserWithProfileFactory()
+        client = get_client_with_valid_token(user)
+
+        recipients = []
+        for i in range(3):
+            recipient = self.get_notification_recipient(self.SERVICE)
+            recipients.append(recipient)
+
+        recipient_without_service = UserWithProfileFactory().profile
+        recipient_without_service.fcm_token = 'some valid token'
+        recipient_without_service.save()
+
+        recipients.append(recipient_without_service)
 
         response = client.post(self.url, self.correct_data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)

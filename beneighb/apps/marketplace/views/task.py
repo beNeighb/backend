@@ -28,9 +28,12 @@ class TaskCreateView(generics.CreateAPIView):
             'task_id': str(task.id),
         }
 
-        task_service = task.service
+        # task_service = task.service
         recipients = (
-            Profile.objects.filter(services=task_service)
+            Profile.objects.all()
+            # TODO: Delete after filtering the tasks for helpers
+            # with corresponding services
+            # Profile.objects.filter(services=task_service)
             .exclude(id=task.owner.id)
             .exclude(fcm_token='')
             .exclude(fcm_token__isnull=True)
