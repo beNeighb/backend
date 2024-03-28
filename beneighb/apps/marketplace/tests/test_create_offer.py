@@ -6,6 +6,7 @@ from rest_framework import status
 from rest_framework.test import APIClient
 
 from rest_framework.exceptions import ErrorDetail
+from unittest import skip
 
 from apps.users.factories import UserWithProfileFactory
 from apps.marketplace.models import Offer, Task
@@ -153,6 +154,7 @@ class CreateOfferTestCase(TestCase):
             },
         )
 
+    @skip
     def test_cannot_create_offer_for_helper_without_matching_service(self):
         user = UserWithProfileFactory()
         self.assertEqual(user.profile.services.count(), 0)
@@ -173,3 +175,35 @@ class CreateOfferTestCase(TestCase):
                 ]
             },
         )
+
+    def test_can_create_offer_for_helper_without_matching_service(self):
+        user = UserWithProfileFactory()
+        self.assertEqual(user.profile.services.count(), 0)
+
+        client = get_client_with_valid_token(user)
+
+        response = client.post(self.url, self.correct_data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        self.assertIsNotNone(response.data['created_at'])
+        self.assertEqual(Offer.objects.count(), 1)
+
+        offer = Offer.objects.first()
+
+        self.assertIsNotNone(offer.created_at)
+        self.assertEqual(offer.task, self.TASK)
+        self.assertEqual(offer.helper, user.profile)
+        self.assertEqual(offer.status, 'pending')
+
+        # Checking response correctness here, because we need offer.id
+        expected_data_without_created_at = {
+            'id': offer.id,
+            'status': 'pending',
+            'task': self.TASK.id,
+            'helper': user.profile.id,
+        }
+
+        for key, val in expected_data_without_created_at.items():
+            self.assertEqual(response.data[key], val)

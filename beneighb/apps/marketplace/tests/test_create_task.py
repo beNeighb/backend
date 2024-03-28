@@ -618,8 +618,7 @@ class CreateTaskNotificationTestCase(TestCase):
         self.assertNotIn(user.profile, sent_to)
         self.assertEqual(sent_to, set(recipients))
 
-    # TODO: Delete after filtering the tasks
-    # for helpers with corresponding services
+    # TODO: Uncomment this, during #284 - add back filters for services
     def test_all_profiles_with_get_notification(
         self, mocked_send_push_notification
     ):

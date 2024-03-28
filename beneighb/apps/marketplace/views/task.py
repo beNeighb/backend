@@ -31,7 +31,7 @@ class TaskCreateView(generics.CreateAPIView):
         # task_service = task.service
         recipients = (
             Profile.objects.all()
-            # TODO: Delete after filtering the tasks for helpers
+            # TODO: Uncomment this, during #284 - add back filters for services
             # with corresponding services
             # Profile.objects.filter(services=task_service)
             .exclude(id=task.owner.id)
@@ -64,7 +64,7 @@ class TaskForMeListView(generics.ListCreateAPIView):
         # return Task.objects.filter(service__in=user_services).exclude(
         #     owner=user.profile
         # )
-        # TODO: Change when we decide to filter tasks
+        # TODO: Uncomment this, during #284 - add back filters for services
         return Task.objects.all().exclude(owner=user.profile)
 
 

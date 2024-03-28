@@ -42,7 +42,7 @@ class TaskForMeListTestsCase(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data, [])
 
-    # TODO: Remove when we decide to filter tasks
+    # TODO: Uncomment this, during #284 - add back filters for services
     @skip
     def test_show_applicable_tasks(self):
         user = UserWithProfileFactory()
