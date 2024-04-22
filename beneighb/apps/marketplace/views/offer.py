@@ -73,6 +73,7 @@ class OfferAcceptView(generics.UpdateAPIView):
             'Your offer has been accepted!',
             data={
                 'type': 'offer_accepted',
+                'chat_id': str(offer_instance.chat.id),
             },
         )
 
