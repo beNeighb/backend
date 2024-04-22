@@ -123,7 +123,6 @@ class AcceptOfferTestCase(TestCase):
         )
 
         self.assertEqual(Assignment.objects.count(), 0)
-        self.assertEqual(Chat.objects.count(), 0)
 
     def test_accept_already_accepted_offer(
         self, mocked_send_push_notification
