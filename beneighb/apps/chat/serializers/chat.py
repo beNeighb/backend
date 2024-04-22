@@ -4,16 +4,16 @@ from apps.chat.models import Chat
 
 class BaseChatSerializer(serializers.ModelSerializer):
     service = serializers.IntegerField(
-        source='assignment.offer.task.service.id'
+        source='offer.task.service.id'
     )
     profile_name = serializers.SerializerMethodField()
-    offer = serializers.IntegerField(source='assignment.offer.id')
+    offer = serializers.IntegerField(source='offer.id')
 
     def get_profile_name(self, obj):
         my_profile = self.context['request'].user.profile
 
-        task_owner = obj.assignment.offer.task.owner
-        offer_helper = obj.assignment.offer.helper
+        task_owner = obj.offer.task.owner
+        offer_helper = obj.offer.helper
 
         return (
             offer_helper.name if my_profile == task_owner else task_owner.name

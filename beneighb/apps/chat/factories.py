@@ -5,7 +5,6 @@ from factory import LazyFunction, SubFactory
 from factory.django import DjangoModelFactory
 
 from apps.chat.models import Chat, Message
-from apps.marketplace.factories import AssignmentFactory
 from apps.users.factories import ProfileFactory
 
 
@@ -13,7 +12,10 @@ class ChatFactory(DjangoModelFactory):
     class Meta:
         model = Chat
 
-    assignment = SubFactory(AssignmentFactory)
+    @classmethod
+    def create(cls, **kwargs):
+        chat = super().create(**kwargs)
+        return chat
 
 
 class MessageFactory(DjangoModelFactory):

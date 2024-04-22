@@ -48,6 +48,7 @@ class CreateOfferTestCase(TestCase):
         self.assertEqual(offer.task, self.TASK)
         self.assertEqual(offer.helper, user.profile)
         self.assertEqual(offer.status, 'pending')
+        self.assertEqual(offer.chat.id, response.data['chat'])
 
         # Checking response correctness here, because we need offer.id
         expected_data_without_created_at = {
@@ -55,6 +56,7 @@ class CreateOfferTestCase(TestCase):
             'status': 'pending',
             'task': self.TASK.id,
             'helper': user.profile.id,
+            'chat': offer.chat.id,
         }
 
         for key, val in expected_data_without_created_at.items():

@@ -1,6 +1,7 @@
-from factory import SubFactory
+from factory import SubFactory, LazyAttribute
 from factory.django import DjangoModelFactory
 
+from apps.chat.factories import ChatFactory
 from apps.marketplace.models import (
     Assignment,
     Offer,
@@ -41,6 +42,12 @@ class OfferFactory(DjangoModelFactory):
     task = SubFactory(TaskFactory)
     helper = SubFactory(ProfileFactory)
     status = 'pending'
+
+    @classmethod
+    def create(cls, **kwargs):
+        offer = super().create(**kwargs)
+        ChatFactory(offer=offer)
+        return offer
 
 
 class AssignmentFactory(DjangoModelFactory):

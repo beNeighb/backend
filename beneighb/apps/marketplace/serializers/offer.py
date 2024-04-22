@@ -1,9 +1,13 @@
+from django.db import transaction
+
 from rest_framework import serializers
 
+from apps.chat.models import Chat
 from apps.chat.serializers import ChatSerializer
 
 from apps.users.serializers import ShortProfileSerializer
 from apps.marketplace.models import Offer
+
 
 
 class OfferWithHelperSerializer(serializers.ModelSerializer):
@@ -15,6 +19,8 @@ class OfferWithHelperSerializer(serializers.ModelSerializer):
 
 
 class OfferSerializer(serializers.ModelSerializer):
+    chat = serializers.SerializerMethodField()
+
     class Meta:
         model = Offer
         fields = (
@@ -23,11 +29,15 @@ class OfferSerializer(serializers.ModelSerializer):
             'helper',
             'status',
             'created_at',
+            'chat',
         )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.helper = self.context['request'].user.profile
+
+    def get_chat(self, obj):
+        return obj.chat.id
 
     def is_valid(self, *args, **kwargs):
         if hasattr(self.initial_data, '_mutable'):
@@ -44,6 +54,12 @@ class OfferSerializer(serializers.ModelSerializer):
         self._validate_status(data)
         self._validate_helper(task, profile_id)
         return super().validate(data)
+
+    @transaction.atomic
+    def create(self, validated_data):
+        offer = Offer.objects.create(**validated_data)
+        chat = Chat.objects.create(offer=offer)
+        return offer
 
     def _validate_status(self, data):
         if data.get('status') == Offer.StatusTypes.PENDING:

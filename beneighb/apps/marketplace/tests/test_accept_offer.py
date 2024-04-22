@@ -32,7 +32,7 @@ class AcceptOfferTestCase(TestCase):
         offer = OfferFactory(task__owner=user.profile)
 
         self.assertEqual(Assignment.objects.count(), 0)
-        self.assertEqual(Chat.objects.count(), 0)
+        self.assertEqual(Chat.objects.count(), 1)  # OfferFactory creates chat
 
         url = self.url_template.format(offer.id)
         response = client.put(url)
@@ -48,7 +48,6 @@ class AcceptOfferTestCase(TestCase):
 
         self.assertEqual(Chat.objects.count(), 1)
         chat = Chat.objects.first()
-        self.assertEqual(chat.assignment, assignment)
 
         expected_data = {
             'offer': OrderedDict(
