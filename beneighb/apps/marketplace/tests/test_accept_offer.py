@@ -153,7 +153,7 @@ class AcceptOfferTestCase(TestCase):
         )
         expected_chat = OrderedDict(
             {
-                'id': offer.assignment.chat.id,
+                'id': offer.chat.id,
                 'created_at': mock.ANY,
                 'offer': offer.id,
                 'service': offer.task.service.id,

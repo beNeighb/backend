@@ -59,7 +59,7 @@ class OfferAcceptView(generics.UpdateAPIView):
 
         self.perform_update(serializer)
 
-        assignment = Assignment.objects.create(offer=offer_instance)
+        assignment = Assignment.objects.get_or_create(offer=offer_instance)
 
         serializer = OfferWithChatSerializer(
             {'offer': offer_instance, 'chat': offer_instance.chat},
