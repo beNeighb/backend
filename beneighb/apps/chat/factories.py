@@ -13,8 +13,18 @@ class ChatFactory(DjangoModelFactory):
         model = Chat
 
     @classmethod
-    def create(cls, **kwargs):
-        chat = super().create(**kwargs)
+    def create(cls, offer=None, **kwargs):
+        if offer is None:
+            from apps.marketplace.factories import OfferFactory
+            offer = OfferFactory()
+        else:
+            kwargs['offer_id'] = offer.id
+
+        if not hasattr(offer, 'chat'):
+            chat = super().create(offer=offer)
+        else:
+            chat = offer.chat
+
         return chat
 
 
@@ -29,8 +39,8 @@ class MessageFactory(DjangoModelFactory):
 
     @factory.post_generation
     def set_recipient(self, create, extracted, **kwargs):
-        offer_helper = self.chat.assignment.offer.helper
-        task_owner = self.chat.assignment.offer.task.owner
+        offer_helper = self.chat.offer.helper
+        task_owner = self.chat.offer.task.owner
 
         if self.recipient not in (offer_helper, task_owner):
             self.recipient = (

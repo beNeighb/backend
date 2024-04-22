@@ -35,6 +35,11 @@ class TaskFactory(DjangoModelFactory):
     owner = SubFactory(ProfileFactory)
 
 
+class AssignmentFactory(DjangoModelFactory):
+    class Meta:
+        model = Assignment
+
+
 class OfferFactory(DjangoModelFactory):
     class Meta:
         model = Offer
@@ -47,11 +52,5 @@ class OfferFactory(DjangoModelFactory):
     def create(cls, **kwargs):
         offer = super().create(**kwargs)
         ChatFactory(offer=offer)
+        AssignmentFactory(offer=offer)
         return offer
-
-
-class AssignmentFactory(DjangoModelFactory):
-    class Meta:
-        model = Assignment
-
-    offer = SubFactory(OfferFactory)

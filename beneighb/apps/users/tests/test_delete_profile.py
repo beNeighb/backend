@@ -6,6 +6,7 @@ from rest_framework.test import APIClient
 from apps.marketplace.models import Assignment
 
 from apps.chat.factories import ChatFactory, MessageFactory
+from apps.marketplace.factories import OfferFactory
 from apps.chat.models import Chat, Message
 
 from apps.marketplace.models import Offer, Task
@@ -29,13 +30,15 @@ class DeleteProfileTestCase(TestCase):
         user = UserWithProfileFactory()
         profile = user.profile
 
-        chat = ChatFactory(assignment__offer__helper=profile)
+        offer = OfferFactory(helper=profile)
+        chat = ChatFactory(offer=offer)
+
         MessageFactory(chat=chat, sender=profile)
         message = MessageFactory(
-            chat=chat, sender=chat.assignment.offer.task.owner
+            chat=chat, sender=chat.offer.task.owner
         )
-        assignment = chat.assignment
-        offer = assignment.offer
+
+        assignment = offer.assignment
         task = offer.task
 
         url = self.url_template.format(profile.id)
@@ -47,6 +50,7 @@ class DeleteProfileTestCase(TestCase):
 
         self.assertEqual(Profile.objects.filter(id=profile.id).count(), 0)
         self.assertEqual(User.objects.filter(id=profile.user.id).count(), 0)
+
         self.assertEqual(Chat.objects.filter(id=chat.id).count(), 0)
         self.assertEqual(Message.objects.filter(id=message.id).count(), 0)
         self.assertEqual(
@@ -60,14 +64,15 @@ class DeleteProfileTestCase(TestCase):
         user = UserWithProfileFactory()
         profile = user.profile
 
-        chat = ChatFactory(assignment__offer__task__owner=profile)
+        offer = OfferFactory(task__owner=profile)
+        assignment = offer.assignment
+        task = offer.task
+
+        chat = ChatFactory(offer=offer)
         message = MessageFactory(chat=chat, sender=profile)
         message = MessageFactory(
-            chat=chat, sender=chat.assignment.offer.helper
+            chat=chat, sender=chat.offer.helper
         )
-        assignment = chat.assignment
-        offer = assignment.offer
-        task = offer.task
 
         url = self.url_template.format(profile.id)
 
