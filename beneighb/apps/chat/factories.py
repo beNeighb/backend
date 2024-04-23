@@ -46,9 +46,6 @@ class MessageFactory(DjangoModelFactory):
 
     @classmethod
     def create(cls, chat=None, *args, **kwargs):
-        # if sender:
-        #     kwargs['sender'] = sender
-
         if not chat:
             chat = ChatFactory.create(*args, **kwargs)
 
