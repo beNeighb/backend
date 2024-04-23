@@ -9,7 +9,6 @@ from apps.users.serializers import ShortProfileSerializer
 from apps.marketplace.models import Offer
 
 
-
 class OfferWithHelperSerializer(serializers.ModelSerializer):
     helper = ShortProfileSerializer(read_only=True)
 
@@ -58,7 +57,7 @@ class OfferSerializer(serializers.ModelSerializer):
     @transaction.atomic
     def create(self, validated_data):
         offer = Offer.objects.create(**validated_data)
-        chat = Chat.objects.create(offer=offer)
+        Chat.objects.create(offer=offer)
         return offer
 
     def _validate_status(self, data):

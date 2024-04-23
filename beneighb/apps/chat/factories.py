@@ -53,7 +53,6 @@ class MessageFactory(DjangoModelFactory):
         message = super().create(*args, **kwargs)
         return message
 
-
     @factory.post_generation
     def set_recipient(self, create, extracted, **kwargs):
         offer_helper = self.chat.offer.helper

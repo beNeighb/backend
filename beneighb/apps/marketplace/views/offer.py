@@ -4,7 +4,6 @@ from rest_framework import generics
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 
-from apps.chat.models import Chat
 from apps.marketplace.models import Assignment, Offer
 from apps.marketplace.serializers import (
     OfferAcceptSerializer,
@@ -59,7 +58,7 @@ class OfferAcceptView(generics.UpdateAPIView):
 
         self.perform_update(serializer)
 
-        assignment = Assignment.objects.get_or_create(offer=offer_instance)
+        Assignment.objects.get_or_create(offer=offer_instance)
 
         serializer = OfferWithChatSerializer(
             {'offer': offer_instance, 'chat': offer_instance.chat},

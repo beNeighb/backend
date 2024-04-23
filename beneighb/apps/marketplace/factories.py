@@ -1,4 +1,4 @@
-from factory import SubFactory, LazyAttribute
+from factory import SubFactory
 from factory.django import DjangoModelFactory
 
 from apps.chat.factories import ChatFactory

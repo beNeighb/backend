@@ -3,7 +3,6 @@ from django.db import migrations
 
 def migrate_chat_models(apps, schema_editor):
     Chat = apps.get_model('chat', 'Chat')
-    Assignment = apps.get_model('marketplace', 'Assignment')
     Offer = apps.get_model('marketplace', 'Offer')
 
     for chat in Chat.objects.all():
@@ -18,6 +17,7 @@ def migrate_chat_models(apps, schema_editor):
             offer = Offer.objects.create()
             chat.offer = offer
             chat.save()
+
 
 class Migration(migrations.Migration):
 
