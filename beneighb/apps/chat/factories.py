@@ -32,10 +32,23 @@ class MessageFactory(DjangoModelFactory):
     class Meta:
         model = Message
 
-    chat = SubFactory(ChatFactory)
     sender = SubFactory(ProfileFactory)
     recipient = SubFactory(ProfileFactory)
     sent_at = LazyFunction(timezone.now)
+
+    @classmethod
+    def create(cls, chat=None, sender=None, *args, **kwargs):
+        if not chat:
+            chat = ChatFactory.create(*args, **kwargs)
+            if sender:
+                message = super().create(sender=sender, *args, **kwargs)
+            else:
+                message = super().create(chat=chat, *args, **kwargs)
+        else:
+            message = super().create(chat=chat, sender=sender, *args, **kwargs)
+
+        return message
+
 
     @factory.post_generation
     def set_recipient(self, create, extracted, **kwargs):

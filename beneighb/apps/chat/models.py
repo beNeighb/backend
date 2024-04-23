@@ -38,4 +38,4 @@ class Message(models.Model):
     text = models.TextField(max_length=300)
 
     def __str__(self):
-        return f'Message-{self.id}|Chat-{self.id}|Offer-{self.chat.assignment.offer.id}'  # noqa
+        return f'Message-{self.id}|Chat-{self.id}|Offer-{self.chat.offer.id}'  # noqa

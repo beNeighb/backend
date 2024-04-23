@@ -18,8 +18,8 @@ class ChatMineListView(generics.ListAPIView):
     def get_queryset(self):
         my_profile = self.request.user.profile
 
-        is_helper = Q(assignment__offer__helper=my_profile)
-        is_owner = Q(assignment__offer__task__owner=my_profile)
+        is_helper = Q(offer__helper=my_profile)
+        is_owner = Q(offer__task__owner=my_profile)
 
         qs = Chat.objects.filter(is_helper | is_owner)
         limit = self.request.query_params.get('limit', None)

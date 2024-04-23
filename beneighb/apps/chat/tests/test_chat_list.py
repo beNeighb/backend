@@ -34,8 +34,8 @@ class ChatListTestCase(TestCase):
         user = UserWithProfileFactory()
         client = get_client_with_valid_token(user)
 
-        chat_1 = ChatFactory(assignment__offer__helper=user.profile)
-        chat_2 = ChatFactory(assignment__offer__helper=user.profile)
+        chat_1 = ChatFactory(offer__helper=user.profile)
+        chat_2 = ChatFactory(offer__helper=user.profile)
 
         url = self.url
         response = client.get(url)
@@ -49,7 +49,7 @@ class ChatListTestCase(TestCase):
         user = UserWithProfileFactory()
         client = get_client_with_valid_token(user)
 
-        chat = ChatFactory(assignment__offer__helper=user.profile)
+        chat = ChatFactory(offer__helper=user.profile)
 
         url = self.url
         response = client.get(url)
@@ -71,7 +71,7 @@ class ChatListTestCase(TestCase):
         user = UserWithProfileFactory()
         client = get_client_with_valid_token(user)
 
-        chat = ChatFactory(assignment__offer__task__owner=user.profile)
+        chat = ChatFactory(offer__task__owner=user.profile)
 
         url = self.url
         response = client.get(url)
@@ -104,8 +104,8 @@ class ChatListTestCase(TestCase):
         user = UserWithProfileFactory()
         client = get_client_with_valid_token(user)
 
-        ChatFactory(assignment__offer__helper=user.profile)
-        ChatFactory(assignment__offer__helper=user.profile)
+        ChatFactory(offer__helper=user.profile)
+        ChatFactory(offer__helper=user.profile)
 
         url = self.url + '?limit=1'
         response = client.get(url)

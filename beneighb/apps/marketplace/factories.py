@@ -49,8 +49,9 @@ class OfferFactory(DjangoModelFactory):
     status = 'pending'
 
     @classmethod
-    def create(cls, **kwargs):
+    def create(cls, is_with_assignment=False, **kwargs):
         offer = super().create(**kwargs)
         ChatFactory(offer=offer)
-        AssignmentFactory(offer=offer)
+        if is_with_assignment:
+            AssignmentFactory(offer=offer)
         return offer

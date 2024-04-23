@@ -19,7 +19,7 @@ class CreateMessageTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.USER = UserWithProfileFactory()
-        chat = ChatFactory(assignment__offer__helper=cls.USER.profile)
+        chat = ChatFactory(offer__helper=cls.USER.profile)
         cls.url = cls.url_template.format(chat.id)
 
     def _get_correct_data(self):
@@ -46,7 +46,7 @@ class CreateMessageTestCase(TestCase):
         data = self._get_correct_data()
 
         user = UserWithProfileFactory()
-        chat = ChatFactory(assignment__offer__helper=user.profile)
+        chat = ChatFactory(offer__helper=user.profile)
         task_owner = chat.assignment.offer.task.owner
         url = self.url_template.format(chat.id)
 
@@ -89,7 +89,7 @@ class CreateMessageTestCase(TestCase):
         data = self._get_correct_data()
 
         user = UserWithProfileFactory()
-        chat = ChatFactory(assignment__offer__task__owner=user.profile)
+        chat = ChatFactory(offer__task__owner=user.profile)
         offer_helper = chat.assignment.offer.helper
 
         client = get_client_with_valid_token(user)

@@ -9,6 +9,7 @@ from rest_framework import status
 from rest_framework.test import APIClient
 
 from apps.chat.factories import ChatFactory, MessageFactory
+from apps.marketplace.factories import OfferFactory
 from apps.users.factories import UserWithProfileFactory
 from apps.users.tests.utils import get_client_with_valid_token
 
@@ -19,8 +20,9 @@ class UnreadMessageListTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.USER = UserWithProfileFactory()
-        cls.CHAT = ChatFactory(assignment__offer__helper=cls.USER.profile)
-        cls.TASK_OWNER = cls.CHAT.assignment.offer.task.owner
+        cls.OFFER = OfferFactory(helper=cls.USER.profile)
+        cls.CHAT = ChatFactory(offer=cls.OFFER)
+        cls.TASK_OWNER = cls.CHAT.offer.task.owner
 
         # Hack: for some reason FatcoryBoy doesn't save profile for user
         cls.TASK_OWNER.user.save()
@@ -44,7 +46,7 @@ class UnreadMessageListTestCase(TestCase):
         self.assertEqual(response.data[0]['id'], self.MESSAGE.id)
 
     def test_success_for_owner(self):
-        offer_helper = self.CHAT.assignment.offer.helper
+        offer_helper = self.CHAT.offer.helper
 
         expected_msg_ids = set()
         for i in range(3):
@@ -77,9 +79,10 @@ class UnreadMessageListTestCase(TestCase):
     def test_return_messages_for_multiple_chats(self):
         expected_msg_ids = {self.MESSAGE.id}
         for i in range(3):
-            chat = ChatFactory(assignment__offer__helper=self.USER.profile)
+            offer = OfferFactory(helper=self.USER.profile)
+            chat = ChatFactory(offer=offer)
             msg = MessageFactory(
-                chat=chat, sender=chat.assignment.offer.task.owner
+                chat=chat, sender=chat.offer.task.owner
             )
             expected_msg_ids.add(msg.id)
 
@@ -95,8 +98,9 @@ class UnreadMessageListTestCase(TestCase):
 
     def test_doesnt_return_read_messages(self):
         user = UserWithProfileFactory()
-        chat = ChatFactory(assignment__offer__helper=user.profile)
-        task_owner = chat.assignment.offer.task.owner
+        offer = OfferFactory(helper=user.profile)
+        chat = ChatFactory(offer=offer)
+        task_owner = chat.offer.task.owner
 
         read_msg = MessageFactory(chat=chat, sender=task_owner)
 

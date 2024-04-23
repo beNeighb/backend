@@ -18,7 +18,7 @@ class MessageMarkAsReadTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.USER = UserWithProfileFactory()
-        chat = ChatFactory(assignment__offer__helper=cls.USER.profile)
+        chat = ChatFactory(offer__helper=cls.USER.profile)
         cls.MESSAGE = MessageFactory(chat=chat)
         cls.URL = cls.url_template.format(cls.MESSAGE.id)
 
@@ -56,7 +56,7 @@ class MessageMarkAsReadTestCase(TestCase):
         data = self._get_correct_data()
 
         user = UserWithProfileFactory()
-        chat = ChatFactory(assignment__offer__task__owner=user.profile)
+        chat = ChatFactory(offer__task__owner=user.profile)
         message = MessageFactory(chat=chat)
         url = self.url_template.format(message.id)
 
@@ -75,7 +75,7 @@ class MessageMarkAsReadTestCase(TestCase):
 
     def test_marks_all_messages_before_given_as_read(self):
         task_owner = UserWithProfileFactory().profile
-        chat = ChatFactory(assignment__offer__task__owner=task_owner)
+        chat = ChatFactory(offer__task__owner=task_owner)
 
         offer_helper = chat.assignment.offer.helper
         # Hack: offer_helper.user for some reason loses its profile

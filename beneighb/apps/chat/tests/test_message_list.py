@@ -18,7 +18,7 @@ class MessageListTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.USER = UserWithProfileFactory()
-        cls.CHAT = ChatFactory(assignment__offer__helper=cls.USER.profile)
+        cls.CHAT = ChatFactory(offer__helper=cls.USER.profile)
         cls.MESSAGE = MessageFactory(chat=cls.CHAT, sender=cls.USER.profile)
         cls.URL = cls.url_template.format(cls.CHAT.id)
 
@@ -42,7 +42,7 @@ class MessageListTestCase(TestCase):
 
     def test_success_for_owner(self):
         user = UserWithProfileFactory()
-        chat = ChatFactory(assignment__offer__task__owner=user.profile)
+        chat = ChatFactory(offer__task__owner=user.profile)
         for i in range(5):
             MessageFactory(chat=chat, sender=user.profile)
 
@@ -56,7 +56,7 @@ class MessageListTestCase(TestCase):
 
     def test_respects_limit_query_param(self):
         user = UserWithProfileFactory()
-        chat = ChatFactory(assignment__offer__task__owner=user.profile)
+        chat = ChatFactory(offer__task__owner=user.profile)
         for i in range(5):
             MessageFactory(chat=chat, sender=user.profile)
 
@@ -70,7 +70,7 @@ class MessageListTestCase(TestCase):
 
     def test_invalid_limit_query_param(self):
         user = UserWithProfileFactory()
-        chat = ChatFactory(assignment__offer__task__owner=user.profile)
+        chat = ChatFactory(offer__task__owner=user.profile)
         for i in range(5):
             MessageFactory(chat=chat, sender=user.profile)
 
