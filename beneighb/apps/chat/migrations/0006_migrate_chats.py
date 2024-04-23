@@ -7,7 +7,7 @@ def migrate_chat_models(apps, schema_editor):
 
     for chat in Chat.objects.all():
         # Check if the chat is associated with an Assignment
-        if chat.assignment:
+        if hassattr(chat, 'assignment'):
             # Get or create the associated Offer
             offer, _ = Offer.objects.get_or_create(assignment=chat.assignment)
             chat.offer = offer
