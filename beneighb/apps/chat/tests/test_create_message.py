@@ -47,7 +47,7 @@ class CreateMessageTestCase(TestCase):
 
         user = UserWithProfileFactory()
         chat = ChatFactory(offer__helper=user.profile)
-        task_owner = chat.assignment.offer.task.owner
+        task_owner = chat.offer.task.owner
         url = self.url_template.format(chat.id)
 
         client = get_client_with_valid_token(user)
@@ -90,7 +90,7 @@ class CreateMessageTestCase(TestCase):
 
         user = UserWithProfileFactory()
         chat = ChatFactory(offer__task__owner=user.profile)
-        offer_helper = chat.assignment.offer.helper
+        offer_helper = chat.offer.helper
 
         client = get_client_with_valid_token(user)
 

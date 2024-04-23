@@ -59,9 +59,9 @@ class ChatListTestCase(TestCase):
             {
                 'id': chat.id,
                 'created_at': mock.ANY,
-                'offer': chat.assignment.offer.id,
-                'service': chat.assignment.offer.task.service.id,
-                'profile_name': chat.assignment.offer.task.owner.name,
+                'offer': chat.offer.id,
+                'service': chat.offer.task.service.id,
+                'profile_name': chat.offer.task.owner.name,
             }
         )
 
@@ -81,9 +81,9 @@ class ChatListTestCase(TestCase):
             {
                 'id': chat.id,
                 'created_at': mock.ANY,
-                'offer': chat.assignment.offer.id,
-                'service': chat.assignment.offer.task.service.id,
-                'profile_name': chat.assignment.offer.helper.name,
+                'offer': chat.offer.id,
+                'service': chat.offer.task.service.id,
+                'profile_name': chat.offer.helper.name,
             }
         )
 

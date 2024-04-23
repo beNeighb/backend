@@ -77,7 +77,7 @@ class MessageMarkAsReadTestCase(TestCase):
         task_owner = UserWithProfileFactory().profile
         chat = ChatFactory(offer__task__owner=task_owner)
 
-        offer_helper = chat.assignment.offer.helper
+        offer_helper = chat.offer.helper
         # Hack: offer_helper.user for some reason loses its profile
         offer_helper.user.save()
 

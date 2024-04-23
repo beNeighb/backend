@@ -16,7 +16,15 @@ class ChatFactory(DjangoModelFactory):
     def create(cls, offer=None, **kwargs):
         if offer is None:
             from apps.marketplace.factories import OfferFactory
-            offer = OfferFactory()
+
+            offer_kwargs = {}
+            if 'offer__helper' in kwargs:
+                helper = kwargs.pop('offer__helper')
+                offer_kwargs['helper'] = helper
+            if 'offer__task__owner' in kwargs:
+                owner = kwargs.pop('offer__task__owner')
+                offer_kwargs['task__owner'] = owner
+            offer = OfferFactory(**offer_kwargs)
         else:
             kwargs['offer_id'] = offer.id
 
@@ -37,16 +45,15 @@ class MessageFactory(DjangoModelFactory):
     sent_at = LazyFunction(timezone.now)
 
     @classmethod
-    def create(cls, chat=None, sender=None, *args, **kwargs):
+    def create(cls, chat=None, *args, **kwargs):
+        # if sender:
+        #     kwargs['sender'] = sender
+
         if not chat:
             chat = ChatFactory.create(*args, **kwargs)
-            if sender:
-                message = super().create(sender=sender, *args, **kwargs)
-            else:
-                message = super().create(chat=chat, *args, **kwargs)
-        else:
-            message = super().create(chat=chat, sender=sender, *args, **kwargs)
 
+        kwargs['chat'] = chat
+        message = super().create(*args, **kwargs)
         return message
 
 

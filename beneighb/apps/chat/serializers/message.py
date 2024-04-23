@@ -59,8 +59,8 @@ class MessageCreateSerializer(serializers.ModelSerializer):
     def get_receipient(self, sender):
         chat_id = self.context['view'].kwargs['chat_id']
         chat = Chat.objects.get(id=chat_id)
-        task_owner = chat.assignment.offer.task.owner
-        helper = chat.assignment.offer.helper
+        task_owner = chat.offer.task.owner
+        helper = chat.offer.helper
 
         if sender == task_owner:
             return helper

@@ -20,8 +20,8 @@ class ChatAccessPermissionClass(BasePermission):
 
         my_profile = request.user.profile
         chat_authors = [
-            chat.assignment.offer.helper,
-            chat.assignment.offer.task.owner,
+            chat.offer.helper,
+            chat.offer.task.owner,
         ]
 
         return my_profile in chat_authors
