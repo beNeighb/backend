@@ -32,6 +32,24 @@ DEBUG = int(os.environ.get('DEBUG', default=0))
 LOCAL = int(os.environ.get('LOCAL', default=0))
 
 ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS').split(' ')
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': '/home/beneighb/web/logs/python.log',
+        },
+    },
+    'loggers': {
+        'gunicorn.access': {
+            'handlers': ['file'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+    },
+}
 
 
 # Application definition
