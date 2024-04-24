@@ -35,6 +35,9 @@ class OfferSerializer(serializers.ModelSerializer):
         super().__init__(*args, **kwargs)
         self.helper = self.context['request'].user.profile
 
+    def get_chat(self, obj):
+        return obj.chat.id
+
     def is_valid(self, *args, **kwargs):
         if hasattr(self.initial_data, '_mutable'):
             self.initial_data._mutable = True
