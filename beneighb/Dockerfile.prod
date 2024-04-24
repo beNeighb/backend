@@ -71,6 +71,7 @@ RUN chmod +x  $BENEIGHB_HOME/entrypoint.prod.sh
 
 # copy project
 COPY . $BENEIGHB_HOME
+COPY gunicorn_logging.conf /etc/gunicorn.d/
 
 # chown all the files to the beneighb user
 RUN chown -R beneighb:beneighb $BENEIGHB_HOME
