@@ -21,6 +21,7 @@ class OfferCreateView(generics.CreateAPIView):
     queryset = Offer.objects.all()
 
     def perform_create(self, serializer):
+        logger.error('OfferCreateView.perform_create')
         offer = serializer.save()
         send_push_notification(
             offer.task.owner,
