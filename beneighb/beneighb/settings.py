@@ -33,20 +33,26 @@ LOCAL = int(os.environ.get('LOCAL', default=0))
 
 ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS').split(' ')
 LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'handlers': {
-        'file': {
-            'level': 'DEBUG',
-            'class': 'logging.FileHandler',
-            'filename': '/home/beneighb/web/logs/python.log',
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "simple": {"format": "%(message)s"},
+        "detailed": {"format": "%(process)d:%(thread)d:%(asctime)s:%(levelname)s:%(name)s:%(lineno)d:%(message)s"},
+    },
+    "handlers": {
+        "file": {
+            "class": "logging.handlers.RotatingFileHandler",
+            "filename": '/home/beneighb/web/logs/gunicorn.log',
+            "formatter": "detailed",
+            "maxBytes": 1024**2 * 100,  # 100 Mbytes
+            "backupCount": 2,
         },
     },
-    'loggers': {
-        'gunicorn.access': {
-            'handlers': ['file'],
-            'level': 'DEBUG',
-            'propagate': True,
+    "loggers": {
+        "beneighb": {
+            "handlers": ["file"],
+            "level": "DEBUG",
+            "propagate": True,
         },
     },
 }
