@@ -11,7 +11,7 @@ services:
     volumes:
       - static_volume:/home/beneighb/web/staticfiles
       - media_volume:/home/beneighb/web/mediafiles
-      # - gunicorn_logs:/home/beneighb/web/logs
+      - ./data/logs:/home/beneighb/web/logs
       - ./data/fcm:/home/beneighb/web/fcm  # For FCM credentials file
     # TODO: Check if needed and remove
     ports:

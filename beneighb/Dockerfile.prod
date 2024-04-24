@@ -55,6 +55,7 @@ RUN mkdir $BENEIGHB_HOME
 RUN mkdir $BENEIGHB_HOME/staticfiles
 RUN mkdir $BENEIGHB_HOME/mediafiles
 RUN mkdir $BENEIGHB_HOME/logs
+RUN mkdir $BENEIGHB_HOME/test
 RUN mkdir $BENEIGHB_HOME/fcm
 WORKDIR $BENEIGHB_HOME
 
