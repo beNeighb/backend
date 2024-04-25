@@ -28,6 +28,12 @@ class CreateTaskTestCase(TestCase):
             'price_offer': 25,
         }
 
+    def setUp(self):
+        super().setUp()
+
+        self.datetime_option = datetime.now(tz=timezone.utc) + timedelta(days=1)
+        self.correct_data['datetime_options'] = [self.datetime_option]
+
     def tearDown(self):
         cache.clear()
         super().tearDown()
@@ -44,9 +50,29 @@ class CreateTaskTestCase(TestCase):
 
         client = get_client_with_valid_token(user)
 
-        datetime_option = datetime.now(tz=timezone.utc) + timedelta(days=1)
+        response = client.post(self.url, self.correct_data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        self.assertEqual(Task.objects.count(), 1)
+
+        task = Task.objects.get()
+
+        self.assertIsNotNone(task.created_at)
+        self.assertEqual(task.service, self.SERVICE)
+        self.assertEqual(task.datetime_known, True)
+        self.assertEqual(task.datetime_options, [self.datetime_option])
+        self.assertEqual(task.event_type, self.correct_data['event_type'])
+        self.assertEqual(task.address, self.correct_data['address'])
+        self.assertEqual(task.price_offer, self.correct_data['price_offer'])
+
+    @mock.patch('apps.users.notifications.send_push_notification')
+    def test_success_with_info_field(self, mocked_send_push_notification):
+        user = UserWithProfileFactory()
+
+        client = get_client_with_valid_token(user)
+
         correct_data = deepcopy(self.correct_data)
-        correct_data['datetime_options'] = [datetime_option]
+        correct_data['info'] = 'Some test info'
 
         response = client.post(self.url, correct_data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -58,10 +84,11 @@ class CreateTaskTestCase(TestCase):
         self.assertIsNotNone(task.created_at)
         self.assertEqual(task.service, self.SERVICE)
         self.assertEqual(task.datetime_known, True)
-        self.assertEqual(task.datetime_options, [datetime_option])
-        self.assertEqual(task.event_type, self.correct_data['event_type'])
-        self.assertEqual(task.address, self.correct_data['address'])
-        self.assertEqual(task.price_offer, self.correct_data['price_offer'])
+        self.assertEqual(task.datetime_options, [self.datetime_option])
+        self.assertEqual(task.event_type, correct_data['event_type'])
+        self.assertEqual(task.address, correct_data['address'])
+        self.assertEqual(task.info, correct_data['info'])
+        self.assertEqual(task.price_offer, correct_data['price_offer'])
 
     @mock.patch('apps.users.notifications.send_push_notification')
     def test_create_task_idempotent(self, mocked_send_push_notification):

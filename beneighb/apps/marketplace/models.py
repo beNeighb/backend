@@ -50,6 +50,8 @@ class Task(models.Model):
     address = models.CharField(max_length=128, null=True, blank=True)
     price_offer = models.IntegerField()
 
+    info = models.TextField(max_length=140, null=True, blank=True)
+
     def __str__(self):
         return f'Task-{self.id} - {self.service.name}'
 
