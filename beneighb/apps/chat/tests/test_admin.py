@@ -16,6 +16,3 @@ class TestChatAdmin(TestCase):
         chat = ChatFactory()
         chat_admin = ChatAdmin(model=Chat, admin_site=AdminSite())
         assert chat_admin.get_offer_helper(chat) == chat.offer.helper
-
-
-
