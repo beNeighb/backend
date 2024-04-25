@@ -8,12 +8,10 @@ class ChatAdmin(admin.ModelAdmin):
     list_display = ['id', 'get_offer_helper', 'get_task_owner', 'created_at']
 
     def get_task_owner(self, obj):
-        if obj.assignment:
-            return obj.assignment.offer.task.owner
+        return obj.offer.task.owner
 
     def get_offer_helper(self, obj):
-        if obj.assignment:
-            return obj.assignment.offer.helper
+        return obj.offer.helper
 
     get_task_owner.short_description = 'Task owner'
     get_offer_helper.short_description = 'Offer helper'
