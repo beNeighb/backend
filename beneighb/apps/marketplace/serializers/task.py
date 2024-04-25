@@ -32,6 +32,7 @@ class TaskWithOffersSerializer(serializers.ModelSerializer):
             'address',
             'price_offer',
             'offers',
+            'info',
         )
 
     def to_representation(self, instance):

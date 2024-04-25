@@ -18,7 +18,12 @@ class TaskMineListTestsCase(TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.USER = UserWithProfileFactory()
-        cls.TASK_1 = TaskFactory(owner=cls.USER.profile)
+
+        cls.TASK_WITH_INFO = TaskFactory(owner=cls.USER.profile)
+        cls.EXPECTED_INFO = 'This is a test task'
+        cls.TASK_WITH_INFO.info = cls.EXPECTED_INFO
+        cls.TASK_WITH_INFO.save()
+
         cls.TASK_2 = TaskFactory(owner=cls.USER.profile)
 
     def assert_helper_equal(self, response_helper, db_helper):
@@ -45,19 +50,20 @@ class TaskMineListTestsCase(TestCase):
         self.assertEqual(len(response.data), 2)
 
         task = response.data[0]
-        self.assertEqual(task['service'], self.TASK_1.service_id)
-        self.assertEqual(task['datetime_known'], self.TASK_1.datetime_known)
+        self.assertEqual(task['service'], self.TASK_WITH_INFO.service_id)
+        self.assertEqual(task['datetime_known'], self.TASK_WITH_INFO.datetime_known)
         self.assertEqual(
-            task['datetime_options'], self.TASK_1.datetime_options
+            task['datetime_options'], self.TASK_WITH_INFO.datetime_options
         )
-        self.assertEqual(task['event_type'], self.TASK_1.event_type)
-        self.assertEqual(task['address'], self.TASK_1.address)
-        self.assertEqual(task['price_offer'], self.TASK_1.price_offer)
+        self.assertEqual(task['event_type'], self.TASK_WITH_INFO.event_type)
+        self.assertEqual(task['address'], self.TASK_WITH_INFO.address)
+        self.assertEqual(task['price_offer'], self.TASK_WITH_INFO.price_offer)
         self.assertEqual(task['offers'], [])
+        self.assertEqual(task['info'], self.EXPECTED_INFO)
 
     def test_successful_inlcudes_all_offers(self):
-        offer_1 = OfferFactory(task=self.TASK_1)
-        offer_2 = OfferFactory(task=self.TASK_1)
+        offer_1 = OfferFactory(task=self.TASK_WITH_INFO)
+        offer_2 = OfferFactory(task=self.TASK_WITH_INFO)
         offer_3 = OfferFactory(task=self.TASK_2)
 
         client = get_client_with_valid_token(self.USER)
