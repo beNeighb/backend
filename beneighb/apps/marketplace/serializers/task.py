@@ -72,6 +72,9 @@ class TaskCreateSerializer(serializers.ModelSerializer):
 
         self._validate_datetime_options(datetime_known, datetime_options)
 
+        if 'info' in data:
+            self._validate_info(data['info'])
+
         event_type = data['event_type']
         address = data.get('address')
 
@@ -81,6 +84,20 @@ class TaskCreateSerializer(serializers.ModelSerializer):
         self._validate_price_offer(price_offer)
 
         return super().validate(data)
+
+    def _validate_info(self, info):
+        if info is None:
+            return
+
+        if len(info) > 140:
+            raise serializers.ValidationError(
+                {'info': 'Info should be less than 140 characters'}
+            )
+
+        if not info.strip():
+            raise serializers.ValidationError(
+                {'info': 'Info should not be empty or contain only whitespaces'}
+            )
 
     @classmethod
     def _validate_datetime_options(cls, datetime_known, datetime_options):

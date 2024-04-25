@@ -91,6 +91,48 @@ class CreateTaskTestCase(TestCase):
         self.assertEqual(task.price_offer, correct_data['price_offer'])
 
     @mock.patch('apps.users.notifications.send_push_notification')
+    def test_success_with_empty_info_field_should_fail(self, mocked_send_push_notification):
+        user = UserWithProfileFactory()
+
+        client = get_client_with_valid_token(user)
+
+        incorrect_data = deepcopy(self.correct_data)
+        incorrect_data['info'] = ''
+
+        response = client.post(self.url, incorrect_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        self.assertEqual(Task.objects.count(), 0)
+
+    @mock.patch('apps.users.notifications.send_push_notification')
+    def test_success_with_whitespaces_info_field_should_fail(self, mocked_send_push_notification):
+        user = UserWithProfileFactory()
+
+        client = get_client_with_valid_token(user)
+
+        incorrect_data = deepcopy(self.correct_data)
+        incorrect_data['info'] = '    '
+
+        response = client.post(self.url, incorrect_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        self.assertEqual(Task.objects.count(), 0)
+
+    @mock.patch('apps.users.notifications.send_push_notification')
+    def test_success_with_too_long_info_field_should_fail(self, mocked_send_push_notification):
+        user = UserWithProfileFactory()
+
+        client = get_client_with_valid_token(user)
+
+        incorrect_data = deepcopy(self.correct_data)
+        incorrect_data['info'] = 'a' * 141
+
+        response = client.post(self.url, incorrect_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        self.assertEqual(Task.objects.count(), 0)
+
+    @mock.patch('apps.users.notifications.send_push_notification')
     def test_create_task_idempotent(self, mocked_send_push_notification):
         user = UserWithProfileFactory()
 
