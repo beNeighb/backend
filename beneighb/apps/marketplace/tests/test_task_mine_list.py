@@ -79,11 +79,13 @@ class TaskMineListTestsCase(TestCase):
         self.assertEqual(task_1_offers[0]['id'], offer_1.id)
         self.assertEqual(task_1_offers[0]['status'], offer_1.status)
         self.assertIsNotNone(task_1_offers[0]['created_at'])
+        self.assertEqual(task_1_offers[0]['chat'], offer_1.chat.id)
         self.assert_helper_equal(task_1_offers[0]['helper'], offer_1.helper)
 
         self.assertEqual(task_1_offers[1]['id'], offer_2.id)
         self.assertEqual(task_1_offers[1]['status'], offer_2.status)
         self.assertIsNotNone(task_1_offers[1]['created_at'])
+        self.assertEqual(task_1_offers[1]['chat'], offer_2.chat.id)
         self.assert_helper_equal(task_1_offers[1]['helper'], offer_2.helper)
 
         task_2 = response.data[1]
@@ -93,6 +95,7 @@ class TaskMineListTestsCase(TestCase):
         self.assertEqual(task_2_offers[0]['id'], offer_3.id)
         self.assertEqual(task_2_offers[0]['status'], offer_3.status)
         self.assertIsNotNone(task_2_offers[0]['created_at'])
+        self.assertEqual(task_2_offers[0]['chat'], offer_3.chat.id)
         self.assert_helper_equal(task_2_offers[0]['helper'], offer_3.helper)
 
     def test_no_tasks(self):
