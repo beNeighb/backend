@@ -71,6 +71,7 @@ class TaskWithMyOfferListTestsCase(TestCase):
             'id': my_offer.id,
             'status': my_offer.status,
             'created_at': mock.ANY,
+            'chat': my_offer.chat.id,
             'helper': {
                 'id': user.profile.id,
                 'name': user.profile.name,
@@ -91,6 +92,7 @@ class TaskWithMyOfferListTestsCase(TestCase):
                 'address': task.address,
                 'price_offer': task.price_offer,
                 'offers': [expected_my_offer],
+                'info': task.info,
             }
         )
 
