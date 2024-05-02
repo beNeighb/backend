@@ -106,8 +106,6 @@ class TaskForMeListTestsCase(TestCase):
         user.profile.save()
 
         task = TaskFactory(owner=ProfileFactory(), service=service_1)
-        task.info = expected_info = 'Some info'
-        task.save()
 
         offer = OfferFactory(task=task, helper=user.profile)
 
