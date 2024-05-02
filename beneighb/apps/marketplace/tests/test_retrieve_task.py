@@ -41,11 +41,13 @@ class RetrieveTaskTestCase(TestCase):
 
     def test_successful(self):
         client = get_client_with_valid_token(self.USER)
+        offer = OfferFactory(task=self.TASK, helper=self.USER.profile)
 
         response = client.get(self.default_url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         self.assertEqual(response.data['service'], self.TASK.service_id)
+        self.assertEqual(response.data['offers'][0]['chat'], offer.chat.id)
         self.assertEqual(
             response.data['datetime_known'], self.TASK.datetime_known
         )
