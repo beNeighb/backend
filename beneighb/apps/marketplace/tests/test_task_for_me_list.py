@@ -97,6 +97,27 @@ class TaskForMeListTestsCase(TestCase):
         task = response.data[0]
         self.assertEqual(task['info'], expected_info)
 
+    def test_shows_task_offer_chat(self):
+        user = UserWithProfileFactory()
+        client = get_client_with_valid_token(user)
+
+        service_1 = ServiceFactory(name='service_1')
+        user.profile.services.add(service_1)
+        user.profile.save()
+
+        task = TaskFactory(owner=ProfileFactory(), service=service_1)
+        task.info = expected_info = 'Some info'
+        task.save()
+
+        offer = OfferFactory(task=task, helper=user.profile)
+
+        response = client.get(self.url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+
+        task = response.data[0]
+        self.assertEqual(task['offers'][0]['chat'], offer.chat.id)
+
     def test_doesnt_show_my_tasks(self):
         user = UserWithProfileFactory()
         client = get_client_with_valid_token(user)
