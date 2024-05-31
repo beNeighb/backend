@@ -93,6 +93,7 @@ class CustomProfileAdmin(admin.ModelAdmin):
         'agreed_with_conditions',
         'gender',
         'speaking_languages',
+        'city',
     ]
 
     inlines = [UserInline]
