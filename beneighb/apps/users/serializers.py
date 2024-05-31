@@ -24,6 +24,7 @@ class ProfileSerializer(serializers.ModelSerializer):
             'gender',
             'speaking_languages',
             'services',
+            'city',
         ]
 
 

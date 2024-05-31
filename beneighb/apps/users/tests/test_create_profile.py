@@ -281,3 +281,13 @@ class CreateProfileTestCase(TestCase):
             response.data,
             {'services': ['Invalid pk "100" - object does not exist.']},
         )
+
+    def test_create_profile_without_city(self):
+        user = UserWithVerifiedEmailFactory()
+
+        client = get_client_with_valid_token(user)
+
+        response = client.post(self.url, self.correct_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        self.assertEqual(Profile.objects.count(), 0)
