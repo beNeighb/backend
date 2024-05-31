@@ -179,3 +179,40 @@ class TaskForMeListTestsCase(TestCase):
 
         offer_helper = offer['helper']
         self.assert_helper_equal(offer_helper, user.profile)
+
+    def test_doesnt_show_tasks_from_another_city(self):
+        user = UserWithProfileFactory()
+        client = get_client_with_valid_token(user)
+
+        service_1 = ServiceFactory(name='service_1')
+        service_2 = ServiceFactory(name='service_2')
+        user.profile.services.add(service_1, service_2)
+        user.profile.save()
+
+        profile_1 = ProfileFactory(city='Berlin')
+        profile_2 = ProfileFactory(city='Berlin')
+        task_1 = TaskFactory(owner=profile_1, service=service_1, event_type='offline')
+        task_2 = TaskFactory(owner=profile_2, service=service_2, event_type='offline')
+
+        response = client.get(self.url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 0)
+
+    def test_show_online_tasks_for_another_city(self):
+        user = UserWithProfileFactory()
+        client = get_client_with_valid_token(user)
+
+        service_1 = ServiceFactory(name='service_1')
+        service_2 = ServiceFactory(name='service_2')
+        user.profile.services.add(service_1, service_2)
+        user.profile.save()
+
+        profile_1 = ProfileFactory(city='Berlin')
+        profile_2 = ProfileFactory(city='Berlin')
+        task_1 = TaskFactory(owner=profile_1, service=service_1, event_type='online')
+        task_2 = TaskFactory(owner=profile_2, service=service_2, event_type='online')
+
+        response = client.get(self.url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 2)
+

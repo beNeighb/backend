@@ -77,6 +77,7 @@ class TaskWithMyOfferListTestsCase(TestCase):
                 'name': user.profile.name,
                 'speaking_languages': user.profile.speaking_languages,
                 'services': [service.id],
+                'city': user.profile.city,
             },
         }
 

@@ -23,6 +23,7 @@ class CreateProfileTestCase(TestCase):
         'gender': 'female',
         'speaking_languages': ['eo', 'uk'],
         'services': [],
+        'city': 'Dusseldorf',
     }
 
     list_of_all_languages = [
@@ -102,9 +103,9 @@ class CreateProfileTestCase(TestCase):
         client = get_client_with_valid_token(user)
 
         correct_data_with_all_languages = deepcopy(self.correct_data)
-        correct_data_with_all_languages[
-            'speaking_languages'
-        ] = self.list_of_all_languages
+        correct_data_with_all_languages['speaking_languages'] = (
+            self.list_of_all_languages
+        )
 
         response = client.post(self.url, correct_data_with_all_languages)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -176,6 +177,11 @@ class CreateProfileTestCase(TestCase):
                         string='This field is required.', code='required'
                     )
                 ],
+                'city': [
+                    ErrorDetail(
+                        string='This field is required.', code='required'
+                    )
+                ],
             },
         )
 
@@ -237,6 +243,7 @@ class CreateProfileTestCase(TestCase):
             'agreed_with_conditions': True,
             'gender': 'female',
             'speaking_languages': ['eo', 'uk'],
+            'city': 'Dusseldorf',
             'services': [service_1.id, service_2.id],
         }
 
@@ -267,6 +274,7 @@ class CreateProfileTestCase(TestCase):
             'agreed_with_conditions': True,
             'gender': 'female',
             'speaking_languages': ['eo', 'uk'],
+            'city': 'Dusseldorf',
             'services': [non_existing_service_id],
         }
 
@@ -287,7 +295,10 @@ class CreateProfileTestCase(TestCase):
 
         client = get_client_with_valid_token(user)
 
-        response = client.post(self.url, self.correct_data)
+        data_without_city = deepcopy(self.correct_data)
+        del data_without_city['city']
+
+        response = client.post(self.url, data_without_city)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
         self.assertEqual(Profile.objects.count(), 0)

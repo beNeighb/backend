@@ -36,6 +36,7 @@ class ShortProfileSerializer(serializers.ModelSerializer):
             'name',
             'speaking_languages',
             'services',
+            'city',
         ]
 
 

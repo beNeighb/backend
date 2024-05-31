@@ -50,6 +50,7 @@ class ProfileViewTestCase(TestCase):
             'name': profile.name,
             'speaking_languages': profile.speaking_languages,
             'services': [service.id],
+            'city': profile.city,
         }
 
         client = get_client_with_valid_token(self.USER)

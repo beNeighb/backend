@@ -1,4 +1,5 @@
 import logging
+from django.db.models import Q
 
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
@@ -65,7 +66,15 @@ class TaskForMeListView(generics.ListCreateAPIView):
         #     owner=user.profile
         # )
         # TODO: Uncomment this, during #284 - add back filters for services
-        return Task.objects.all().exclude(owner=user.profile)
+
+        ONLINE_EVENT = Task.EventTypes.ONLINE
+
+        tasks = Task.objects.all().exclude(owner=user.profile)
+        tasks = tasks.filter(
+            Q(owner__city=user.profile.city) | Q(event_type=ONLINE_EVENT)
+        )
+
+        return tasks
 
 
 class TaskWithMyOfferListView(generics.ListCreateAPIView):

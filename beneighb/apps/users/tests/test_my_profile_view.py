@@ -36,6 +36,7 @@ class MyProfileViewRetrieveTestCase(TestCase):
             'agreed_with_conditions': True,
             'gender': 'female',
             'speaking_languages': ['eo', 'uk'],
+            'city': 'Dusseldorf',
             'services': [service.id],
         }
 
@@ -45,6 +46,7 @@ class MyProfileViewRetrieveTestCase(TestCase):
             profile__agreed_with_conditions=EXPECTED_DATA[
                 'agreed_with_conditions'
             ],
+            profile__city=EXPECTED_DATA['city'],
             profile__gender=EXPECTED_DATA['gender'],
             profile__speaking_languages=EXPECTED_DATA['speaking_languages'],
         )

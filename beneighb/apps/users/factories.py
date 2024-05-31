@@ -31,6 +31,7 @@ class ProfileFactory(DjangoModelFactory):
     age_above_18 = True
     agreed_with_conditions = True
     gender = 'female'
+    city = 'Dusseldorf'
     speaking_languages = ['eo', 'uk']
 
     user = SubFactory(UserFactory)
