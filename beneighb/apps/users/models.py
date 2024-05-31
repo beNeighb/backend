@@ -58,6 +58,11 @@ class LanguageChoices(models.TextChoices):
     VIETNAMESE = ('vi', 'Vietnamese')
 
 
+class Cities(models.TextChoices):
+    DUSSELDORF = 'Dusseldorf', _('Dusseldorf')
+    BERLIN = 'Berlin', _('Berlin')
+
+
 class Profile(models.Model):
     """
     This model is used for non-auth/login related fields.
@@ -83,6 +88,12 @@ class Profile(models.Model):
     )
     fcm_token = models.CharField(max_length=255, blank=True)
     services = models.ManyToManyField('marketplace.Service', blank=True)
+
+    city = models.CharField(
+        max_length=50,
+        choices=Cities.choices,
+        blank=False,
+    )
 
     def __str__(self):
         return self.name
