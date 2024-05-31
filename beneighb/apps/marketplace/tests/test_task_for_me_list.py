@@ -191,8 +191,8 @@ class TaskForMeListTestsCase(TestCase):
 
         profile_1 = ProfileFactory(city='Berlin')
         profile_2 = ProfileFactory(city='Berlin')
-        task_1 = TaskFactory(owner=profile_1, service=service_1, event_type='offline')
-        task_2 = TaskFactory(owner=profile_2, service=service_2, event_type='offline')
+        TaskFactory(owner=profile_1, service=service_1, event_type='offline')
+        TaskFactory(owner=profile_2, service=service_2, event_type='offline')
 
         response = client.get(self.url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -209,10 +209,9 @@ class TaskForMeListTestsCase(TestCase):
 
         profile_1 = ProfileFactory(city='Berlin')
         profile_2 = ProfileFactory(city='Berlin')
-        task_1 = TaskFactory(owner=profile_1, service=service_1, event_type='online')
-        task_2 = TaskFactory(owner=profile_2, service=service_2, event_type='online')
+        TaskFactory(owner=profile_1, service=service_1, event_type='online')
+        TaskFactory(owner=profile_2, service=service_2, event_type='online')
 
         response = client.get(self.url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 2)
-
