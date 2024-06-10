@@ -35,8 +35,6 @@ services:
     env_file:
       - ./.env.prod
       - ./.env.prod.db
-        # TODO: Delete Experimenting with logs
-      - ./.env.dev
   nginx:
     platform: linux/amd64
     image: ghcr.io/beneighb/backend/nginx
