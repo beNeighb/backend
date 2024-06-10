@@ -31,6 +31,7 @@ services:
     volumes:
       - ./postgres_data:/var/lib/postgresql/data/
     env_file:
+      - ./.env.prod
       - ./.env.prod.db
   nginx:
     platform: linux/amd64
