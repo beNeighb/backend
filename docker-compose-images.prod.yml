@@ -19,8 +19,6 @@ services:
     env_file:
       - ./.env.prod
       - ./.env.prod.db
-        # TODO: Delete Experimenting with logs
-      - ./.env.dev
     environment:
       - REDIS_HOST=redis
     depends_on:
