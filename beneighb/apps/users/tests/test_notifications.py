@@ -1,19 +1,18 @@
-import requests
-
-from copy import deepcopy
 from datetime import datetime, timedelta, timezone
-from unittest import mock, skip
-from unittest.mock import patch, Mock
+from unittest.mock import patch
 
 from apps.marketplace.factories import ServiceFactory
-from apps.marketplace.models import Service, Task
 from apps.users.factories import UserWithProfileFactory
 from apps.users.tests.utils import get_client_with_valid_token
+
 from django.core.cache import cache
 from django.test import TestCase
-from rest_framework import status
-from rest_framework.exceptions import ErrorDetail
-from rest_framework.test import APIClient
+
+from firebase_admin._messaging_utils import (
+    SenderIdMismatchError,
+    UnregisteredError,
+)
+from requests.exceptions import HTTPError
 
 
 class NotificationsTestCase(TestCase):
@@ -44,25 +43,16 @@ class NotificationsTestCase(TestCase):
 
         client = get_client_with_valid_token(user)
 
-        response = client.post(self.url, self.correct_data)
+        return client.post(self.url, self.correct_data)
 
     def tearDown(self):
         cache.clear()
         super().tearDown()
 
-    # @patch('requests.get')
-    # @mock.patch('apps.users.notifications.send_push_notification')
-    # def test_create_task_successful(self, mocked_send_push_notification, mocked_get):
-    #     self.send_notification()
-
-    #     self.assertEqual(mocked_send_push_notification.call_count, 1)
-
     @patch('apps.users.notifications.messaging.send')
-    def test_send_push_notification_unregistered_error_erases_incorrect_fcm_tokens(
+    def test_send_push_notification_unregistered_error_erases_fcm_tokens(
         self, mock_send
     ):
-        from firebase_admin._messaging_utils import UnregisteredError
-
         mock_send.side_effect = UnregisteredError(
             'Device token is unregistered'
         )
@@ -78,13 +68,12 @@ class NotificationsTestCase(TestCase):
         self.assertEqual(user.profile.fcm_token, '')
 
     @patch('apps.users.notifications.messaging.send')
-    def test_send_push_notification_httperror_erases_incorrect_fcm_tokens(
+    def test_send_push_notification_httperror_erases_fcm_tokens(
         self, mock_send
     ):
-        from requests.exceptions import HTTPError
-
         mock_send.side_effect = HTTPError(
-            '403 Client Error: Forbidden for url: https://fcm.googleapis.com/v1/projects/benehighb/messages:send'
+            '403 Client Error: Forbidden for url: '
+            'https://fcm.googleapis.com/v1/projects/benehighb/messages:send'
         )
 
         recipient = UserWithProfileFactory()
@@ -97,13 +86,10 @@ class NotificationsTestCase(TestCase):
 
         self.assertEqual(user.profile.fcm_token, '')
 
-
     @patch('apps.users.notifications.messaging.send')
-    def test_send_push_notification_httperror_sender_id_mismatch_incorrect_fcm_tokens(
+    def test_send_push_notification_httperror_sender_id_mismatch_fcm_tokens(
         self, mock_send
     ):
-        from firebase_admin._messaging_utils import SenderIdMismatchError
-
         mock_send.side_effect = SenderIdMismatchError('SenderId mismatch')
 
         recipient = UserWithProfileFactory()
