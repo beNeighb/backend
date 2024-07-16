@@ -130,3 +130,15 @@ class User(AbstractUser):
 def save_user_profile(sender, instance, **kwargs):
     if instance.profile:
         instance.profile.save()
+
+
+class Block(models.Model):
+    blocked = models.ForeignKey(
+        Profile, on_delete=models.CASCADE, related_name='blocked'
+    )
+    blocked_by = models.ForeignKey(
+        Profile, on_delete=models.CASCADE, related_name='blocked_by'
+    )
+
+    def __str__(self):
+        return f'{self.blocked_by} blocked {self.blocked}'

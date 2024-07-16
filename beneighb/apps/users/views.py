@@ -70,3 +70,33 @@ class ProfileCreateView(generics.CreateAPIView):
 
         # Save the profile
         user.save()
+
+
+class ProfileBlockView(generics.GenericAPIView):
+    permission_classes = (IsAuthenticated,)
+
+    def post(self, request, *args, **kwargs):
+        profile = self.get_object()
+
+        if profile.user == request.user:
+            from django.http import HttpResponseBadRequest
+
+            return HttpResponseBadRequest("You can't block yourself")
+
+        # profile.blocked_by.add(request.user)
+
+        return self.get_response()
+
+    def get_object(self):
+        profile_id = self.kwargs.get('pk')
+        try:
+            return Profile.objects.get(id=profile_id)
+        except Profile.DoesNotExist:
+            from django.http import Http404
+
+            raise Http404("Profile doesn't exist")
+
+    def get_response(self):
+        from rest_framework.response import Response
+
+        return Response(status=status.HTTP_200_OK)

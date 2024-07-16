@@ -1,6 +1,11 @@
 from django.urls import path
 
-from apps.users.views import ProfileCreateView, MyProfileView, ProfileView
+from apps.users.views import (
+    ProfileBlockView,
+    ProfileCreateView,
+    MyProfileView,
+    ProfileView,
+)
 
 
 urlpatterns = [
@@ -18,5 +23,10 @@ urlpatterns = [
         'profiles/<int:pk>/',
         ProfileView.as_view(),
         name='profile-detail',
+    ),
+    path(
+        'profiles/<int:pk>/block/',
+        ProfileBlockView.as_view(),
+        name='profile-block',
     ),
 ]
