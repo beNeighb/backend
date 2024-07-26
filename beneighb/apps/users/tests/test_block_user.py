@@ -130,6 +130,13 @@ class BlockUserCorrespondingEntitiesDeletedTestCase(TestCase):
         cache.clear()
         super().tearDown()
 
+    def _block_user(self, profile_blocking, profile_to_block):
+        client = get_client_with_valid_token(profile_blocking.user)
+
+        return client.post(
+            self.url_template.format(profile_id=profile_to_block.id)
+        )
+
     def test_owner_blocks_helper(self):
         owner = UserWithProfileFactory()
         helper = UserWithProfileFactory()
@@ -145,11 +152,7 @@ class BlockUserCorrespondingEntitiesDeletedTestCase(TestCase):
         self.assertEqual(Assignment.objects.count(), 2)
         self.assertEqual(Chat.objects.count(), 2)
 
-        client = get_client_with_valid_token(owner)
-
-        response = client.post(
-            self.url_template.format(profile_id=helper.profile.id)
-        )
+        response = self._block_user(owner.profile, helper.profile)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -175,11 +178,7 @@ class BlockUserCorrespondingEntitiesDeletedTestCase(TestCase):
         self.assertEqual(Assignment.objects.count(), 2)
         self.assertEqual(Chat.objects.count(), 2)
 
-        client = get_client_with_valid_token(helper)
-
-        response = client.post(
-            self.url_template.format(profile_id=owner.profile.id)
-        )
+        response = self._block_user(helper.profile, owner.profile)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -196,11 +195,7 @@ class BlockUserCorrespondingEntitiesDeletedTestCase(TestCase):
 
         task = TaskFactory(owner=owner.profile)
 
-        client = get_client_with_valid_token(owner)
-
-        response = client.post(
-            self.url_template.format(profile_id=helper.profile.id)
-        )
+        response = self._block_user(owner.profile, helper.profile)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(Block.objects.count(), 1)
@@ -237,16 +232,13 @@ class BlockUserCorrespondingEntitiesDeletedTestCase(TestCase):
 
         task_helper = TaskFactory(owner=helper.profile)
 
-        client = get_client_with_valid_token(owner)
-
-        response = client.post(
-            self.url_template.format(profile_id=helper.profile.id)
-        )
+        response = self._block_user(owner.profile, helper.profile)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(Block.objects.count(), 1)
         self.assertEqual(Chat.objects.count(), 0)
 
+        client = get_client_with_valid_token(owner)
         response = client.post(
             '/marketplace/offers/',
             {
