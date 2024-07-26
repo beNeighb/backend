@@ -60,7 +60,7 @@ class BlockUserGeneralTestCase(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         block_qs = Block.objects.filter(
-            blocked_by=user_blocking.profile, blocked=user_to_block.profile
+            blocking_profile=user_blocking.profile, blocked_profile=user_to_block.profile
         )
 
         self.assertTrue(block_qs.exists())
@@ -85,7 +85,7 @@ class BlockUserGeneralTestCase(TestCase):
         self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
 
         block_qs = Block.objects.filter(
-            blocked_by=user_blocking.profile, blocked=user_to_block.profile
+            blocking_profile=user_blocking.profile, blocked_profile=user_to_block.profile
         )
 
         self.assertEqual(block_qs.count(), 1)
@@ -101,7 +101,7 @@ class BlockUserGeneralTestCase(TestCase):
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-        block_qs = Block.objects.filter(blocked_by=user_blocking.profile)
+        block_qs = Block.objects.filter(blocked_profile=user_blocking.profile)
 
         self.assertFalse(block_qs.exists())
 
@@ -114,7 +114,7 @@ class BlockUserGeneralTestCase(TestCase):
 
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
-        block_qs = Block.objects.filter(blocked_by=user_blocking.profile)
+        block_qs = Block.objects.filter(blocked_profile=user_blocking.profile)
 
         self.assertFalse(block_qs.exists())
 

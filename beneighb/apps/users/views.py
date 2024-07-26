@@ -1,5 +1,5 @@
 from django.db.models import Q
-from django.http.response import HttpResponse
+from django.http.response import HttpResponseBadRequest, HttpResponse
 
 from rest_framework.permissions import IsAuthenticated
 
@@ -92,8 +92,6 @@ class ProfileBlockView(generics.GenericAPIView):
         profile = self.get_object()
 
         if profile.user == request.user:
-            from django.http import HttpResponseBadRequest
-
             return HttpResponseBadRequest('You can\'t block yourself')
 
         blocked_profile = profile
