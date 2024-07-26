@@ -133,12 +133,15 @@ def save_user_profile(sender, instance, **kwargs):
 
 
 class Block(models.Model):
-    blocked = models.ForeignKey(
-        Profile, on_delete=models.CASCADE, related_name='blocked'
+    blocked_profile = models.ForeignKey(
+        Profile, on_delete=models.CASCADE, related_name='blocked_profiles'
     )
-    blocked_by = models.ForeignKey(
-        Profile, on_delete=models.CASCADE, related_name='blocked_by'
+    blocking_profile = models.ForeignKey(
+        Profile, on_delete=models.CASCADE, related_name='blocking_profiles'
     )
 
+    class Meta:
+        unique_together = ('blocked_profile', 'blocking_profile')
+
     def __str__(self):
-        return f'{self.blocked_by} blocked {self.blocked}'
+        return f'{self.blocked_profile} is blocked by {self.blocking_profile}'

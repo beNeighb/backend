@@ -71,7 +71,7 @@ class OfferSerializer(serializers.ModelSerializer):
                 }
             )
 
-        accepted_offers = self.instance.task.offer_set.filter(
+        accepted_offers = self.instance.task.offer.filter(
             status=Offer.StatusTypes.ACCEPTED
         ).exclude(id=self.instance.id)
 
@@ -96,7 +96,7 @@ class OfferSerializer(serializers.ModelSerializer):
             )
 
     def _validate_doesnt_have_offer_for_the_task(self, task, profile_id):
-        tasks_qs = task.offer_set.filter(helper=profile_id)
+        tasks_qs = task.offers.filter(helper=profile_id)
         if self.instance:
             tasks_qs = tasks_qs.exclude(id=self.instance.id)
 
@@ -137,7 +137,7 @@ class OfferAcceptSerializer(serializers.ModelSerializer):
         return super().validate(data)
 
     def _validate_status(self, data):
-        accepted_offers = self.instance.task.offer_set.filter(
+        accepted_offers = self.instance.task.offers.filter(
             status=Offer.StatusTypes.ACCEPTED
         ).exclude(id=self.instance.id)
 

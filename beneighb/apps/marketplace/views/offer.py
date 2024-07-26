@@ -11,6 +11,7 @@ from apps.marketplace.serializers import (
     OfferWithChatSerializer,
 )
 from apps.users.notifications import send_push_notification
+from apps.users.views import HttpForbiddenException
 
 logger = logging.getLogger(__name__)
 
@@ -20,7 +21,34 @@ class OfferCreateView(generics.CreateAPIView):
     serializer_class = OfferSerializer
     queryset = Offer.objects.all()
 
+    def _validate_is_not_blocked(self, task, helper):
+        """
+        Validates if the helper is not blocked by the task owner or vice verse.
+
+        Args:
+            task: The task object.
+            helper: The helper profile.
+
+        Raises:
+            HttpForbiddenException: If the helper is blocked by the task owner.
+        """
+
+        # TODO: Room for improvement. Maybe we should combine these two queries
+        helper_blocked = task.owner.blocking_profiles.filter(
+            blocked_profile=helper
+        ).exists()
+
+        owner_blocked = task.owner.blocked_profiles.filter(
+            blocking_profile=helper
+        ).exists()
+
+        if helper_blocked or owner_blocked:
+            raise HttpForbiddenException('You are blocked by the task owner')
+
     def perform_create(self, serializer):
+        task = serializer.validated_data['task']
+        self._validate_is_not_blocked(task, self.request.user.profile)
+
         offer = serializer.save()
         send_push_notification(
             offer.task.owner,
