@@ -131,7 +131,7 @@ class TaskWithMyOfferListTestsCase(TestCase):
 
         owner = UserWithProfileFactory()
         task = TaskFactory(service=service, owner=owner.profile)
-        my_offer = OfferFactory(helper=helper.profile, task=task)
+        OfferFactory(helper=helper.profile, task=task)
 
         client = get_client_with_valid_token(helper)
         response = client.get(self.url)

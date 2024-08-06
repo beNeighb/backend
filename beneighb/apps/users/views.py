@@ -20,6 +20,8 @@ from apps.users.serializers import (
 class UserProfileExistException(APIException):
     status_code = status.HTTP_409_CONFLICT
 
+
+# TODO: Move to exceptions.py when we have more
 class HttpForbiddenException(APIException):
     status_code = status.HTTP_403_FORBIDDEN
 
@@ -136,7 +138,7 @@ class ProfileBlockView(generics.GenericAPIView):
                 offer__helper=blocked_profile,
                 offer__task__owner=blocking_profile,
             )
-            | Q(
+            | Q(  # noqa - conflict with black
                 offer__helper=blocking_profile,
                 offer__task__owner=blocked_profile,
             )

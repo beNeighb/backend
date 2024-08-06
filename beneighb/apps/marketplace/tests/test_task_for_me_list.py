@@ -233,8 +233,8 @@ class TaskForMeBlockedListTestsCase(TestCase):
         helper.profile.services.add(service)
 
         owner = UserWithProfileFactory()
-        task_1 = TaskFactory(owner=owner.profile, service=service)
-        task_2 = TaskFactory(owner=owner.profile, service=service)
+        for i in range(2):
+            TaskFactory(owner=owner.profile, service=service)
 
         client = get_client_with_valid_token(helper)
 
