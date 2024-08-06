@@ -58,6 +58,11 @@ class TaskForMeListView(generics.ListCreateAPIView):
     permission_classes = (IsAuthenticated,)
     serializer_class = TaskWithOffersSerializer
 
+    def get_blocking_owners_ids(self, user):
+        return user.profile.blocked_profiles.values_list(
+            'blocking_profile_id', flat=True
+        )
+
     def get_queryset(self):
         user = self.request.user
         # TODO: Check if can be optimized
@@ -70,6 +75,9 @@ class TaskForMeListView(generics.ListCreateAPIView):
         ONLINE_EVENT = Task.EventTypes.ONLINE
 
         tasks = Task.objects.all().exclude(owner=user.profile)
+        blocking_owners_ids = self.get_blocking_owners_ids(user)
+        tasks = tasks.exclude(owner__id__in=blocking_owners_ids)
+
         tasks = tasks.filter(
             Q(owner__city=user.profile.city) | Q(event_type=ONLINE_EVENT)
         )
