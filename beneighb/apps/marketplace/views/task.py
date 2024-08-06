@@ -1,5 +1,6 @@
 import logging
 from django.db.models import Q
+from django.shortcuts import get_object_or_404
 
 from rest_framework import generics
 from rest_framework.exceptions import PermissionDenied
@@ -106,7 +107,7 @@ class TaskRetrieveView(generics.RetrieveAPIView):
 
     def _is_blocked_by_owner(self):
         task_id = self.kwargs.get('pk')
-        task = self.queryset.get(id=task_id)
+        task = get_object_or_404(self.queryset, id=task_id)
         owner_profile = task.owner
 
         helper_profile = self.request.user.profile
