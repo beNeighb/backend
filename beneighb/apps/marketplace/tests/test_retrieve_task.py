@@ -108,3 +108,28 @@ class RetrieveTaskTestCase(TestCase):
         offers = response.data['offers']
         self.assertEqual(len(offers), 1)
         self.assert_offer_equal(offers[0], offer_1)
+
+
+class RetrieveTaskBlockedTestCase(TestCase):
+    url_template = '/marketplace/tasks/{}/'
+    blocking_url_template = '/users/profiles/{profile_id}/block/'
+
+    def _block_user(self, profile_blocking, profile_to_block):
+        client = get_client_with_valid_token(profile_blocking.user)
+
+        response = client.post(
+            self.blocking_url_template.format(profile_id=profile_to_block.id)
+        )
+
+        return response
+
+    def test_blocked_profile_cannot_retrieve_the_task(self):
+        owner = UserWithProfileFactory()
+        helper = UserWithProfileFactory()
+        task = TaskFactory(owner=owner.profile)
+
+        self._block_user(owner.profile, helper.profile)
+
+        client = get_client_with_valid_token(helper)
+        response = client.get(self.url_template.format(task.id))
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)

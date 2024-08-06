@@ -2,6 +2,7 @@ import logging
 from django.db.models import Q
 
 from rest_framework import generics
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.permissions import IsAuthenticated
 
 from apps.marketplace.permissions import IsIdempotent
@@ -99,6 +100,25 @@ class TaskWithMyOfferListView(generics.ListCreateAPIView):
 
 
 class TaskRetrieveView(generics.RetrieveAPIView):
-    queryset = Task.objects.all()
     permission_classes = (IsAuthenticated,)
     serializer_class = TaskWithOffersSerializer
+    queryset = Task.objects.all()
+
+    def _is_blocked_by_owner(self):
+        task_id = self.kwargs.get('pk')
+        task = self.queryset.get(id=task_id)
+        owner_profile = task.owner
+
+        helper_profile = self.request.user.profile
+
+        return owner_profile.blocking_profiles.filter(
+            blocked_profile=helper_profile
+        ).exists()
+
+    def get_queryset(self):
+        is_blocked_by_owner = self._is_blocked_by_owner()
+
+        if is_blocked_by_owner:
+            raise PermissionDenied()
+
+        return self.queryset
