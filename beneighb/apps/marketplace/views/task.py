@@ -1,7 +1,9 @@
 import logging
 from django.db.models import Q
+from django.shortcuts import get_object_or_404
 
 from rest_framework import generics
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.permissions import IsAuthenticated
 
 from apps.marketplace.permissions import IsIdempotent
@@ -58,6 +60,11 @@ class TaskForMeListView(generics.ListCreateAPIView):
     permission_classes = (IsAuthenticated,)
     serializer_class = TaskWithOffersSerializer
 
+    def get_blocking_owners_ids(self, user):
+        return user.profile.blocked_profiles.values_list(
+            'blocking_profile_id', flat=True
+        )
+
     def get_queryset(self):
         user = self.request.user
         # TODO: Check if can be optimized
@@ -70,6 +77,9 @@ class TaskForMeListView(generics.ListCreateAPIView):
         ONLINE_EVENT = Task.EventTypes.ONLINE
 
         tasks = Task.objects.all().exclude(owner=user.profile)
+        blocking_owners_ids = self.get_blocking_owners_ids(user)
+        tasks = tasks.exclude(owner__id__in=blocking_owners_ids)
+
         tasks = tasks.filter(
             Q(owner__city=user.profile.city) | Q(event_type=ONLINE_EVENT)
         )
@@ -91,6 +101,25 @@ class TaskWithMyOfferListView(generics.ListCreateAPIView):
 
 
 class TaskRetrieveView(generics.RetrieveAPIView):
-    queryset = Task.objects.all()
     permission_classes = (IsAuthenticated,)
     serializer_class = TaskWithOffersSerializer
+    queryset = Task.objects.all()
+
+    def _is_blocked_by_owner(self):
+        task_id = self.kwargs.get('pk')
+        task = get_object_or_404(self.queryset, id=task_id)
+        owner_profile = task.owner
+
+        helper_profile = self.request.user.profile
+
+        return owner_profile.blocking_profiles.filter(
+            blocked_profile=helper_profile
+        ).exists()
+
+    def get_queryset(self):
+        is_blocked_by_owner = self._is_blocked_by_owner()
+
+        if is_blocked_by_owner:
+            raise PermissionDenied()
+
+        return self.queryset

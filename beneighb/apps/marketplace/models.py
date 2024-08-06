@@ -35,7 +35,7 @@ class Task(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
     service = models.ForeignKey('Service', on_delete=models.PROTECT)
-    owner = models.ForeignKey('users.Profile', on_delete=models.CASCADE)
+    owner = models.ForeignKey('users.Profile', on_delete=models.CASCADE, related_name='tasks')
     datetime_known = models.BooleanField()
     datetime_options = ArrayField(
         models.DateTimeField(),
@@ -61,8 +61,12 @@ class Offer(models.Model):
         PENDING = ('pending', 'Pending')
         ACCEPTED = ('accepted', 'Accepted')
 
-    task = models.ForeignKey('marketplace.Task', on_delete=models.CASCADE)
-    helper = models.ForeignKey('users.Profile', on_delete=models.CASCADE)
+    task = models.ForeignKey(
+        'marketplace.Task', on_delete=models.CASCADE, related_name='offers'
+    )
+    helper = models.ForeignKey(
+        'users.Profile', on_delete=models.CASCADE, related_name='offers'
+    )
 
     status = models.CharField(
         choices=StatusTypes.choices,

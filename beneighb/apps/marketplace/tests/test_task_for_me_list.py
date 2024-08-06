@@ -214,4 +214,36 @@ class TaskForMeListTestsCase(TestCase):
 
         response = client.get(self.url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+
+class TaskForMeBlockedListTestsCase(TestCase):
+    url = '/marketplace/tasks/for-me/'
+
+    def _block_user(self, profile_blocking, profile_to_block):
+        url_template = '/users/profiles/{profile_id}/block/'
+        client = get_client_with_valid_token(profile_blocking.user)
+
+        return client.post(
+            url_template.format(profile_id=profile_to_block.id)
+        )
+
+    def test_blocked_helper_cannot_see_tasks(self):
+        service = ServiceFactory()
+        helper = UserWithProfileFactory()
+        helper.profile.services.add(service)
+
+        owner = UserWithProfileFactory()
+        for i in range(2):
+            TaskFactory(owner=owner.profile, service=service)
+
+        client = get_client_with_valid_token(helper)
+
+        response = client.get(self.url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 2)
+
+        self._block_user(owner.profile, helper.profile)
+
+        response = client.get(self.url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 0)

@@ -122,3 +122,29 @@ class TaskWithMyOfferListTestsCase(TestCase):
         self.assertIn(my_offer_2.id, offers_ids)
 
         self.assertNotIn(another_offer.id, offers_ids)
+
+    def test_doesnt_show_offer_after_blocking(self):
+        service = ServiceFactory(name='service')
+        helper = UserWithProfileFactory()
+        helper.profile.services.add(service)
+        helper.profile.save()
+
+        owner = UserWithProfileFactory()
+        task = TaskFactory(service=service, owner=owner.profile)
+        OfferFactory(helper=helper.profile, task=task)
+
+        client = get_client_with_valid_token(helper)
+        response = client.get(self.url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+
+        block_url_template = '/users/profiles/{profile_id}/block/'
+        client = get_client_with_valid_token(owner)
+        response = client.post(
+            block_url_template.format(profile_id=helper.profile.id),
+        )
+
+        client = get_client_with_valid_token(helper)
+        response = client.get(self.url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 0)

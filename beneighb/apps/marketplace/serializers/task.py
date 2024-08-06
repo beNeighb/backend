@@ -16,7 +16,7 @@ class RequirableBooleanField(serializers.BooleanField):
 class TaskWithOffersSerializer(serializers.ModelSerializer):
     datetime_known = RequirableBooleanField(required=True)
     offers = OfferWithHelperSerializer(
-        many=True, read_only=True, source='offer_set'
+        many=True, read_only=True
     )
 
     class Meta:
@@ -40,9 +40,9 @@ class TaskWithOffersSerializer(serializers.ModelSerializer):
 
         current_user = self.context['request'].user.profile
 
-        offers = instance.offer_set.all()
+        offers = instance.offers.all()
         if instance.owner != current_user:
-            offers = instance.offer_set.filter(helper=current_user)
+            offers = instance.offers.filter(helper=current_user)
 
         offer_serializer = OfferWithHelperSerializer(offers, many=True)
         representation['offers'] = offer_serializer.data
@@ -52,7 +52,7 @@ class TaskWithOffersSerializer(serializers.ModelSerializer):
 class TaskCreateSerializer(serializers.ModelSerializer):
     datetime_known = RequirableBooleanField(required=True)
     offers = OfferWithHelperSerializer(
-        many=True, read_only=True, source='offer_set'
+        many=True, read_only=True
     )
 
     class Meta:

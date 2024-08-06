@@ -1,9 +1,14 @@
+from django.db.models import Q
+from django.http.response import HttpResponseBadRequest, HttpResponse
+
 from rest_framework.permissions import IsAuthenticated
 
 from rest_framework import generics, status
 from rest_framework.exceptions import APIException
+from rest_framework.response import Response
 
-from apps.users.models import Profile
+from apps.chat.models import Chat
+from apps.users.models import Block, Profile
 from apps.users.serializers import (
     ProfileSerializer,
     ShortProfileSerializer,
@@ -14,6 +19,11 @@ from apps.users.serializers import (
 # TODO: Move to exceptions.py when we have more
 class UserProfileExistException(APIException):
     status_code = status.HTTP_409_CONFLICT
+
+
+# TODO: Move to exceptions.py when we have more
+class HttpForbiddenException(APIException):
+    status_code = status.HTTP_403_FORBIDDEN
 
 
 class ProfileView(generics.RetrieveUpdateDestroyAPIView):
@@ -70,3 +80,67 @@ class ProfileCreateView(generics.CreateAPIView):
 
         # Save the profile
         user.save()
+
+
+# TODO: Move to utils
+class HttpResponseConflict(HttpResponse):
+    status_code = 409
+
+
+class ProfileBlockView(generics.GenericAPIView):
+    permission_classes = (IsAuthenticated,)
+
+    def post(self, request, *args, **kwargs):
+        profile = self.get_object()
+
+        if profile.user == request.user:
+            return HttpResponseBadRequest('You can\'t block yourself')
+
+        blocked_profile = profile
+        blocking_profile = request.user.profile
+
+        exists = Block.objects.filter(
+            blocked_profile=blocked_profile, blocking_profile=blocking_profile
+        ).exists()
+
+        if exists:
+            return HttpResponseConflict('You already blocked this user')
+
+        Block.objects.create(
+            blocked_profile=blocked_profile, blocking_profile=blocking_profile
+        )
+
+        self._delete_blocked_chats(blocking_profile, blocked_profile)
+        self._delete_blocked_offers(blocking_profile, blocked_profile)
+
+        return self.get_response()
+
+    def get_object(self):
+        profile_id = self.kwargs.get('pk')
+        try:
+            return Profile.objects.get(id=profile_id)
+        except Profile.DoesNotExist:
+            from django.http import Http404
+
+            raise Http404("Profile doesn't exist")
+
+    def get_response(self):
+        return Response(status=status.HTTP_200_OK)
+
+    def _delete_blocked_offers(self, blocking_profile, blocked_profile):
+        blocked_profile.offers.filter(task__owner=blocking_profile).delete()
+        blocking_profile.offers.filter(task__owner=blocked_profile).delete()
+
+    def _delete_blocked_chats(self, blocking_profile, blocked_profile):
+        # TODO: Room to improvement performance
+        chats_to_delete = Chat.objects.filter(
+            Q(
+                offer__helper=blocked_profile,
+                offer__task__owner=blocking_profile,
+            )
+            | Q(  # noqa - conflict with black
+                offer__helper=blocking_profile,
+                offer__task__owner=blocked_profile,
+            )
+        )
+        chats_to_delete.delete()
