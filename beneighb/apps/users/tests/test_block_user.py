@@ -1,6 +1,4 @@
-from datetime import datetime, timedelta, timezone
 from rest_framework.exceptions import ErrorDetail
-from unittest.mock import patch
 
 from apps.chat.factories import ChatFactory
 from apps.chat.models import Chat
@@ -17,12 +15,6 @@ from rest_framework.test import APIClient
 
 from django.core.cache import cache
 from django.test import TestCase
-
-from firebase_admin._messaging_utils import (
-    SenderIdMismatchError,
-    UnregisteredError,
-)
-from requests.exceptions import HTTPError
 
 
 class BlockUserGeneralTestCase(TestCase):
@@ -60,7 +52,8 @@ class BlockUserGeneralTestCase(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         block_qs = Block.objects.filter(
-            blocking_profile=user_blocking.profile, blocked_profile=user_to_block.profile
+            blocking_profile=user_blocking.profile,
+            blocked_profile=user_to_block.profile,
         )
 
         self.assertTrue(block_qs.exists())
@@ -85,7 +78,8 @@ class BlockUserGeneralTestCase(TestCase):
         self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
 
         block_qs = Block.objects.filter(
-            blocking_profile=user_blocking.profile, blocked_profile=user_to_block.profile
+            blocking_profile=user_blocking.profile,
+            blocked_profile=user_to_block.profile,
         )
 
         self.assertEqual(block_qs.count(), 1)
@@ -225,8 +219,8 @@ class BlockUserCorrespondingEntitiesDeletedTestCase(TestCase):
         owner = UserWithProfileFactory()
         helper = UserWithProfileFactory()
 
-        task_owner = TaskFactory(owner=owner.profile)
-        chat = ChatFactory(
+        TaskFactory(owner=owner.profile)
+        ChatFactory(
             offer__helper=helper.profile, offer__task__owner=owner.profile
         )
 
